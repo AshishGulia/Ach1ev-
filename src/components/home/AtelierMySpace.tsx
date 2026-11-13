@@ -922,7 +922,6 @@ export const AtelierMySpace: React.FC<AtelierMySpaceProps> = ({
               <Plus className="w-5 h-5" />
             </span>
             <span>Add tracker</span>
-            <small className="atelier-eyebrow">Arch · Ring · Columns · Streak</small>
           </button>
         </div>
 
@@ -1471,10 +1470,10 @@ export const AtelierMySpace: React.FC<AtelierMySpaceProps> = ({
                 </div>
                 <div>
                   <h3 id="tr-d-h" className="atelier-serif text-[26px] font-bold m-0" style={{ color: 'var(--at-ink)' }}>
-                    Medical & Routine Trackers
+                    Trackers
                   </h3>
                   <p className="text-xs m-0" style={{ color: 'var(--at-muted)' }}>
-                    Choose from standard medical presets, generate via AI, or customize your own
+                    Choose from presets, generate via AI, or customize your own
                   </p>
                 </div>
               </div>
@@ -1492,13 +1491,13 @@ export const AtelierMySpace: React.FC<AtelierMySpaceProps> = ({
               <div className="flex items-center gap-2 mb-1.5">
                 <Sparkles className="w-3.5 h-3.5" style={{ color: 'var(--at-brass)' }} />
                 <span className="text-xs font-bold" style={{ color: 'var(--at-ink)' }}>
-                  AI Tracker Generator (English / Hinglish)
+                  AI Tracker Generator
                 </span>
               </div>
               <div className="flex items-center gap-2">
                 <input
                   type="text"
-                  placeholder="e.g. 'Daily 3 ward rounds track karna hai', '50 mcq solve karne ka tracker', 'Daily 4 liter water'..."
+                  placeholder="e.g. 'Daily 3 ward rounds', '50 mcq target', 'Daily 4 liter water'..."
                   value={aiPrompt}
                   onChange={(e) => setAiPrompt(e.target.value)}
                   onKeyDown={(e) => {
@@ -1523,11 +1522,11 @@ export const AtelierMySpace: React.FC<AtelierMySpaceProps> = ({
               </div>
             </div>
 
-            {/* Catalog of Medical Tracker Presets */}
+            {/* Catalog of Tracker Presets */}
             <div className="mb-4">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-[11px] font-mono uppercase tracking-wider font-bold text-stone-500 dark:text-stone-400">
-                  Quick-Pick Medical & Habit Presets
+                  Quick-Pick Presets
                 </span>
                 {/* Category Filter Tabs */}
                 <div className="flex items-center gap-1">

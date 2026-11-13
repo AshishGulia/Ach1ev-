@@ -1,8 +1,6 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './readStudio.css';
 import { SubjectCourse, MedicalBook, BookPage, SnippetScreenshot } from '../../types';
-import { INITIAL_BOOKS } from '../../data/mockData';
-import { MEDICAL_IMAGE_ATLAS, MedicalImageItem } from '../library/LibraryView';
 import { useAuth } from '../../contexts/AuthContext';
 import {
   DRIVE_APP_FOLDER_NAME,
@@ -24,20 +22,14 @@ import {
   Sparkles,
   ChevronLeft,
   ChevronRight,
-  Sun,
-  Moon,
   Type,
-  Maximize2,
-  Minimize2,
   Copy,
   Check,
   RotateCcw,
-  SlidersHorizontal,
   Layers,
-  ArrowRight,
-  Share2,
   HardDrive,
   AlertCircle,
+  RefreshCw,
 } from 'lucide-react';
 
 // Attached Document Interface
@@ -69,11 +61,13 @@ const getEmptyMainBook = (subject: SubjectCourse): MedicalBook => ({
   pages: [],
 });
 
-const COMPANION_REFERENCE_BOOKS: MedicalBook[] = [];
-
-const SAMPLE_LOCAL_DOCS: Array<{ title: string; size: string; summary: string; content: string }> = [];
-
-const SAMPLE_WEB_GUIDELINES: Array<{ title: string; source: string; url: string; content: string }> = [];
+interface DriveListedPdf {
+  id: string;
+  name: string;
+  size?: string;
+  mimeType?: string;
+  webViewLink?: string;
+}
 
 interface ReadStudioViewProps {
   currentSubject: SubjectCourse;
@@ -98,6 +92,9 @@ export const ReadStudioView: React.FC<ReadStudioViewProps> = ({
   const [driveUploadPct, setDriveUploadPct] = useState<number | null>(null);
   const [driveUploadErr, setDriveUploadErr] = useState<string | null>(null);
   const [uploadTargetMode, setUploadTargetMode] = useState<'drive' | 'local'>('drive');
+  const [drivePickerFiles, setDrivePickerFiles] = useState<DriveListedPdf[]>([]);
+  const [isLoadingDriveFiles, setIsLoadingDriveFiles] = useState<boolean>(false);
+  const [hasLoadedDriveList, setHasLoadedDriveList] = useState<boolean>(false);
   // 1. Initial State: Open pending book from Favourites / Read Desk if queued, otherwise clean Study Desk
   const consumePendingReadBook = (): MedicalBook | null => {
     try {
@@ -206,7 +203,47 @@ export const ReadStudioView: React.FC<ReadStudioViewProps> = ({
 
   // Attach Modal Open State
   const [isAttachModalOpen, setIsAttachModalOpen] = useState<boolean>(false);
-  const [modalTab, setModalTab] = useState<'books' | 'upload' | 'web' | 'diagrams'>('books');
+
+  const loadDrivePdfFiles = useCallback(async (forceConnect = false) => {
+    setDriveUploadErr(null);
+    setIsLoadingDriveFiles(true);
+    try {
+      let token = await getValidDriveAccessToken().catch(() => '');
+      if (!token && forceConnect) {
+        await connectGoogleDrive();
+        token = await getValidDriveAccessToken();
+      }
+      if (!token) {
+        setIsLoadingDriveFiles(false);
+        return;
+      }
+      const q = encodeURIComponent("trashed = false and mimeType = 'application/pdf'");
+      const res = await fetch(
+        `https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name,size,mimeType,webViewLink)&pageSize=30&orderBy=modifiedTime desc`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      if (res.status === 401) {
+        await disconnectGoogleDrive().catch(() => {});
+        throw new Error('Google Drive session expired. Please click Connect Drive to re-authorize.');
+      }
+      if (!res.ok) {
+        throw new Error('Could not load PDFs from Google Drive.');
+      }
+      const data = await res.json();
+      setDrivePickerFiles(Array.isArray(data?.files) ? data.files : []);
+      setHasLoadedDriveList(true);
+    } catch (err: any) {
+      setDriveUploadErr(err?.message || 'Unable to load files from Google Drive.');
+    } finally {
+      setIsLoadingDriveFiles(false);
+    }
+  }, [connectGoogleDrive, disconnectGoogleDrive, getValidDriveAccessToken]);
+
+  useEffect(() => {
+    if (isAttachModalOpen && uploadTargetMode === 'drive' && driveAccount.connected && !hasLoadedDriveList) {
+      void loadDrivePdfFiles(false);
+    }
+  }, [isAttachModalOpen, uploadTargetMode, driveAccount.connected, hasLoadedDriveList, loadDrivePdfFiles]);
 
   // In-book search state
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -422,87 +459,40 @@ export const ReadStudioView: React.FC<ReadStudioViewProps> = ({
     }
   };
 
-  // Attach a local PDF or lecture slide
-  const handleAttachLocalFile = (fileItem: (typeof SAMPLE_LOCAL_DOCS)[0]) => {
+  // Attach a Google Drive file directly into reader
+  const handleAttachDriveFile = (file: DriveListedPdf) => {
+    const existing = attachedDocs.find((d) => d.driveFileId === file.id || d.id === file.id);
+    if (existing) {
+      setActiveTab(existing.id);
+      setIsAttachModalOpen(false);
+      return;
+    }
+    const sizeBytes = file.size ? Number(file.size) : 0;
+    const sizeLabel = sizeBytes > 0 ? `${(sizeBytes / (1024 * 1024)).toFixed(2)} MB` : 'Google Drive PDF';
+    const docTitle = file.name.replace(/\.pdf$/i, '');
     const newDoc: AttachedDoc = {
-      id: `doc-pdf-${Date.now()}`,
-      title: fileItem.title,
+      id: `drive-${file.id}`,
+      title: docTitle,
       type: 'pdf',
-      authorOrSource: 'Lecture Slide Deck / PDF',
-      fileSize: fileItem.size,
-      summary: fileItem.summary,
+      authorOrSource: `Google Drive · ${sizeLabel}`,
+      subject: currentSubject,
+      fileSize: sizeLabel,
+      pdfUrl: file.webViewLink || `https://drive.google.com/file/d/${file.id}/view`,
+      driveFileId: file.id,
+      storageProvider: 'google_drive',
+      summary: `Opened from your personal Google Drive.`,
       currentPage: 1,
       pages: [
         {
           pageNumber: 1,
-          title: fileItem.title,
-          keyTopic: 'Student Lecture PDF Deck',
-          summaryPearl: fileItem.summary,
-          contentHtml: fileItem.content,
+          title: docTitle,
+          keyTopic: `${currentSubject} · Google Drive`,
+          summaryPearl: '',
+          contentHtml: `<p><strong>${docTitle}</strong> loaded from your Google Drive.</p>`,
         },
       ],
     };
-
-    setAttachedDocs([...attachedDocs, newDoc]);
-    setActiveTab(newDoc.id);
-    setIsAttachModalOpen(false);
-  };
-
-  // Attach Web Clinical Link
-  const handleAttachWebGuideline = (webItem: (typeof SAMPLE_WEB_GUIDELINES)[0]) => {
-    const newDoc: AttachedDoc = {
-      id: `doc-web-${Date.now()}`,
-      title: webItem.title,
-      type: 'web',
-      authorOrSource: webItem.source,
-      webUrl: webItem.url,
-      currentPage: 1,
-      pages: [
-        {
-          pageNumber: 1,
-          title: webItem.title,
-          keyTopic: webItem.source,
-          summaryPearl: `Direct guideline from ${webItem.source}`,
-          contentHtml: webItem.content,
-        },
-      ],
-    };
-
-    setAttachedDocs([...attachedDocs, newDoc]);
-    setActiveTab(newDoc.id);
-    setIsAttachModalOpen(false);
-  };
-
-  // Attach Clinical Diagram
-  const handleAttachDiagram = (diag: MedicalImageItem) => {
-    const newDoc: AttachedDoc = {
-      id: `doc-diag-${diag.id}`,
-      title: diag.title,
-      type: 'diagram',
-      authorOrSource: `${diag.category} Atlas`,
-      imageUrl: diag.imageUrl,
-      summary: diag.clinicalSignificance,
-      currentPage: 1,
-      pages: [
-        {
-          pageNumber: 1,
-          title: diag.title,
-          keyTopic: diag.category,
-          summaryPearl: diag.clinicalSignificance,
-          contentHtml: `
-            <div class="my-4 text-center">
-              <img src="${diag.imageUrl}" alt="${diag.title}" class="rounded-xl max-h-96 mx-auto shadow-md border border-stone-300 dark:border-stone-700 object-cover" />
-              <p class="text-xs text-stone-500 mt-2 italic">${diag.description}</p>
-            </div>
-            <div class="p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg text-xs">
-              <strong>Clinical Significance:</strong> ${diag.clinicalSignificance}
-            </div>
-          `,
-        },
-      ],
-    };
-
-    setAttachedDocs([...attachedDocs, newDoc]);
+    setAttachedDocs((prev) => [...prev, newDoc]);
     setActiveTab(newDoc.id);
     setIsAttachModalOpen(false);
   };
@@ -668,7 +658,7 @@ export const ReadStudioView: React.FC<ReadStudioViewProps> = ({
               if (books.length > 0) {
                 setIsBookClosed(false);
               } else {
-                setModalTab('upload');
+                setUploadTargetMode('local');
                 setIsAttachModalOpen(true);
               }
             }}
@@ -1434,410 +1424,300 @@ export const ReadStudioView: React.FC<ReadStudioViewProps> = ({
       </main>
 
       {/* ========================================================================= */}
-      {/* ATTACHMENT MODAL: ATTACH BOOKS, LOCAL PDFS, WEB GUIDELINES, OR DIAGRAMS   */}
+      {/* ATTACHMENT MODAL: TAKE FROM DRIVE OR DEVICE UPLOAD                        */}
       {/* ========================================================================= */}
       {isAttachModalOpen && (
         <div className="read-modal-overlay" onClick={() => setIsAttachModalOpen(false)}>
           <div className="read-modal-card" onClick={(e) => e.stopPropagation()}>
             <div className="read-modal-header">
-              <div>
-                <h3 className="font-semibold text-lg text-stone-900 dark:text-stone-100 flex items-center gap-2">
-                  <Paperclip className="w-4 h-4 text-[#A47C43]" />
-                  <span>Attach Book or Document</span>
-                </h3>
-                <p className="text-xs text-stone-500 mt-0.5">
-                  Attach references or PDFs to read side-by-side.
-                </p>
-              </div>
+              <h3 className="font-semibold text-lg text-stone-900 dark:text-stone-100 flex items-center gap-2">
+                <Paperclip className="w-4 h-4 text-[#A47C43]" />
+                <span>Attach PDF or Document</span>
+              </h3>
               <button
                 type="button"
                 className="read-icon-btn"
                 onClick={() => setIsAttachModalOpen(false)}
+                title="Close"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            {/* Modal Tabs */}
-            <div className="read-modal-nav">
-              <button
-                type="button"
-                className={`read-modal-tab ${modalTab === 'books' ? 'active' : ''}`}
-                onClick={() => setModalTab('books')}
-              >
-                Medical Books
-              </button>
-              <button
-                type="button"
-                className={`read-modal-tab ${modalTab === 'upload' ? 'active' : ''}`}
-                onClick={() => setModalTab('upload')}
-              >
-                Attach Lecture PDF
-              </button>
-              <button
-                type="button"
-                className={`read-modal-tab ${modalTab === 'web' ? 'active' : ''}`}
-                onClick={() => setModalTab('web')}
-              >
-                Web Clinical Guidelines
-              </button>
-              <button
-                type="button"
-                className={`read-modal-tab ${modalTab === 'diagrams' ? 'active' : ''}`}
-                onClick={() => setModalTab('diagrams')}
-              >
-                Anatomy & Histology
-              </button>
-            </div>
-
-            {/* Modal Body */}
-            <div className="read-modal-body custom-scrollbar">
-              {/* Tab 1: Secondary Books (including Cloud / Drive Uploaded Textbooks) */}
-              {modalTab === 'books' && (
-                <div className="space-y-3">
-                  {books.length === 0 ? (
-                    <div className="p-8 rounded-2xl border border-dashed border-stone-300 dark:border-[#382518] text-center space-y-3">
-                      <p className="text-sm font-semibold text-stone-800 dark:text-stone-100">
-                        No books in Shelf yet
-                      </p>
-                      <p className="text-xs text-stone-500">
-                        Switch to the Attach Lecture PDF tab to upload a PDF to Google Drive or open a local file.
-                      </p>
-                      <button
-                        type="button"
-                        onClick={() => setModalTab('upload')}
-                        className="themed-accent-btn px-4 py-2 rounded-xl bg-[#A47C43] hover:bg-[#8e6834] text-white text-xs font-semibold cursor-pointer"
-                      >
-                        Upload or Open PDF
-                      </button>
+            {/* Modal Body: Only 2 Options — Take from Drive & Device Upload */}
+            <div className="read-modal-body custom-scrollbar space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs items-start">
+                {/* Option 1: Take from Drive + Connect Drive directly below */}
+                <div className="space-y-2">
+                  <button
+                    type="button"
+                    onClick={() => setUploadTargetMode('drive')}
+                    className={`w-full p-3.5 rounded-xl border text-left transition-all cursor-pointer ${
+                      uploadTargetMode === 'drive'
+                        ? 'border-amber-500 bg-amber-500/12 ring-1 ring-amber-500/40'
+                        : 'border-stone-200 dark:border-[#382518] hover:border-amber-500/40'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between font-bold text-stone-900 dark:text-stone-100">
+                      <span className="flex items-center gap-2">
+                        <HardDrive className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                        <span>Take from Drive</span>
+                      </span>
+                      {driveAccount.connected && (
+                        <span className="text-[10px] font-mono text-[#A47C43] dark:text-amber-400">
+                          Connected
+                        </span>
+                      )}
                     </div>
-                  ) : (
-                    <>
-                      <p className="text-xs text-stone-500 mb-2">
-                        Select any uploaded book or Drive-synced PDF from your Shelf:
-                      </p>
-                      {books.map((b) => (
-                        <div
-                          key={b.id}
-                          className="p-3.5 rounded-xl border border-stone-200 dark:border-[#382518] bg-stone-50 dark:bg-[#221811]/85 flex items-center justify-between hover:border-amber-500/60 transition-colors"
-                        >
-                          <div className="flex items-center gap-3 min-w-0">
-                            <div
-                              className="w-9 h-11 rounded shadow-xs flex items-center justify-center font-bold text-white text-[10px] shrink-0"
-                              style={{ backgroundColor: b.coverColor || '#1e3a8a' }}
-                            >
-                              {b.subject.slice(0, 3).toUpperCase()}
-                            </div>
-                            <div className="min-w-0">
-                              <h4 className="text-sm font-semibold text-stone-900 dark:text-stone-100 flex items-center gap-2 flex-wrap">
-                                <span className="truncate">{b.title}</span>
-                                {(b.driveFileId || b.storageProvider === 'google_drive') && (
-                                  <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/35 shrink-0">
-                                    Drive PDF
-                                  </span>
-                                )}
-                              </h4>
-                              <p className="text-xs text-stone-500 truncate">
-                                {b.author} · {b.edition}
-                              </p>
-                            </div>
-                          </div>
-                          <button
-                            type="button"
-                            className="read-attach-btn shrink-0"
-                            style={{ padding: '6px 12px' }}
-                            onClick={() => handleAttachBook(b)}
-                          >
-                            <Plus className="w-3.5 h-3.5" />
-                            <span>Attach</span>
-                          </button>
-                        </div>
-                      ))}
-                    </>
-                  )}
+                    <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-1">
+                      Open PDFs from your Google Drive
+                    </p>
+                  </button>
+
+                  {/* Connect Drive button right below Drive option */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setUploadTargetMode('drive');
+                      setDriveUploadErr(null);
+                      if (driveAccount.connected) {
+                        void loadDrivePdfFiles(false);
+                      } else {
+                        connectGoogleDrive()
+                          .then(() => {
+                            setHasLoadedDriveList(false);
+                            void loadDrivePdfFiles(false);
+                          })
+                          .catch((e: any) =>
+                            setDriveUploadErr(e?.message || 'Google Drive OAuth cancelled.')
+                          );
+                      }
+                    }}
+                    className="w-full py-2 px-3 rounded-xl border border-amber-500/35 bg-amber-500/10 hover:bg-amber-500/20 text-amber-800 dark:text-amber-200 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                  >
+                    <HardDrive className="w-3.5 h-3.5" />
+                    <span>{driveAccount.connected ? 'Connect Drive / Refresh' : 'Connect Drive'}</span>
+                  </button>
+                </div>
+
+                {/* Option 2: Device Upload */}
+                <div>
+                  <button
+                    type="button"
+                    onClick={() => setUploadTargetMode('local')}
+                    className={`w-full p-3.5 rounded-xl border text-left transition-all cursor-pointer ${
+                      uploadTargetMode === 'local'
+                        ? 'border-[#A47C43] bg-[#A47C43]/15 ring-1 ring-[#A47C43]/40'
+                        : 'border-stone-200 dark:border-[#382518] hover:border-[#A47C43]/40'
+                    }`}
+                  >
+                    <div className="font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
+                      <UploadCloud className="w-4 h-4 text-[#A47C43]" />
+                      <span>Device Upload</span>
+                    </div>
+                    <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-1">
+                      Upload a PDF directly from this device
+                    </p>
+                  </button>
+                </div>
+              </div>
+
+              {driveUploadErr && (
+                <div className="p-2.5 rounded-xl bg-[#7f1d1d]/12 dark:bg-[#6e171b]/30 border border-[#7f1d1d]/30 dark:border-[#962d32]/50 text-[#6e1418] dark:text-[#e49b9e] text-xs flex items-center justify-between gap-2">
+                  <div className="flex items-start gap-2 min-w-0">
+                    <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                    <span className="break-words">{driveUploadErr}</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setDriveUploadErr(null);
+                      connectGoogleDrive()
+                        .then(() => {
+                          setHasLoadedDriveList(false);
+                          void loadDrivePdfFiles(false);
+                        })
+                        .catch((e: any) =>
+                          setDriveUploadErr(e?.message || 'Google Drive OAuth cancelled.')
+                        );
+                    }}
+                    className="px-2.5 py-1 rounded-lg bg-amber-700 hover:bg-amber-800 text-white text-[10.5px] font-semibold shrink-0 cursor-pointer"
+                  >
+                    Connect Drive
+                  </button>
                 </div>
               )}
 
-              {/* Tab 2: Upload Lecture PDF */}
-              {modalTab === 'upload' && (
-                <div className="space-y-4">
-                  {/* Destination Storage Selector: Personal Google Drive Offload vs Local Preview */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
-                    <button
-                      type="button"
-                      onClick={() => setUploadTargetMode('drive')}
-                      className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
-                        uploadTargetMode === 'drive'
-                          ? 'border-amber-500 bg-amber-500/12 ring-1 ring-amber-500/40'
-                          : 'border-stone-200 dark:border-[#382518] hover:border-amber-500/40'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between font-bold text-stone-900 dark:text-stone-100">
-                        <span className="flex items-center gap-1.5">
-                          <HardDrive className="w-3.5 h-3.5 text-amber-500" />
-                          <span>Personal Google Drive</span>
-                        </span>
-                        {driveAccount.connected && (
-                          <span className="text-[9px] font-mono text-[#A47C43] dark:text-amber-400">
-                            Connected
+              {driveUploadPct !== null && (
+                <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 space-y-1.5">
+                  <div className="flex justify-between text-[11px] font-mono font-bold text-amber-700 dark:text-amber-300">
+                    <span>Uploading to Google Drive...</span>
+                    <span>{driveUploadPct}%</span>
+                  </div>
+                  <div className="w-full h-2 rounded-full bg-stone-200 dark:bg-[#2b1e15] overflow-hidden">
+                    <div
+                      className="h-full bg-gradient-to-r from-[#85532d] to-[#d4a373] transition-all duration-200"
+                      style={{ width: `${driveUploadPct}%` }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              <input
+                type="file"
+                accept=".pdf,application/pdf"
+                className="hidden"
+                id="read-file-input"
+                disabled={driveUploadPct !== null}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    handleRealPdfFileSelect(file);
+                  }
+                  e.target.value = '';
+                }}
+              />
+
+              {/* Panel 1: Take from Drive */}
+              {uploadTargetMode === 'drive' && (
+                <div className="space-y-3">
+                  {(() => {
+                    const driveBooks = books.filter(
+                      (b) => b.driveFileId || b.storageProvider === 'google_drive'
+                    );
+                    const mergedDriveFiles: DriveListedPdf[] = [
+                      ...drivePickerFiles,
+                      ...driveBooks
+                        .filter(
+                          (b) =>
+                            b.driveFileId &&
+                            !drivePickerFiles.some((f) => f.id === b.driveFileId)
+                        )
+                        .map((b) => ({
+                          id: b.driveFileId!,
+                          name: b.title,
+                          size: b.fileSizeBytes ? String(b.fileSizeBytes) : undefined,
+                          webViewLink: b.pdfFileUrl,
+                        })),
+                    ];
+
+                    if (!driveAccount.connected && mergedDriveFiles.length === 0) {
+                      return (
+                        <div className="p-6 rounded-2xl border border-dashed border-stone-300 dark:border-[#382518] text-center space-y-2.5">
+                          <HardDrive className="w-7 h-7 text-[#A47C43] mx-auto" />
+                          <p className="text-sm font-semibold text-stone-800 dark:text-stone-100">
+                            Google Drive not connected
+                          </p>
+                          <p className="text-xs text-stone-500">
+                            Click Connect Drive above to pick or upload PDFs from your Google Drive.
+                          </p>
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <div className="space-y-2.5">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-xs font-semibold text-stone-700 dark:text-stone-300">
+                            Google Drive PDFs ({mergedDriveFiles.length})
                           </span>
+                          <div className="flex items-center gap-2">
+                            {driveAccount.connected && (
+                              <button
+                                type="button"
+                                onClick={() => void loadDrivePdfFiles(false)}
+                                disabled={isLoadingDriveFiles}
+                                className="px-2.5 py-1 rounded-lg border border-stone-200 dark:border-[#382518] text-[11px] font-semibold text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-[#241911] flex items-center gap-1 cursor-pointer"
+                              >
+                                <RefreshCw className={`w-3 h-3 ${isLoadingDriveFiles ? 'animate-spin' : ''}`} />
+                                <span>Refresh</span>
+                              </button>
+                            )}
+                            <label
+                              htmlFor="read-file-input"
+                              className="themed-accent-btn px-3 py-1 rounded-lg bg-[#A47C43] hover:bg-[#8e6834] text-white text-[11px] font-semibold cursor-pointer"
+                            >
+                              + Upload PDF to Drive
+                            </label>
+                          </div>
+                        </div>
+
+                        {isLoadingDriveFiles && mergedDriveFiles.length === 0 ? (
+                          <div className="p-6 text-center text-xs text-stone-500">
+                            Loading PDFs from Google Drive...
+                          </div>
+                        ) : mergedDriveFiles.length === 0 ? (
+                          <div className="p-6 rounded-xl border border-dashed border-stone-300 dark:border-[#382518] text-center space-y-2">
+                            <p className="text-xs text-stone-500">
+                              No PDFs found in &ldquo;{DRIVE_APP_FOLDER_NAME}&rdquo; yet.
+                            </p>
+                            <label
+                              htmlFor="read-file-input"
+                              className="themed-accent-btn inline-block px-3.5 py-1.5 rounded-lg bg-[#A47C43] hover:bg-[#8e6834] text-white text-xs font-semibold cursor-pointer"
+                            >
+                              Upload First PDF to Drive
+                            </label>
+                          </div>
+                        ) : (
+                          <div className="space-y-2 max-h-60 overflow-y-auto custom-scrollbar pr-1">
+                            {mergedDriveFiles.map((df) => {
+                              const matchingBook = books.find((b) => b.driveFileId === df.id);
+                              const sizeMb =
+                                df.size && Number(df.size) > 0
+                                  ? `${(Number(df.size) / (1024 * 1024)).toFixed(2)} MB`
+                                  : 'Google Drive PDF';
+                              return (
+                                <div
+                                  key={df.id}
+                                  className="p-3 rounded-xl border border-stone-200 dark:border-[#382518] bg-stone-50 dark:bg-[#221811]/85 flex items-center justify-between gap-3 hover:border-amber-500/60 transition-colors"
+                                >
+                                  <div className="flex items-center gap-2.5 min-w-0">
+                                    <FileText className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                                    <div className="min-w-0">
+                                      <p className="text-xs font-semibold text-stone-900 dark:text-stone-100 truncate">
+                                        {df.name}
+                                      </p>
+                                      <p className="text-[10.5px] text-stone-500 truncate">{sizeMb}</p>
+                                    </div>
+                                  </div>
+                                  <button
+                                    type="button"
+                                    className="read-attach-btn shrink-0"
+                                    style={{ padding: '5px 11px' }}
+                                    onClick={() =>
+                                      matchingBook
+                                        ? handleAttachBook(matchingBook)
+                                        : handleAttachDriveFile(df)
+                                    }
+                                  >
+                                    <Plus className="w-3.5 h-3.5" />
+                                    <span>Attach</span>
+                                  </button>
+                                </div>
+                              );
+                            })}
+                          </div>
                         )}
                       </div>
-                      <p className="text-[10.5px] text-stone-500 dark:text-stone-400 mt-1">
-                        Uploads PDF directly to &ldquo;{DRIVE_APP_FOLDER_NAME}&rdquo; and saves metadata link to Supabase.
-                      </p>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setUploadTargetMode('local')}
-                      className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
-                        uploadTargetMode === 'local'
-                          ? 'border-[#A47C43] bg-[#A47C43]/15 ring-1 ring-[#A47C43]/40'
-                          : 'border-stone-200 dark:border-[#382518] hover:border-[#A47C43]/40'
-                      }`}
-                    >
-                      <div className="font-bold text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
-                        <FileText className="w-3.5 h-3.5 text-[#A47C43]" />
-                        <span>Quick Local Preview</span>
-                      </div>
-                      <p className="text-[10.5px] text-stone-500 dark:text-stone-400 mt-1">
-                        Opens PDF immediately in browser memory for this reading session only.
-                      </p>
-                    </button>
-                  </div>
-
-                  {uploadTargetMode === 'drive' && !driveAccount.connected && (
-                    <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-[11px] flex items-center justify-between gap-2">
-                      <span className="text-amber-800 dark:text-amber-200">
-                        Connect your Google Drive now or authorize when selecting your file.
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          connectGoogleDrive().catch((e: any) =>
-                            setDriveUploadErr(e?.message || 'Google Drive OAuth cancelled.')
-                          )
-                        }
-                        className="themed-accent-btn px-2.5 py-1 rounded-lg bg-amber-700 hover:bg-amber-800 text-white font-semibold shrink-0 cursor-pointer"
-                      >
-                        Connect Drive
-                      </button>
-                    </div>
-                  )}
-
-                  {driveUploadErr && (
-                    <div className="p-2.5 rounded-xl bg-[#7f1d1d]/12 dark:bg-[#6e171b]/30 border border-[#7f1d1d]/30 dark:border-[#962d32]/50 text-[#6e1418] dark:text-[#e49b9e] text-xs flex items-center justify-between gap-2">
-                      <div className="flex items-start gap-2 min-w-0">
-                        <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-                        <span className="break-words">{driveUploadErr}</span>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setDriveUploadErr(null);
-                          connectGoogleDrive().catch((e: any) =>
-                            setDriveUploadErr(e?.message || 'Google Drive OAuth cancelled.')
-                          );
-                        }}
-                        className="px-2.5 py-1 rounded-lg bg-amber-700 hover:bg-amber-800 text-white text-[10.5px] font-semibold shrink-0 cursor-pointer"
-                      >
-                        Connect Drive
-                      </button>
-                    </div>
-                  )}
-
-                  {driveUploadPct !== null && (
-                    <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 space-y-1.5">
-                      <div className="flex justify-between text-[11px] font-mono font-bold text-amber-700 dark:text-amber-300">
-                        <span>Uploading directly to personal Google Drive...</span>
-                        <span>{driveUploadPct}%</span>
-                      </div>
-                      <div className="w-full h-2 rounded-full bg-stone-200 dark:bg-[#2b1e15] overflow-hidden">
-                        <div
-                          className="h-full bg-gradient-to-r from-[#85532d] to-[#d4a373] transition-all duration-200"
-                          style={{ width: `${driveUploadPct}%` }}
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="read-dropzone">
-                    <UploadCloud className="w-8 h-8 text-[#A47C43] mx-auto mb-2" />
-                    <p className="text-sm font-semibold text-stone-800 dark:text-stone-200">
-                      {uploadTargetMode === 'drive'
-                        ? 'Upload Textbook or PDF to Personal Google Drive'
-                        : 'Open Local PDF Deck in Split Reader'}
-                    </p>
-                    <p className="text-xs text-stone-400 mt-1">
-                      {uploadTargetMode === 'drive' && !driveAccount.connected
-                        ? 'Step 1: Connect your Google Drive account, then select your PDF file'
-                        : 'Select any PDF file to open and attach cleanly'}
-                    </p>
-                    <input
-                      type="file"
-                      accept=".pdf,application/pdf"
-                      className="hidden"
-                      id="read-file-input"
-                      disabled={driveUploadPct !== null}
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          handleRealPdfFileSelect(file);
-                        }
-                      }}
-                    />
-                    {uploadTargetMode === 'drive' && !driveAccount.connected ? (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setDriveUploadErr(null);
-                          connectGoogleDrive().catch((e: any) =>
-                            setDriveUploadErr(e?.message || 'Google Drive OAuth cancelled.')
-                          );
-                        }}
-                        className="themed-accent-btn inline-block mt-3 px-4 py-1.5 rounded-lg bg-[#A47C43] text-white text-xs font-semibold cursor-pointer hover:bg-[#8e6834]"
-                      >
-                        Step 1: Connect Google Drive
-                      </button>
-                    ) : (
-                      <label
-                        htmlFor="read-file-input"
-                        className="themed-accent-btn inline-block mt-3 px-4 py-1.5 rounded-lg bg-[#A47C43] text-white text-xs font-semibold cursor-pointer hover:bg-[#8e6834]"
-                      >
-                        {driveUploadPct !== null
-                          ? `Uploading (${driveUploadPct}%)...`
-                          : uploadTargetMode === 'drive'
-                          ? 'Choose PDF & Upload to Drive'
-                          : 'Browse Device'}
-                      </label>
-                    )}
-                  </div>
-
-                  {SAMPLE_LOCAL_DOCS.length > 0 && (
-                    <div>
-                      <h5 className="text-xs font-bold uppercase tracking-wider text-stone-400 mb-2">
-                        Or Choose Local Notes:
-                      </h5>
-                      <div className="space-y-2">
-                        {SAMPLE_LOCAL_DOCS.map((doc, idx) => (
-                          <div
-                            key={idx}
-                            className="p-3 rounded-lg border border-stone-200 dark:border-[#382518] bg-transparent dark:bg-[#1c130e]/70 flex items-center justify-between hover:bg-stone-50 dark:hover:bg-[#261a12]"
-                          >
-                            <div>
-                              <p className="text-xs font-semibold text-stone-800 dark:text-stone-200">
-                                {doc.title}
-                              </p>
-                              <p className="text-[11px] text-stone-500">
-                                {doc.size} · {doc.summary}
-                              </p>
-                            </div>
-                            <button
-                              type="button"
-                              className="read-attach-btn"
-                              style={{ padding: '5px 10px', fontSize: '11px' }}
-                              onClick={() => handleAttachLocalFile(doc)}
-                            >
-                              Attach
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
+                    );
+                  })()}
                 </div>
               )}
 
-              {/* Tab 3: Web Clinical Guidelines */}
-              {modalTab === 'web' && (
-                <div className="space-y-3">
-                  {SAMPLE_WEB_GUIDELINES.length === 0 ? (
-                    <div className="p-8 rounded-2xl border border-dashed border-stone-300 dark:border-[#382518] text-center space-y-2">
-                      <p className="text-sm font-semibold text-stone-800 dark:text-stone-100">
-                        No preset web guidelines
-                      </p>
-                      <p className="text-xs text-stone-500">
-                        Attach custom website links directly inside Create Note or upload PDFs in the Lecture PDF tab.
-                      </p>
-                    </div>
-                  ) : (
-                    <>
-                      <p className="text-xs text-stone-500 mb-2">
-                        Attach web guidelines or references:
-                      </p>
-                      {SAMPLE_WEB_GUIDELINES.map((wg, idx) => (
-                        <div
-                          key={idx}
-                          className="p-3.5 rounded-xl border border-stone-200 dark:border-[#382518] bg-transparent dark:bg-[#1c130e]/70 flex items-center justify-between hover:border-amber-500/60"
-                        >
-                          <div>
-                            <h4 className="text-xs font-bold text-stone-900 dark:text-stone-100">
-                              {wg.title}
-                            </h4>
-                            <p className="text-[11px] text-[#A47C43] dark:text-amber-400 flex items-center gap-1 mt-0.5">
-                              <ExternalLink className="w-3 h-3" />
-                              <span>{wg.source}</span>
-                            </p>
-                          </div>
-                          <button
-                            type="button"
-                            className="read-attach-btn"
-                            style={{ padding: '6px 12px' }}
-                            onClick={() => handleAttachWebGuideline(wg)}
-                          >
-                            Attach
-                          </button>
-                        </div>
-                      ))}
-                    </>
-                  )}
-                </div>
-              )}
-
-              {/* Tab 4: Anatomy & Histology Diagrams */}
-              {modalTab === 'diagrams' && (
-                MEDICAL_IMAGE_ATLAS.length === 0 ? (
-                  <div className="p-8 rounded-2xl border border-dashed border-stone-300 dark:border-[#382518] text-center space-y-2">
-                    <p className="text-sm font-semibold text-stone-800 dark:text-stone-100">
-                      No diagrams in Atlas yet
-                    </p>
-                    <p className="text-xs text-stone-500">
-                      Upload or attach your own reference PDFs and images to view them here.
-                    </p>
-                  </div>
-                ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {MEDICAL_IMAGE_ATLAS.slice(0, 4).map((diag) => (
-                    <div
-                      key={diag.id}
-                      className="rounded-xl border border-stone-200 dark:border-[#382518] bg-transparent dark:bg-[#1c130e]/70 overflow-hidden flex flex-col justify-between hover:shadow-md transition-shadow"
-                    >
-                      <img
-                        src={diag.imageUrl}
-                        alt={diag.title}
-                        className="h-28 w-full object-cover"
-                      />
-                      <div className="p-3">
-                        <h5 className="text-xs font-bold text-stone-800 dark:text-stone-200 truncate">
-                          {diag.title}
-                        </h5>
-                        <p className="text-[11px] text-stone-500 line-clamp-2 mt-1">
-                          {diag.clinicalSignificance}
-                        </p>
-                        <button
-                          type="button"
-                          className="read-attach-btn w-full justify-center mt-3"
-                          style={{ padding: '5px' }}
-                          onClick={() => handleAttachDiagram(diag)}
-                        >
-                          Attach Diagram
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                )
+              {/* Panel 2: Device Upload */}
+              {uploadTargetMode === 'local' && (
+                <label htmlFor="read-file-input" className="read-dropzone block">
+                  <UploadCloud className="w-8 h-8 text-[#A47C43] mx-auto mb-2" />
+                  <p className="text-sm font-semibold text-stone-800 dark:text-stone-200">
+                    Upload PDF from Device
+                  </p>
+                  <p className="text-xs text-stone-400 mt-1">
+                    Select any PDF file from your computer or phone to open right away
+                  </p>
+                  <span className="themed-accent-btn inline-block mt-3 px-4 py-1.5 rounded-lg bg-[#A47C43] text-white text-xs font-semibold hover:bg-[#8e6834]">
+                    Browse Device
+                  </span>
+                </label>
               )}
             </div>
           </div>

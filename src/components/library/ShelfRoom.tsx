@@ -3832,7 +3832,7 @@ export function AddBookModal({
                 <Cloud className="w-8 h-8 text-amber-700 dark:text-amber-400/70" />
                 <p className="text-xs font-semibold text-[#1c140e] dark:text-[#efe4d4]">Google Drive Folder</p>
                 <p className="text-[11px] text-[#6f5d4d] dark:text-[#a69079] max-w-sm">
-                  Upload PDFs with the Upload PDF (Drive) button above or switch to Upload PDF / Quick Custom to shelve your own books.
+                  Switch to Upload PDF / EPUB or Quick Custom to shelve your own books.
                 </p>
                 <button
                   type="button"

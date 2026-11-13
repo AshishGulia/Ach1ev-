@@ -110,7 +110,6 @@ export const RosterCalendarModal: React.FC<RosterCalendarModalProps> = ({
 }) => {
   const [viewMode, setViewMode] = useState<'calendar' | 'table' | 'upload-pdf'>('calendar');
   const [uploadedFileName, setUploadedFileName] = useState<string>('');
-  const [rawScheduleText, setRawScheduleText] = useState<string>('');
 
   const [isScanning, setIsScanning] = useState<boolean>(false);
   const [scanStatus, setScanStatus] = useState<string | null>(null);
@@ -262,17 +261,17 @@ export const RosterCalendarModal: React.FC<RosterCalendarModalProps> = ({
   if (!isOpen) return null;
 
   // AI Roster Parsing
-  const handleScanWithAI = async () => {
+  const runRosterScan = async (scheduleText: string, filename: string) => {
     setIsScanning(true);
-    setScanStatus('Scanning timetable text with Gemini AI...');
+    setScanStatus(`Scanning "${filename}" with Gemini AI...`);
 
     try {
       const res = await fetch('/api/gemini/parse-roster', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          scheduleText: rawScheduleText,
-          filename: uploadedFileName,
+          scheduleText,
+          filename,
         }),
       });
 
@@ -312,17 +311,17 @@ export const RosterCalendarModal: React.FC<RosterCalendarModalProps> = ({
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       setUploadedFileName(file.name);
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const text = event.target?.result as string;
-        if (text && text.length > 20) {
-          setRawScheduleText(text);
-        }
-      };
       if (file.type.includes('text') || file.name.endsWith('.txt') || file.name.endsWith('.csv')) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const text = (event.target?.result as string) || file.name;
+          void runRosterScan(text, file.name);
+        };
         reader.readAsText(file);
+      } else {
+        void runRosterScan(file.name, file.name);
       }
-      setScanStatus(`Loaded "${file.name}". Ready for AI Roster Scan.`);
+      e.target.value = '';
     }
   };
 
@@ -1046,26 +1045,28 @@ export const RosterCalendarModal: React.FC<RosterCalendarModalProps> = ({
                     </button>
                   </div>
 
-                  <div className="flex gap-2">
+                  <div className="flex items-center gap-1.5 min-w-0">
                     <input
                       type="text"
                       value={newItemTitle}
                       onChange={(e) => setNewItemTitle(e.target.value)}
                       placeholder={`Add ${newItemType} for this date…`}
-                      className="flex-1 px-3 py-1.5 rounded-xl border border-stone-200 dark:border-[#382518] bg-stone-50 dark:bg-[#120c08] text-xs outline-none focus:border-[#A47C43] text-stone-900 dark:text-stone-100"
+                      className="flex-1 min-w-0 px-2.5 py-1.5 rounded-xl border border-stone-200 dark:border-[#382518] bg-stone-50 dark:bg-[#120c08] text-xs outline-none focus:border-[#A47C43] text-stone-900 dark:text-stone-100"
                     />
                     <input
                       type="time"
                       value={newItemTime}
                       onChange={(e) => setNewItemTime(e.target.value)}
-                      className="w-20 px-2 py-1.5 rounded-xl border border-stone-200 dark:border-[#382518] bg-stone-50 dark:bg-[#120c08] text-xs font-mono outline-none focus:border-[#A47C43] text-stone-800 dark:text-stone-200"
+                      className="w-[74px] shrink-0 px-1.5 py-1.5 rounded-xl border border-stone-200 dark:border-[#382518] bg-stone-50 dark:bg-[#120c08] text-[11px] font-mono outline-none focus:border-[#A47C43] text-stone-800 dark:text-stone-200"
                     />
                     <button
                       type="submit"
-                      className="themed-accent-btn px-3 py-1.5 rounded-xl bg-[#A47C43] hover:bg-[#8e6834] text-white text-xs font-bold transition-colors cursor-pointer flex items-center justify-center"
-                      title="Add task or reminder"
+                      aria-label={`Add ${newItemType}`}
+                      style={{ color: '#ffffff' }}
+                      className="themed-accent-btn shrink-0 w-9 h-8 rounded-xl bg-[#8f5f2c] hover:bg-[#734a1f] text-white text-xs font-bold transition-colors cursor-pointer flex items-center justify-center shadow-xs"
+                      title={`Add ${newItemType}`}
                     >
-                      <Plus className="w-4 h-4" />
+                      <Plus className="w-4 h-4 shrink-0 stroke-[2.75]" style={{ color: '#ffffff' }} />
                     </button>
                   </div>
                 </form>
@@ -1212,25 +1213,23 @@ export const RosterCalendarModal: React.FC<RosterCalendarModalProps> = ({
           </div>
         )}
 
-        {/* VIEW 3: Upload Roster PDF & AI Scanner Engine */}
+        {/* VIEW 3: Upload Schedule / Timetable Document */}
         {viewMode === 'upload-pdf' && (
-          <div className="space-y-6">
-            <div className="p-6 border-2 border-dashed border-stone-300 dark:border-[#382518] rounded-2xl text-center bg-stone-50 dark:bg-[#120c08]">
-              <Upload className="w-8 h-8 mx-auto text-[#A47C43] mb-2" />
-              <h4 className="text-base font-bold text-stone-800 dark:text-stone-200 font-serif">
-                Upload Schedule / Timetable PDF or Image
+          <div className="space-y-4">
+            <div className="p-8 border-2 border-dashed border-stone-300 dark:border-[#382518] rounded-2xl text-center bg-stone-50 dark:bg-[#120c08]">
+              <Upload className="w-8 h-8 mx-auto text-[#A47C43] mb-2.5" />
+              <h4 className="text-base font-bold text-stone-800 dark:text-stone-200 font-serif mb-4">
+                Upload Schedule / Timetable Document
               </h4>
-              <p className="text-xs text-stone-500 max-w-md mx-auto mt-1 mb-4">
-                Upload your medical faculty timetable PDF, screenshot, or syllabus schedule. The Gemini AI will automatically parse days, timings, subjects, and venues into the calendar.
-              </p>
 
-              <label className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 bg-[#A47C43] hover:bg-[#8e6834] text-white rounded-xl text-xs font-semibold shadow-xs transition-colors">
+              <label className="themed-accent-btn cursor-pointer inline-flex items-center gap-2 px-4 py-2 bg-[#A47C43] hover:bg-[#8e6834] text-white rounded-xl text-xs font-semibold shadow-xs transition-colors">
                 <Upload className="w-4 h-4" />
-                <span>Choose PDF / Image File</span>
+                <span>{isScanning ? 'Scanning...' : 'Choose File'}</span>
                 <input
                   type="file"
-                  accept=".pdf,.png,.jpg,.jpeg,.txt,.csv"
+                  accept=".pdf,.png,.jpg,.jpeg,.txt,.csv,.doc,.docx"
                   onChange={handleFileUpload}
+                  disabled={isScanning}
                   className="hidden"
                 />
               </label>
@@ -1241,31 +1240,6 @@ export const RosterCalendarModal: React.FC<RosterCalendarModalProps> = ({
                   <span>Active File: {uploadedFileName}</span>
                 </div>
               )}
-            </div>
-
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <label className="text-xs font-bold text-stone-700 dark:text-stone-300">
-                  Timetable Text / OCR Data:
-                </label>
-                <button
-                  type="button"
-                  onClick={handleScanWithAI}
-                  disabled={isScanning || !rawScheduleText.trim()}
-                  className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white text-xs font-semibold flex items-center gap-2 shadow-xs transition-colors disabled:opacity-50 cursor-pointer"
-                >
-                  <Sparkles className="w-3.5 h-3.5 text-yellow-300" />
-                  <span>{isScanning ? 'AI Scanning...' : 'Scan with Gemini AI'}</span>
-                </button>
-              </div>
-
-              <textarea
-                rows={8}
-                value={rawScheduleText}
-                onChange={(e) => setRawScheduleText(e.target.value)}
-                placeholder="Paste medical schedule text here..."
-                className="w-full bg-stone-50 dark:bg-[#120c08] p-3 rounded-xl border border-stone-300 dark:border-[#382518] text-xs font-mono text-stone-800 dark:text-stone-200 outline-none focus:border-[#A47C43] leading-relaxed"
-              />
             </div>
 
             {scanStatus && (

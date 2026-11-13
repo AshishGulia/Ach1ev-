@@ -989,17 +989,6 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                 Total: {sections.reduce((a, s) => a + s.count, 0) + cloudUploadedBooks.length} books
               </span>
 
-              {/* Upload Heavy PDF to Personal Google Drive Button */}
-              <button
-                type="button"
-                onClick={handleOpenUploadModal}
-                className="shelfwise-btn shelfwise-btn-primary flex items-center gap-1.5"
-                title={`Upload heavy PDF or textbook directly into your personal Google Drive ("${DRIVE_APP_FOLDER_NAME}") and sync metadata link via Supabase`}
-              >
-                <UploadCloud className="w-4 h-4" />
-                <span>Upload PDF (Drive)</span>
-              </button>
-
               {/* Library Button */}
               <button
                 type="button"
