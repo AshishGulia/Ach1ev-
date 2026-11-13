@@ -171,8 +171,8 @@ html[data-design="1"].dark {
   --th-dark-border: #2e180c;
   --th-btn-idle-bg: linear-gradient(180deg, rgba(42, 21, 10, 0.94) 0%, rgba(22, 10, 5, 0.96) 100%);
   --th-btn-idle-ink: #e8d8c3;
-  --th-btn-active-bg: linear-gradient(155deg, rgba(39, 36, 34, 0.98) 0%, rgba(23, 21, 20, 0.99) 100%);
-  --th-btn-active-border: rgba(218, 185, 128, 0.26);
+  --th-btn-active-bg: linear-gradient(145deg, rgba(224, 198, 168, 0.27) 0%, rgba(168, 128, 90, 0.18) 54%, rgba(112, 78, 48, 0.22) 100%);
+  --th-btn-active-border: rgba(235, 212, 184, 0.32);
 }
 
 html[data-design="2"] {

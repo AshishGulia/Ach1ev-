@@ -27,6 +27,8 @@ import {
   Bot,
   Activity,
   Pencil,
+  Minus,
+  Maximize2,
 } from 'lucide-react';
 
 export interface TrackerItem {
@@ -164,6 +166,70 @@ export const AtelierMySpace: React.FC<AtelierMySpaceProps> = ({
 
     window.addEventListener('mousemove', onMouseMove);
     window.addEventListener('mouseup', onMouseUp);
+  };
+
+  // Persistent per-user Minimize & Close state for Today widgets (Calendar, Tasks, Reminders)
+  type TodayPanelKey = 'cal' | 'tasks' | 'reminders';
+  interface TodayPanelsPrefs {
+    minimized: Record<TodayPanelKey, boolean>;
+    closed: Record<TodayPanelKey, boolean>;
+  }
+  const DEFAULT_TODAY_PANELS: TodayPanelsPrefs = {
+    minimized: { cal: false, tasks: false, reminders: false },
+    closed: { cal: false, tasks: false, reminders: false },
+  };
+  const getTodayPanelsKey = (profile?: UserProfile) => {
+    const id = (profile?.email || profile?.name || 'default')
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9@._-]/g, '_');
+    return `medden_today_panels_v1_${id || 'default'}`;
+  };
+  const loadTodayPanels = (profile?: UserProfile): TodayPanelsPrefs => {
+    try {
+      const key = getTodayPanelsKey(profile);
+      const raw = localStorage.getItem(key) || localStorage.getItem('medden_today_panels_v1_default');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        return {
+          minimized: { ...DEFAULT_TODAY_PANELS.minimized, ...(parsed?.minimized || {}) },
+          closed: { ...DEFAULT_TODAY_PANELS.closed, ...(parsed?.closed || {}) },
+        };
+      }
+    } catch {}
+    return DEFAULT_TODAY_PANELS;
+  };
+  const [todayPanels, setTodayPanels] = useState<TodayPanelsPrefs>(() => loadTodayPanels(userProfile));
+  useEffect(() => {
+    setTodayPanels(loadTodayPanels(userProfile));
+  }, [userProfile?.email, userProfile?.name]);
+
+  const updateTodayPanels = (updater: (prev: TodayPanelsPrefs) => TodayPanelsPrefs) => {
+    setTodayPanels((prev) => {
+      const next = updater(prev);
+      try {
+        localStorage.setItem(getTodayPanelsKey(userProfile), JSON.stringify(next));
+      } catch {}
+      return next;
+    });
+  };
+  const toggleMinimizePanel = (panel: TodayPanelKey) => {
+    updateTodayPanels((prev) => ({
+      ...prev,
+      minimized: { ...prev.minimized, [panel]: !prev.minimized[panel] },
+    }));
+  };
+  const closePanel = (panel: TodayPanelKey) => {
+    updateTodayPanels((prev) => ({
+      ...prev,
+      closed: { ...prev.closed, [panel]: true },
+    }));
+  };
+  const reopenPanel = (panel: TodayPanelKey) => {
+    updateTodayPanels((prev) => ({
+      ...prev,
+      closed: { ...prev.closed, [panel]: false },
+    }));
   };
 
   interface CockpitFavouriteItem {
@@ -864,316 +930,430 @@ export const AtelierMySpace: React.FC<AtelierMySpaceProps> = ({
         <div className="atelier-sec">
           {renderEditableHeading('today')}
           <span className="atelier-rule" />
+          {(todayPanels.closed.cal || todayPanels.closed.tasks || todayPanels.closed.reminders) && (
+            <div className="flex items-center gap-1.5 flex-wrap">
+              {todayPanels.closed.cal && (
+                <button
+                  type="button"
+                  onClick={() => reopenPanel('cal')}
+                  className="atelier-chip cursor-pointer hover:brightness-105"
+                  title={`Restore ${currentMonthLabel}`}
+                >
+                  + {currentMonthLabel.split(' ')[0]}
+                </button>
+              )}
+              {todayPanels.closed.tasks && (
+                <button
+                  type="button"
+                  onClick={() => reopenPanel('tasks')}
+                  className="atelier-chip brass cursor-pointer hover:brightness-105"
+                  title="Restore Tasks"
+                >
+                  + Tasks
+                </button>
+              )}
+              {todayPanels.closed.reminders && (
+                <button
+                  type="button"
+                  onClick={() => reopenPanel('reminders')}
+                  className="atelier-chip cursor-pointer hover:brightness-105"
+                  title="Restore Reminders"
+                >
+                  + Reminders
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Trio Columns */}
         <div className="atelier-trio">
           {/* Card 1: Academic Calendar */}
-          <section
-            className="atelier-card atelier-panel"
-            aria-labelledby="cal-h"
-            style={{ height: `${calHeight}px`, overflowY: 'auto' }}
-          >
-            <div className="atelier-panel-h">
-              <div>
-                <h3 id="cal-h">{currentMonthLabel}</h3>
-              </div>
-              <button
-                type="button"
-                onClick={onOpenRosterModal}
-                className="atelier-chip"
-                title="Open full calendar"
-              >
-                {dayEvents.length} {dayEvents.length === 1 ? 'session' : 'sessions'}
-              </button>
-            </div>
-
-            <div className="atelier-days">
-              {daysList.map((d, idx) => (
-                <button
-                  key={idx}
-                  type="button"
-                  className="atelier-day"
-                  aria-pressed={selectedDay === idx}
-                  onClick={() => setSelectedDay(idx)}
-                >
-                  {d.name}
-                  <b>{d.num}</b>
-                </button>
-              ))}
-            </div>
-
-            <div className="atelier-timeline">
-              {dayEvents.length === 0 ? (
-                <div className="py-3 text-center space-y-1.5">
-                  <p className="text-xs opacity-70" style={{ color: 'var(--at-muted)' }}>
-                    No sessions scheduled
-                  </p>
-                  {onOpenRosterModal && (
-                    <button
-                      type="button"
-                      onClick={onOpenRosterModal}
-                      className="atelier-chip cursor-pointer"
-                    >
-                      Open Calendar
-                    </button>
-                  )}
+          {!todayPanels.closed.cal && (
+            <section
+              className={`atelier-card atelier-panel ${todayPanels.minimized.cal ? 'is-minimized' : ''}`}
+              aria-labelledby="cal-h"
+              style={todayPanels.minimized.cal ? undefined : { height: `${calHeight}px`, overflowY: 'auto' }}
+            >
+              <div className="atelier-panel-h">
+                <div>
+                  <h3 id="cal-h">{currentMonthLabel}</h3>
                 </div>
-              ) : (
-                dayEvents.map((ev) => (
-                  <div key={ev.id} className="atelier-ev">
-                    <time>
-                      {ev.startTime || 'All day'}
-                      {ev.venue ? ` — ${ev.venue}` : ''}
-                    </time>
-                    <p className="t">
-                      {ev.title}{' '}
-                      {ev.type && (
-                        <span className="atelier-chip">
-                          {ev.type}
-                        </span>
-                      )}
-                    </p>
-                    {(ev.instructor || ev.notes) && (
-                      <p className="m">{[ev.instructor, ev.notes].filter(Boolean).join(' · ')}</p>
-                    )}
-                  </div>
-                ))
-              )}
-            </div>
-
-            {/* Drag Resize Handle */}
-            <div className="panel-resize-joystick-widget">
-              <div
-                className="panel-resize-joystick"
-                onMouseDown={(e) => startResize(e, 'cal')}
-                title="Drag up/down to resize"
-              >
-                <MoveVertical className="w-3 h-3" />
-              </div>
-            </div>
-          </section>
-
-          {/* Card 2: 3D Yellow Sticky Note Tasks */}
-          <section
-            className="atelier-sticky atelier-panel"
-            aria-labelledby="task-h"
-            style={{ height: `${noteHeight}px`, overflowY: 'auto' }}
-          >
-            <div className="atelier-panel-h">
-              <div>
-                <h3 id="task-h">Tasks</h3>
-              </div>
-              <span className="atelier-chip brass" id="task-count">
-                {completedCount} / {stickyTasks.length}
-              </span>
-            </div>
-
-            <div className="atelier-seg" role="group" aria-label="Filter tasks">
-              <button
-                type="button"
-                aria-pressed={taskFilter === 'all'}
-                onClick={() => setTaskFilter('all')}
-              >
-                All
-              </button>
-              <button
-                type="button"
-                aria-pressed={taskFilter === 'pending'}
-                onClick={() => setTaskFilter('pending')}
-              >
-                Pending
-              </button>
-              <button
-                type="button"
-                aria-pressed={taskFilter === 'done'}
-                onClick={() => setTaskFilter('done')}
-              >
-                Completed
-              </button>
-            </div>
-
-            <ul className="atelier-tasks">
-              {filteredTasks.length === 0 ? (
-                <li
-                  className="atelier-task"
-                  style={{ color: 'color-mix(in srgb, var(--note-ink) 65%, transparent)', fontFamily: 'Caveat, cursive', fontSize: '15px', fontStyle: 'normal' }}
-                >
-                  Nothing here.
-                </li>
-              ) : (
-                filteredTasks.map((t) => (
-                  <li key={t.id} className={`atelier-task ${t.done ? 'done' : ''} group flex items-center justify-between gap-1`}>
-                    <div className="flex items-center gap-2 min-w-0 flex-1">
-                      <input
-                        type="checkbox"
-                        id={`chk-${t.id}`}
-                        checked={t.done}
-                        onChange={() => handleToggleTaskDone(t.id)}
-                      />
-                      <label htmlFor={`chk-${t.id}`} className="truncate">{t.t}</label>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteTask(t.id)}
-                      className="opacity-50 hover:opacity-100 p-0.5 cursor-pointer shrink-0"
-                      aria-label={`Delete task ${t.t}`}
-                      title="Delete task"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </li>
-                ))
-              )}
-            </ul>
-
-            <form className="atelier-add" onSubmit={handleAddNewTask}>
-              <input
-                id="new-task"
-                placeholder="Add a task…"
-                autoComplete="off"
-                value={newTaskInput}
-                onChange={(e) => setNewTaskInput(e.target.value)}
-              />
-              <button type="submit" aria-label="Add task">
-                <Plus className="w-3.5 h-3.5" />
-              </button>
-            </form>
-
-            {/* Drag Resize Handle */}
-            <div className="panel-resize-joystick-widget">
-              <div
-                className="panel-resize-joystick"
-                onMouseDown={(e) => startResize(e, 'note')}
-                title="Drag up/down to resize"
-              >
-                <MoveVertical className="w-3 h-3" />
-              </div>
-            </div>
-          </section>
-
-          {/* Card 3: Reminders */}
-          <section
-            className="atelier-card atelier-panel"
-            aria-labelledby="rem-h"
-            style={{ height: `${remHeight}px`, overflowY: 'auto' }}
-          >
-            <div className="atelier-panel-h">
-              <div>
-                <h3 id="rem-h">Reminders</h3>
-              </div>
-              <button
-                type="button"
-                className="atelier-chip"
-                style={{ cursor: 'pointer' }}
-                onClick={() => setIsAddingReminder((prev) => !prev)}
-              >
-                {isAddingReminder ? 'Cancel' : '+ New'}
-              </button>
-            </div>
-
-            {isAddingReminder && (
-              <form onSubmit={handleCreateReminder} className="mb-2.5 p-2 rounded-xl border border-stone-300/60 dark:border-[#3d291b] space-y-1.5 text-xs">
-                <input
-                  type="text"
-                  value={newRemTitle}
-                  onChange={(e) => setNewRemTitle(e.target.value)}
-                  placeholder="Reminder title..."
-                  required
-                  autoFocus
-                  className="w-full px-2 py-1 rounded-lg bg-white/80 dark:bg-[#1a120d] border border-stone-300/60 dark:border-[#3d291b] text-xs outline-none"
-                />
-                <div className="flex items-center gap-1.5">
-                  <input
-                    type="text"
-                    value={newRemTime}
-                    onChange={(e) => setNewRemTime(e.target.value)}
-                    placeholder="09:00"
-                    className="w-16 px-2 py-1 rounded-lg bg-white/80 dark:bg-[#1a120d] border border-stone-300/60 dark:border-[#3d291b] text-xs font-mono outline-none"
-                  />
-                  <select
-                    value={newRemAmpm}
-                    onChange={(e) => setNewRemAmpm(e.target.value as 'AM' | 'PM')}
-                    className="px-1.5 py-1 rounded-lg bg-white/80 dark:bg-[#1a120d] border border-stone-300/60 dark:border-[#3d291b] text-xs outline-none"
-                  >
-                    <option value="AM">AM</option>
-                    <option value="PM">PM</option>
-                  </select>
-                  <input
-                    type="text"
-                    value={newRemCat}
-                    onChange={(e) => setNewRemCat(e.target.value)}
-                    placeholder="Category"
-                    className="flex-1 min-w-0 px-2 py-1 rounded-lg bg-white/80 dark:bg-[#1a120d] border border-stone-300/60 dark:border-[#3d291b] text-xs outline-none"
-                  />
+                <div className="flex items-center gap-1 shrink-0">
                   <button
-                    type="submit"
-                    className="px-2.5 py-1 rounded-lg bg-[#A47C43] text-white font-semibold text-xs cursor-pointer shrink-0"
+                    type="button"
+                    onClick={onOpenRosterModal}
+                    className="atelier-chip"
+                    title="Open full calendar"
                   >
-                    Add
+                    {dayEvents.length} {dayEvents.length === 1 ? 'session' : 'sessions'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => toggleMinimizePanel('cal')}
+                    className="raw-icon-btn atelier-panel-ctrl"
+                    aria-label={todayPanels.minimized.cal ? `Expand ${currentMonthLabel}` : `Minimise ${currentMonthLabel}`}
+                    title={todayPanels.minimized.cal ? 'Expand' : 'Minimise'}
+                  >
+                    {todayPanels.minimized.cal ? <Maximize2 className="w-3 h-3" /> : <Minus className="w-3 h-3" />}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => closePanel('cal')}
+                    className="raw-icon-btn atelier-panel-ctrl close"
+                    aria-label={`Close ${currentMonthLabel}`}
+                    title="Close"
+                  >
+                    <X className="w-3 h-3" />
                   </button>
                 </div>
-              </form>
-            )}
+              </div>
 
-            <div className="atelier-rems">
-              {reminders.length === 0 ? (
-                <p className="py-3 text-center text-xs opacity-70" style={{ color: 'var(--at-muted)' }}>
-                  No reminders set.
-                </p>
-              ) : (
-                reminders.map((r) => (
-                  <div key={r.id} className="atelier-rem">
-                    <p className="atelier-rem-time">
-                      {r.time}
-                      <small>{r.ampm}</small>
-                    </p>
-                    <div>
-                      <span
-                        className="atelier-eyebrow"
-                        style={{ color: 'var(--at-brass)', fontWeight: 600 }}
-                      >
-                        {r.category}
-                      </span>
-                      <p className="ti">{r.title}</p>
-                    </div>
-                    <div className="flex items-center gap-1">
+              {!todayPanels.minimized.cal && (
+                <>
+                  <div className="atelier-days">
+                    {daysList.map((d, idx) => (
                       <button
+                        key={idx}
                         type="button"
-                        className="atelier-bell"
-                        aria-pressed={r.active}
-                        onClick={() => toggleReminderActive(r.id)}
-                        aria-label={`Toggle alarm for ${r.title}`}
-                        title={r.active ? 'Alarm set' : 'Muted'}
+                        className="atelier-day"
+                        aria-pressed={selectedDay === idx}
+                        onClick={() => setSelectedDay(idx)}
                       >
-                        <AlarmClock className={`w-3.5 h-3.5 ${r.active ? '' : 'opacity-40'}`} />
+                        {d.name}
+                        <b>{d.num}</b>
                       </button>
-                      <button
-                        type="button"
-                        className="atelier-bell opacity-65 hover:opacity-100"
-                        onClick={() => handleDeleteReminder(r.id)}
-                        aria-label={`Delete reminder ${r.title}`}
-                        title="Delete reminder"
-                      >
-                        <X className="w-3.5 h-3.5" />
-                      </button>
+                    ))}
+                  </div>
+
+                  <div className="atelier-timeline">
+                    {dayEvents.length === 0 ? (
+                      <div className="py-3 text-center space-y-1.5">
+                        <p className="text-xs opacity-70" style={{ color: 'var(--at-muted)' }}>
+                          No sessions scheduled
+                        </p>
+                        {onOpenRosterModal && (
+                          <button
+                            type="button"
+                            onClick={onOpenRosterModal}
+                            className="atelier-chip cursor-pointer"
+                          >
+                            Open Calendar
+                          </button>
+                        )}
+                      </div>
+                    ) : (
+                      dayEvents.map((ev) => (
+                        <div key={ev.id} className="atelier-ev">
+                          <time>
+                            {ev.startTime || 'All day'}
+                            {ev.venue ? ` — ${ev.venue}` : ''}
+                          </time>
+                          <p className="t">
+                            {ev.title}{' '}
+                            {ev.type && (
+                              <span className="atelier-chip">
+                                {ev.type}
+                              </span>
+                            )}
+                          </p>
+                          {(ev.instructor || ev.notes) && (
+                            <p className="m">{[ev.instructor, ev.notes].filter(Boolean).join(' · ')}</p>
+                          )}
+                        </div>
+                      ))
+                    )}
+                  </div>
+
+                  {/* Drag Resize Handle */}
+                  <div className="panel-resize-joystick-widget">
+                    <div
+                      className="panel-resize-joystick"
+                      onMouseDown={(e) => startResize(e, 'cal')}
+                      title="Drag up/down to resize"
+                    >
+                      <MoveVertical className="w-3 h-3" />
                     </div>
                   </div>
-                ))
+                </>
               )}
-            </div>
+            </section>
+          )}
 
-            {/* Drag Resize Handle */}
-            <div className="panel-resize-joystick-widget">
-              <div
-                className="panel-resize-joystick"
-                onMouseDown={(e) => startResize(e, 'rem')}
-                title="Drag up/down to resize"
-              >
-                <MoveVertical className="w-3 h-3" />
+          {/* Card 2: 3D Yellow Sticky Note Tasks (Actual Paper Edges) */}
+          {!todayPanels.closed.tasks && (
+            <section
+              className={`atelier-sticky atelier-panel ${todayPanels.minimized.tasks ? 'is-minimized' : ''}`}
+              aria-labelledby="task-h"
+              style={todayPanels.minimized.tasks ? undefined : { height: `${noteHeight}px`, overflow: 'visible' }}
+            >
+              <div className="atelier-panel-h">
+                <div>
+                  <h3 id="task-h">Tasks</h3>
+                </div>
+                <div className="flex items-center gap-1 shrink-0">
+                  <span className="atelier-chip brass" id="task-count">
+                    {completedCount} / {stickyTasks.length}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => toggleMinimizePanel('tasks')}
+                    className="raw-icon-btn atelier-panel-ctrl"
+                    aria-label={todayPanels.minimized.tasks ? 'Expand Tasks' : 'Minimise Tasks'}
+                    title={todayPanels.minimized.tasks ? 'Expand' : 'Minimise'}
+                  >
+                    {todayPanels.minimized.tasks ? <Maximize2 className="w-3 h-3" /> : <Minus className="w-3 h-3" />}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => closePanel('tasks')}
+                    className="raw-icon-btn atelier-panel-ctrl close"
+                    aria-label="Close Tasks"
+                    title="Close"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
               </div>
-            </div>
-          </section>
+
+              {!todayPanels.minimized.tasks && (
+                <>
+                  <div className="atelier-seg" role="group" aria-label="Filter tasks">
+                    <button
+                      type="button"
+                      aria-pressed={taskFilter === 'all'}
+                      onClick={() => setTaskFilter('all')}
+                    >
+                      All
+                    </button>
+                    <button
+                      type="button"
+                      aria-pressed={taskFilter === 'pending'}
+                      onClick={() => setTaskFilter('pending')}
+                    >
+                      Pending
+                    </button>
+                    <button
+                      type="button"
+                      aria-pressed={taskFilter === 'done'}
+                      onClick={() => setTaskFilter('done')}
+                    >
+                      Completed
+                    </button>
+                  </div>
+
+                  <ul className="atelier-tasks">
+                    {filteredTasks.length === 0 ? (
+                      <li
+                        className="atelier-task"
+                        style={{ color: 'color-mix(in srgb, var(--note-ink) 65%, transparent)', fontFamily: 'Caveat, cursive', fontSize: '15px', fontStyle: 'normal' }}
+                      >
+                        Nothing here.
+                      </li>
+                    ) : (
+                      filteredTasks.map((t) => (
+                        <li key={t.id} className={`atelier-task ${t.done ? 'done' : ''} group flex items-center justify-between gap-1`}>
+                          <div className="flex items-center gap-2 min-w-0 flex-1">
+                            <input
+                              type="checkbox"
+                              id={`chk-${t.id}`}
+                              checked={t.done}
+                              onChange={() => handleToggleTaskDone(t.id)}
+                            />
+                            <label htmlFor={`chk-${t.id}`} className="truncate">{t.t}</label>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteTask(t.id)}
+                            className="opacity-50 hover:opacity-100 p-0.5 cursor-pointer shrink-0"
+                            aria-label={`Delete task ${t.t}`}
+                            title="Delete task"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </li>
+                      ))
+                    )}
+                  </ul>
+
+                  <form className="atelier-add" onSubmit={handleAddNewTask}>
+                    <input
+                      id="new-task"
+                      placeholder="Add a task…"
+                      autoComplete="off"
+                      value={newTaskInput}
+                      onChange={(e) => setNewTaskInput(e.target.value)}
+                    />
+                    <button type="submit" aria-label="Add task">
+                      <Plus className="w-3.5 h-3.5" />
+                    </button>
+                  </form>
+
+                  {/* Drag Resize Handle */}
+                  <div className="panel-resize-joystick-widget" style={{ right: '14px' }}>
+                    <div
+                      className="panel-resize-joystick"
+                      onMouseDown={(e) => startResize(e, 'note')}
+                      title="Drag up/down to resize"
+                    >
+                      <MoveVertical className="w-3 h-3" />
+                    </div>
+                  </div>
+                </>
+              )}
+            </section>
+          )}
+
+          {/* Card 3: Reminders */}
+          {!todayPanels.closed.reminders && (
+            <section
+              className={`atelier-card atelier-panel ${todayPanels.minimized.reminders ? 'is-minimized' : ''}`}
+              aria-labelledby="rem-h"
+              style={todayPanels.minimized.reminders ? undefined : { height: `${remHeight}px`, overflowY: 'auto' }}
+            >
+              <div className="atelier-panel-h">
+                <div>
+                  <h3 id="rem-h">Reminders</h3>
+                </div>
+                <div className="flex items-center gap-1 shrink-0">
+                  {!todayPanels.minimized.reminders && (
+                    <button
+                      type="button"
+                      className="atelier-chip"
+                      style={{ cursor: 'pointer' }}
+                      onClick={() => setIsAddingReminder((prev) => !prev)}
+                    >
+                      {isAddingReminder ? 'Cancel' : '+ New'}
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => toggleMinimizePanel('reminders')}
+                    className="raw-icon-btn atelier-panel-ctrl"
+                    aria-label={todayPanels.minimized.reminders ? 'Expand Reminders' : 'Minimise Reminders'}
+                    title={todayPanels.minimized.reminders ? 'Expand' : 'Minimise'}
+                  >
+                    {todayPanels.minimized.reminders ? <Maximize2 className="w-3 h-3" /> : <Minus className="w-3 h-3" />}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => closePanel('reminders')}
+                    className="raw-icon-btn atelier-panel-ctrl close"
+                    aria-label="Close Reminders"
+                    title="Close"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              </div>
+
+              {!todayPanels.minimized.reminders && (
+                <>
+                  {isAddingReminder && (
+                    <form onSubmit={handleCreateReminder} className="mb-2.5 p-2 rounded-xl border border-stone-300/60 dark:border-[#3d291b] space-y-1.5 text-xs">
+                      <input
+                        type="text"
+                        value={newRemTitle}
+                        onChange={(e) => setNewRemTitle(e.target.value)}
+                        placeholder="Reminder title..."
+                        required
+                        autoFocus
+                        className="w-full px-2 py-1 rounded-lg bg-white/80 dark:bg-[#1a120d] border border-stone-300/60 dark:border-[#3d291b] text-xs outline-none"
+                      />
+                      <div className="flex items-center gap-1.5">
+                        <input
+                          type="text"
+                          value={newRemTime}
+                          onChange={(e) => setNewRemTime(e.target.value)}
+                          placeholder="09:00"
+                          className="w-16 px-2 py-1 rounded-lg bg-white/80 dark:bg-[#1a120d] border border-stone-300/60 dark:border-[#3d291b] text-xs font-mono outline-none"
+                        />
+                        <select
+                          value={newRemAmpm}
+                          onChange={(e) => setNewRemAmpm(e.target.value as 'AM' | 'PM')}
+                          className="px-1.5 py-1 rounded-lg bg-white/80 dark:bg-[#1a120d] border border-stone-300/60 dark:border-[#3d291b] text-xs outline-none"
+                        >
+                          <option value="AM">AM</option>
+                          <option value="PM">PM</option>
+                        </select>
+                        <input
+                          type="text"
+                          value={newRemCat}
+                          onChange={(e) => setNewRemCat(e.target.value)}
+                          placeholder="Category"
+                          className="flex-1 min-w-0 px-2 py-1 rounded-lg bg-white/80 dark:bg-[#1a120d] border border-stone-300/60 dark:border-[#3d291b] text-xs outline-none"
+                        />
+                        <button
+                          type="submit"
+                          className="px-2.5 py-1 rounded-lg bg-[#A47C43] text-white font-semibold text-xs cursor-pointer shrink-0"
+                        >
+                          Add
+                        </button>
+                      </div>
+                    </form>
+                  )}
+
+                  <div className="atelier-rems">
+                    {reminders.length === 0 ? (
+                      <p className="py-3 text-center text-xs opacity-70" style={{ color: 'var(--at-muted)' }}>
+                        No reminders set.
+                      </p>
+                    ) : (
+                      reminders.map((r) => (
+                        <div key={r.id} className="atelier-rem">
+                          <p className="atelier-rem-time">
+                            {r.time}
+                            <small>{r.ampm}</small>
+                          </p>
+                          <div>
+                            <span
+                              className="atelier-eyebrow"
+                              style={{ color: 'var(--at-brass)', fontWeight: 600 }}
+                            >
+                              {r.category}
+                            </span>
+                            <p className="ti">{r.title}</p>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <button
+                              type="button"
+                              className="atelier-bell"
+                              aria-pressed={r.active}
+                              onClick={() => toggleReminderActive(r.id)}
+                              aria-label={`Toggle alarm for ${r.title}`}
+                              title={r.active ? 'Alarm set' : 'Muted'}
+                            >
+                              <AlarmClock className={`w-3.5 h-3.5 ${r.active ? '' : 'opacity-40'}`} />
+                            </button>
+                            <button
+                              type="button"
+                              className="atelier-bell opacity-65 hover:opacity-100"
+                              onClick={() => handleDeleteReminder(r.id)}
+                              aria-label={`Delete reminder ${r.title}`}
+                              title="Delete reminder"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+
+                  {/* Drag Resize Handle */}
+                  <div className="panel-resize-joystick-widget">
+                    <div
+                      className="panel-resize-joystick"
+                      onMouseDown={(e) => startResize(e, 'rem')}
+                      title="Drag up/down to resize"
+                    >
+                      <MoveVertical className="w-3 h-3" />
+                    </div>
+                  </div>
+                </>
+              )}
+            </section>
+          )}
         </div>
 
         {/* Section: Favourites */}

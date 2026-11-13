@@ -480,6 +480,7 @@ html.dark .atelier-root {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 14px;
+  align-items: start;
 }
 
 .atelier-panel {
@@ -490,6 +491,57 @@ html.dark .atelier-root {
   position: relative;
   border-radius: 14px;
   box-sizing: border-box;
+}
+
+.atelier-panel.is-minimized {
+  min-height: 0 !important;
+  height: auto !important;
+  padding: 9px 12px !important;
+  overflow: visible !important;
+  align-self: start;
+}
+
+.atelier-panel.is-minimized .atelier-panel-h {
+  margin-bottom: 0;
+}
+
+.atelier-panel-ctrl {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--at-muted);
+  cursor: pointer;
+  transition: background-color 0.16s ease, color 0.16s ease, transform 0.14s ease;
+  flex-shrink: 0;
+}
+
+.atelier-panel-ctrl:hover {
+  background: rgba(128, 108, 82, 0.14);
+  color: var(--at-ink);
+}
+
+.atelier-panel-ctrl.close:hover {
+  background: rgba(185, 45, 52, 0.14);
+  color: #b92d34;
+}
+
+.atelier-sticky .atelier-panel-ctrl {
+  color: rgba(61, 52, 32, 0.72);
+}
+
+.atelier-sticky .atelier-panel-ctrl:hover {
+  background: rgba(61, 52, 32, 0.12);
+  color: #2b2312;
+}
+
+.atelier-sticky .atelier-panel-ctrl.close:hover {
+  background: rgba(165, 34, 34, 0.14);
+  color: #8f1d1d;
 }
 
 .atelier-panel-h {
@@ -615,48 +667,101 @@ html.dark .atelier-root {
   margin-top: 1px;
 }
 
-/* Sticky Note (Tasks) */
+/* Sticky Note (Tasks) — Realistic Physical Paper Edges */
 .atelier-sticky {
-  --note: #F3E3A0;
+  --note: #f4e4a2;
   --note-ink: #3D3420;
-  background: var(--note);
+  background-color: var(--note);
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cfilter id='pf'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.45 0 0 0 0 0.35 0 0 0 0 0.15 0 0 0 0.045 0'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23pf)'/%3E%3C/svg%3E"),
+    linear-gradient(90deg, rgba(154, 118, 42, 0.11) 0%, rgba(255, 252, 236, 0.24) 2%, transparent 6%, transparent 94%, rgba(145, 110, 36, 0.12) 100%),
+    linear-gradient(172deg, rgba(255, 253, 240, 0.44) 0%, rgba(244, 228, 162, 0) 35%, rgba(190, 152, 58, 0.14) 100%);
   color: var(--note-ink);
-  border-radius: 10px;
+  border-radius: 2px 2px 3px 2px !important;
+  border: 1px solid rgba(138, 108, 36, 0.34);
   position: relative;
-  box-shadow: 0 1px 1px rgba(0,0,0,.06), 0 22px 30px -18px rgba(70,50,0,.5);
-  transform: rotate(-1.2deg);
-  transition: transform .3s;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 253, 240, 0.78),
+    inset 0 -2px 6px rgba(138, 104, 34, 0.14),
+    2px 3px 0 -0.5px #e6d388,
+    2px 3px 0 0px rgba(118, 90, 28, 0.24),
+    0 12px 22px -12px rgba(42, 28, 4, 0.44),
+    0 22px 32px -18px rgba(32, 20, 0, 0.40);
+  transform: rotate(-0.9deg);
+  transition: transform .3s ease, box-shadow .3s ease;
 }
 
 .atelier-sticky:hover {
   transform: rotate(0);
 }
 
+.atelier-sticky.is-minimized {
+  transform: rotate(0deg);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 253, 240, 0.78),
+    2px 2px 0 -0.5px #e6d388,
+    2px 2px 0 0px rgba(118, 90, 28, 0.24),
+    0 8px 16px -10px rgba(32, 20, 0, 0.38);
+}
+
 .dark .atelier-sticky,
 html.dark .atelier-sticky,
 [data-theme="dark"] .atelier-sticky {
-  --note: #F3E3A0;
+  --note: #f4e4a2;
   --note-ink: #3D3420;
-  background: var(--note);
+  background-color: var(--note);
   color: var(--note-ink);
-  box-shadow: 0 1px 1px rgba(0,0,0,.15), 0 22px 30px -18px rgba(0,0,0,.65);
+  border-color: rgba(138, 108, 36, 0.42);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 253, 240, 0.75),
+    inset 0 -2px 6px rgba(138, 104, 34, 0.16),
+    2px 3px 0 -0.5px #dfcb7c,
+    2px 3px 0 0px rgba(0, 0, 0, 0.45),
+    0 14px 24px -10px rgba(0, 0, 0, 0.65),
+    0 24px 36px -16px rgba(0, 0, 0, 0.62);
 }
 
 .atelier-sticky::before {
   content: "";
   position: absolute;
-  top: -13px;
+  top: -11px;
   left: 50%;
-  width: 120px;
-  height: 28px;
-  transform: translateX(-50%) rotate(-3deg);
-  background: rgba(255,255,255,.5);
-  border-left: 1px dashed rgba(0,0,0,.08);
-  border-right: 1px dashed rgba(0,0,0,.08);
+  width: 108px;
+  height: 22px;
+  transform: translateX(-50%) rotate(-2.5deg);
+  background: rgba(255, 253, 244, 0.56);
+  border-left: 1px dashed rgba(90, 72, 32, 0.16);
+  border-right: 1px dashed rgba(90, 72, 32, 0.16);
+  box-shadow: 0 1px 2px rgba(40, 28, 8, 0.12);
   pointer-events: none;
+  z-index: 2;
+}
+
+.atelier-sticky.is-minimized::before {
+  display: none;
 }
 
 .atelier-sticky::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 16px;
+  height: 16px;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 252, 232, 0.78) 0%,
+    rgba(232, 210, 128, 0.94) 47%,
+    rgba(115, 86, 26, 0.24) 50%,
+    rgba(0, 0, 0, 0.08) 64%,
+    transparent 72%
+  );
+  border-top-left-radius: 3px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.atelier-sticky.is-minimized::after {
   display: none;
 }
 
@@ -724,6 +829,8 @@ html.dark .atelier-sticky,
   flex-direction: column;
   gap: 0;
   flex: 1;
+  min-height: 0;
+  overflow-y: auto;
   background: repeating-linear-gradient(transparent 0 23px, rgba(90,70,20,.18) 23px 24px);
 }
 
