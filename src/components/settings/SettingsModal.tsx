@@ -582,7 +582,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const [dailyQBankGoal, setDailyQBankGoal] = useState<number>(() => Number(localStorage.getItem('medden_daily_qbank')) || 40);
   const [distractionFree, setDistractionFree] = useState<boolean>(() => localStorage.getItem('medden_distraction_free') === 'true');
   const [currentFont, setCurrentFont] = useState<string>(() => {
-    return localStorage.getItem('medden_app_font') || 'Plus Jakarta Sans';
+    return localStorage.getItem('medden_app_font') || 'Alata';
   });
   const [fontScale, setFontScale] = useState<number>(() => {
     const saved = localStorage.getItem('medden_font_scale');

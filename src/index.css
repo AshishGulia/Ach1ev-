@@ -523,7 +523,7 @@ html[data-design="10"].dark {
     touch-action: pan-x pan-y pinch-zoom;
   }
   html, body, button, input, select, textarea, div, span, p, h1, h2, h3, h4, h5, h6, a, label, b, i, small {
-    font-family: var(--app-font-family, 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
+    font-family: var(--app-font-family, 'Alata', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
   }
   .an-sheet,
   .an-sheet *:not(.an-sheet-quick-tools):not(.an-sheet-quick-tools *):not(.an-table-word-bar):not(.an-table-word-bar *):not(.an-table-drag-grip):not(.an-table-drag-grip *) {
@@ -747,13 +747,13 @@ html[data-design]:not([data-design="1"]) :is(.text-\[\#A47C43\], .text-\[\#a47c4
 
 /* Unified Typography Classes across all Design Editions */
 .font-cinzel {
-  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  font-family: var(--app-font-family, 'Alata', system-ui, -apple-system, sans-serif);
 }
 .font-space {
-  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  font-family: var(--app-font-family, 'Alata', system-ui, -apple-system, sans-serif);
 }
 .font-cormorant {
-  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  font-family: var(--app-font-family, 'Alata', system-ui, -apple-system, sans-serif);
 }
 .font-mono-tech {
   font-family: 'JetBrains Mono', monospace;
@@ -2046,9 +2046,9 @@ html[data-design="10"].dark .leisure-surface {
   -webkit-font-smoothing: subpixel-antialiased;
 }
 
-/* Thought of the Day: clean readable Sans typography across all themes */
+/* Thought of the Day: clean readable Alata typography across all themes */
 .sidebar-thought-quote {
-  font-family: var(--font-sans, "Geist", "Inter", system-ui, -apple-system, sans-serif) !important;
+  font-family: var(--app-font-family, 'Alata', system-ui, -apple-system, sans-serif) !important;
   font-size: 13.5px !important;
   font-style: normal !important;
   font-weight: 500 !important;
@@ -2056,7 +2056,7 @@ html[data-design="10"].dark .leisure-surface {
 }
 
 .sidebar-thought-author {
-  font-family: var(--font-sans, "Geist", "Inter", system-ui, -apple-system, sans-serif) !important;
+  font-family: var(--app-font-family, 'Alata', system-ui, -apple-system, sans-serif) !important;
   font-size: 10.5px !important;
   font-style: normal !important;
 }

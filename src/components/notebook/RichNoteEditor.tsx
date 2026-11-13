@@ -423,7 +423,7 @@ const LegacyRichNoteEditor: React.FC<RichNoteEditorProps> = ({
 
   // Active Note Font State (supports all 15 master fonts & 6 handwriting fonts)
   const [activeNoteFont, setActiveNoteFont] = useState<string>(() => {
-    return localStorage.getItem('medden_app_font') || 'Plus Jakarta Sans';
+    return localStorage.getItem('medden_app_font') || 'Alata';
   });
 
   const handleSelectNoteFont = (fontName: string) => {
@@ -2395,6 +2395,7 @@ const LegacyRichNoteEditor: React.FC<RichNoteEditorProps> = ({
                   <option value="Dancing Script">✍️ Dancing Script (Flowing Cursive)</option>
                 </optgroup>
                 <optgroup label="📄 Clean UI & Reading">
+                  <option value="Alata">Alata</option>
                   <option value="Plus Jakarta Sans">Plus Jakarta Sans</option>
                   <option value="Inter">Inter</option>
                   <option value="Outfit">Outfit</option>

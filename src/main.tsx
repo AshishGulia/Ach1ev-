@@ -9,7 +9,7 @@ initPwaSupport();
 
 // Apply saved user font family & size spectrum
 try {
-  const savedFont = localStorage.getItem('medden_app_font') || 'Plus Jakarta Sans';
+  const savedFont = localStorage.getItem('medden_app_font') || 'Alata';
   const savedScale = localStorage.getItem('medden_font_scale') || '100%';
   document.documentElement.style.setProperty('--app-font-family', `'${savedFont}', system-ui, -apple-system, sans-serif`);
   document.documentElement.style.setProperty('--app-font-scale', savedScale);

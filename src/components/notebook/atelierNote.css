@@ -15,8 +15,8 @@
   --an-rule: rgba(164, 124, 67, 0.22);
   --an-margin: rgba(180,88,74,.35);
   --an-shadow: 0 1px 0 rgba(255,255,255,.8) inset, 0 18px 40px -30px rgba(54,40,20,.45);
-  --an-serif: "Fraunces", Georgia, serif;
-  --an-sans: "Geist", system-ui, -apple-system, sans-serif;
+  --an-serif: var(--app-font-family, 'Alata', system-ui, -apple-system, sans-serif);
+  --an-sans: var(--app-font-family, 'Alata', system-ui, -apple-system, sans-serif);
   --an-mono: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
   --an-hand: "Caveat", cursive;
 }

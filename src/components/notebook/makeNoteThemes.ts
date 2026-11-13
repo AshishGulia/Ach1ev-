@@ -25,7 +25,7 @@ export interface MakeNoteThemeConfig {
   isTerminal?: boolean;
 }
 
-const UNIFIED_FONT = "'Plus Jakarta Sans', system-ui, -apple-system, sans-serif";
+const UNIFIED_FONT = "'Alata', system-ui, -apple-system, sans-serif";
 
 export const MAKE_NOTE_THEMES: Record<DesignId, MakeNoteThemeConfig> = {
   '1': {

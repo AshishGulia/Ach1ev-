@@ -14,8 +14,8 @@
   --mn-blue-soft: #e8eef5;
   --mn-rose: #7f1d1d;
   --mn-rose-soft: rgba(127, 29, 29, 0.12);
-  --mn-serif: 'Fraunces', Georgia, serif;
-  --mn-sans: 'Geist', Inter, system-ui, sans-serif;
+  --mn-serif: var(--app-font-family, 'Alata', system-ui, -apple-system, sans-serif);
+  --mn-sans: var(--app-font-family, 'Alata', system-ui, -apple-system, sans-serif);
   --mn-mono: 'Geist Mono', Consolas, monospace;
   --mn-shadow: 0 18px 42px -28px rgba(36,47,40,.35);
 }

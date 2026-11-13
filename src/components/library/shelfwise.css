@@ -11,8 +11,8 @@
   --ink: #2b2118;
   --muted: #7a6a58;
   --paper: #f7f2e9;
-  --serif: "Fraunces", Georgia, serif;
-  --sans: "Geist", system-ui, -apple-system, sans-serif;
+  --serif: var(--app-font-family, 'Alata', system-ui, -apple-system, sans-serif);
+  --sans: var(--app-font-family, 'Alata', system-ui, -apple-system, sans-serif);
   
   font-family: var(--sans);
   color: var(--ink);

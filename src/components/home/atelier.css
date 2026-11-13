@@ -10,8 +10,8 @@
   --at-sage-soft: #F1E7D6;
   --at-brass-soft: #F1E7D6;
   --at-shadow: 0 1px 0 rgba(255,255,255,.8) inset, 0 20px 40px -28px rgba(54,40,20,.35);
-  --at-serif: "Fraunces", Georgia, serif;
-  --at-sans: "Geist", system-ui, -apple-system, sans-serif;
+  --at-serif: var(--app-font-family, 'Alata', system-ui, -apple-system, sans-serif);
+  --at-sans: var(--app-font-family, 'Alata', system-ui, -apple-system, sans-serif);
   --at-mono: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
 }
 

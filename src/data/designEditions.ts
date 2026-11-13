@@ -30,7 +30,7 @@ export interface DesignEditionConfig {
   signatureBadge: string;
 }
 
-const UNIFIED_APP_FONT = "'Plus Jakarta Sans', system-ui, -apple-system, sans-serif";
+const UNIFIED_APP_FONT = "'Alata', system-ui, -apple-system, sans-serif";
 
 export const DESIGN_EDITIONS: Record<string, DesignEditionConfig> = {
   'cyber-tech': {

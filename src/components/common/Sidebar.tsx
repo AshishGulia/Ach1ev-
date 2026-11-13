@@ -461,7 +461,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     <p
                       className="sidebar-thought-quote font-sans not-italic font-medium"
                       style={{
-                        fontFamily: 'var(--font-sans, "Geist", "Inter", system-ui, -apple-system, sans-serif)',
+                        fontFamily: "var(--app-font-family, 'Alata', system-ui, -apple-system, sans-serif)",
                         fontSize: '13.5px',
                         fontStyle: 'normal',
                         lineHeight: 1.5,
@@ -473,7 +473,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     <span
                       className="sidebar-thought-author font-sans tracking-wider uppercase block mt-1.5 font-bold"
                       style={{
-                        fontFamily: 'var(--font-sans, "Geist", "Inter", system-ui, -apple-system, sans-serif)',
+                        fontFamily: "var(--app-font-family, 'Alata', system-ui, -apple-system, sans-serif)",
                         fontSize: '10.5px',
                         color: sb.authorColor,
                       }}
