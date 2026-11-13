@@ -1,0 +1,6 @@
+{
+  "name": "GitHub Project Importer",
+  "description": "Import, inspect, and migrate public GitHub repositories into your AI Studio workspace.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

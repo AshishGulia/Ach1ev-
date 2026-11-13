@@ -1,0 +1,1516 @@
+/* Notist — Atelier My Space Dashboard Styles */
+:root {
+  --at-bg: #F3EEE6;
+  --at-paper: #FBF8F3;
+  --at-ink: #1E2622;
+  --at-muted: #6F726B;
+  --at-line: #E3DBCF;
+  --at-brass: #A47C43;
+  --at-sage: #8f5f2c;
+  --at-sage-soft: #F1E7D6;
+  --at-brass-soft: #F1E7D6;
+  --at-shadow: 0 1px 0 rgba(255,255,255,.8) inset, 0 20px 40px -28px rgba(54,40,20,.35);
+  --at-serif: "Fraunces", Georgia, serif;
+  --at-sans: "Geist", system-ui, -apple-system, sans-serif;
+  --at-mono: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
+}
+
+.dark .atelier-root,
+[data-theme="dark"] .atelier-root,
+html.dark .atelier-root {
+  --at-bg: #080402;
+  --at-paper: #110804;
+  --at-ink: #f0e5d5;
+  --at-muted: #a69079;
+  --at-line: #2d180d;
+  --at-brass: #c49257;
+  --at-sage: #d4a373;
+  --at-sage-soft: rgba(212, 163, 115, 0.16);
+  --at-brass-soft: rgba(196, 146, 87, 0.16);
+  --at-shadow: 0 1px 0 rgba(255,235,205,.04) inset, 0 20px 40px -28px rgba(0,0,0,.85);
+}
+
+.atelier-root {
+  font-family: var(--at-sans);
+  background: var(--at-bg);
+  color: var(--at-ink);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  transition: background .3s, color .3s;
+}
+
+.atelier-main {
+  flex: 1;
+  min-width: 0;
+  padding: 0 28px 36px;
+  overflow-y: auto;
+}
+
+.atelier-serif {
+  font-family: var(--at-serif);
+  font-weight: 400;
+  letter-spacing: -.01em;
+}
+
+.atelier-eyebrow {
+  font-family: var(--at-mono);
+  font-size: 10.5px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--at-muted);
+}
+
+/* Header Top Bar */
+.atelier-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 46px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: color-mix(in srgb, var(--at-bg) 88%, transparent);
+  backdrop-filter: blur(10px);
+}
+
+.atelier-crumb {
+  color: var(--at-muted);
+  font-size: 13px;
+}
+
+.atelier-crumb b {
+  color: var(--at-ink);
+  font-weight: 500;
+}
+
+.atelier-search {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--at-line);
+  background: var(--at-paper);
+  border-radius: 999px;
+  padding: 5px 12px;
+  width: 174px;
+  color: var(--at-muted);
+}
+
+.atelier-search input {
+  border: 0;
+  background: none;
+  outline: none;
+  flex: 1;
+  min-width: 0;
+  color: var(--at-ink);
+}
+
+.atelier-kbd {
+  font-family: var(--at-mono);
+  font-size: 10.5px;
+  border: 1px solid var(--at-line);
+  border-radius: 5px;
+  padding: 1px 5px;
+}
+
+.atelier-clock {
+  font-family: var(--at-mono);
+  font-size: 12.5px;
+  border: 1px solid var(--at-line);
+  background: var(--at-paper);
+  border-radius: 999px;
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.atelier-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--at-sage);
+  box-shadow: 0 0 0 3px var(--at-sage-soft);
+}
+
+.atelier-icon-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid var(--at-line);
+  background: var(--at-paper);
+  display: grid;
+  place-items: center;
+  transition: border-color .2s;
+  cursor: pointer;
+  color: var(--at-ink);
+}
+
+.atelier-icon-btn:hover {
+  border-color: var(--at-brass);
+}
+
+/* Card & Buttons */
+.atelier-card {
+  background: var(--at-paper);
+  border: 1px solid var(--at-line);
+  border-radius: 22px;
+  box-shadow: var(--at-shadow);
+  position: relative;
+}
+
+.atelier-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 18px;
+  border-radius: 999px;
+  border: 1px solid var(--at-line);
+  background: var(--at-paper);
+  font-weight: 500;
+  transition: transform .2s, border-color .2s;
+  cursor: pointer;
+  color: var(--at-ink);
+}
+
+.atelier-btn:hover {
+  border-color: var(--at-brass);
+}
+
+.atelier-btn-ink {
+  background: var(--at-ink);
+  color: var(--at-paper);
+  border-color: var(--at-ink);
+}
+
+.atelier-btn-ink:hover {
+  transform: translateY(-1px);
+}
+
+/* Section Headers */
+.atelier-sec {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 16px 0 10px;
+  flex-wrap: wrap;
+}
+
+.atelier-sec h2 {
+  font-family: var(--at-serif);
+  font-weight: 500;
+  font-size: 18px;
+  letter-spacing: -.015em;
+  line-height: 1.15;
+  color: var(--at-ink);
+}
+
+.atelier-sec .atelier-rule {
+  flex: 1;
+  height: 1px;
+  background: var(--at-line);
+  min-width: 32px;
+  margin-bottom: 0;
+}
+
+.atelier-numeral {
+  font-family: var(--at-serif);
+  font-style: normal;
+  color: var(--at-brass);
+  font-size: 19px;
+  margin-bottom: 3px;
+}
+
+/* Trackers Gallery - 50% Reduced Compact Size per User Request */
+.atelier-trackers {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+}
+
+.atelier-tracker {
+  padding: 8px 12px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 98px;
+  overflow: hidden;
+  transition: transform .25s, border-color .25s;
+  position: relative;
+  border-radius: 14px;
+}
+
+.atelier-tracker:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--acc) 45%, var(--at-line));
+}
+
+.atelier-tracker::before {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 50%;
+  background: radial-gradient(90% 100% at 50% 100%, color-mix(in srgb, var(--acc) 10%, transparent), transparent 70%);
+  pointer-events: none;
+}
+
+.atelier-tr-h {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  position: relative;
+}
+
+.atelier-tr-h .atelier-eyebrow {
+  color: var(--at-ink);
+  opacity: .8;
+  font-size: 10px;
+}
+
+.atelier-tr-del {
+  opacity: 0;
+  transition: opacity .2s;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--at-muted);
+  padding: 2px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+}
+
+.atelier-tracker:hover .atelier-tr-del,
+.atelier-tracker:focus-within .atelier-tr-del {
+  opacity: 1;
+}
+
+.atelier-tr-del:hover {
+  color: #962d32;
+}
+
+.dark .atelier-tr-del:hover,
+.theme-1-dark .atelier-tr-del:hover {
+  color: #c94a4f;
+}
+
+.atelier-tr-vis {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  position: relative;
+  min-height: 52px;
+}
+
+.atelier-tr-f {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 6px;
+  position: relative;
+}
+
+.atelier-tr-val {
+  font-family: var(--at-serif);
+  font-weight: 400;
+  font-size: 18px;
+  letter-spacing: -.02em;
+  line-height: 1;
+  color: var(--at-ink);
+}
+
+.atelier-tr-val small {
+  font-size: 10px;
+  color: var(--at-muted);
+  letter-spacing: 0;
+}
+
+.atelier-tr-sub {
+  color: var(--at-muted);
+  font-size: 9px;
+  margin-top: 2px;
+}
+
+.atelier-log {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px solid var(--at-line);
+  display: grid;
+  place-items: center;
+  color: var(--acc);
+  background: var(--at-paper);
+  transition: all .2s;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.atelier-log:hover {
+  background: var(--acc);
+  color: var(--at-paper);
+  border-color: var(--acc);
+  transform: scale(1.08);
+}
+
+/* Gauge Visuals - 50% compact */
+.atelier-v-arch {
+  width: 100%;
+  max-width: 96px;
+  aspect-ratio: 2/1.15;
+  border: 1px solid var(--at-line);
+  border-bottom: 0;
+  border-radius: 999px 999px 0 0;
+  padding: 4px 6px 0;
+  display: flex;
+  align-items: flex-end;
+}
+
+.atelier-v-arch svg {
+  width: 100%;
+}
+
+.atelier-v-ring {
+  width: 54px;
+  height: 54px;
+  position: relative;
+}
+
+.atelier-v-ring b {
+  font-size: 10px;
+}
+
+.atelier-v-ring b {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-family: var(--at-mono);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--at-ink);
+}
+
+.atelier-v-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 48px;
+}
+
+.atelier-v-bars i {
+  width: 6px;
+  border-radius: 3px 3px 1px 1px;
+  background: var(--at-line);
+  transition: background .3s;
+}
+
+.atelier-v-bars i.on {
+  background: var(--acc);
+}
+
+.atelier-v-dots {
+  display: grid;
+  grid-template-columns: repeat(7, 9px);
+  gap: 5px;
+}
+
+.atelier-v-dots i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 1px solid var(--at-line);
+}
+
+.atelier-v-dots i.on {
+  background: var(--acc);
+  border-color: var(--acc);
+}
+
+.atelier-tr-add {
+  border: 1.5px dashed var(--at-line);
+  border-radius: 14px;
+  min-height: 98px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  color: var(--at-muted);
+  transition: all .25s;
+  background: transparent;
+  cursor: pointer;
+  padding: 8px;
+}
+
+.atelier-tr-add:hover {
+  border-color: var(--at-brass);
+  color: var(--at-ink);
+  background: var(--at-paper);
+}
+
+.atelier-tr-add .plus {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--at-line);
+  display: grid;
+  place-items: center;
+  background: var(--at-paper);
+  color: var(--at-brass);
+  transition: transform .3s;
+}
+
+.atelier-tr-add:hover .plus {
+  transform: rotate(90deg);
+}
+
+.atelier-tr-add span {
+  font-family: var(--at-serif);
+  font-size: 18px;
+}
+
+/* Today Trio Section */
+.atelier-trio {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+.atelier-panel {
+  padding: 10px 12px 12px;
+  display: flex;
+  flex-direction: column;
+  min-height: 120px;
+  position: relative;
+  border-radius: 14px;
+  box-sizing: border-box;
+}
+
+.atelier-panel-h {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.atelier-panel-h h3 {
+  font-family: var(--at-serif);
+  font-weight: 500;
+  font-size: 15.5px;
+  letter-spacing: -.01em;
+  color: var(--at-ink);
+}
+
+.atelier-chip {
+  font-family: var(--at-mono);
+  font-size: 9.5px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: var(--at-sage-soft);
+  color: var(--at-sage);
+  white-space: nowrap;
+}
+
+.atelier-chip.brass {
+  background: var(--at-brass-soft);
+  color: var(--at-brass);
+}
+
+/* Academic Calendar - Compact 50% scale */
+.atelier-days {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+
+.atelier-day {
+  flex: 1;
+  text-align: center;
+  padding: 4px 0;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-size: 10px;
+  color: var(--at-muted);
+  cursor: pointer;
+  transition: all .2s;
+  background: transparent;
+}
+
+.atelier-day b {
+  display: block;
+  font-family: var(--at-serif);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--at-ink);
+}
+
+.atelier-day[aria-pressed="true"] {
+  background: var(--at-ink);
+  color: var(--at-paper);
+  border-color: var(--at-ink);
+}
+
+.atelier-day[aria-pressed="true"] b {
+  color: var(--at-paper);
+}
+
+.atelier-day:hover:not([aria-pressed="true"]) {
+  border-color: var(--at-line);
+}
+
+.atelier-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-left: 1px solid var(--at-line);
+  margin-left: 4px;
+  padding-left: 12px;
+}
+
+.atelier-ev {
+  position: relative;
+}
+
+.atelier-ev::before {
+  content: "";
+  position: absolute;
+  left: -16px;
+  top: 4px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--at-paper);
+  border: 1.5px solid var(--at-brass);
+}
+
+.atelier-ev time {
+  font-family: var(--at-mono);
+  font-size: 8.5px;
+  color: var(--at-muted);
+}
+
+.atelier-ev .t {
+  font-weight: 500;
+  font-size: 11px;
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  align-items: center;
+  color: var(--at-ink);
+  line-height: 1.25;
+}
+
+.atelier-ev .m {
+  font-size: 9.5px;
+  color: var(--at-muted);
+  margin-top: 1px;
+}
+
+/* Sticky Note (Tasks) */
+.atelier-sticky {
+  --note: #F3E3A0;
+  --note-ink: #3D3420;
+  background: var(--note);
+  color: var(--note-ink);
+  border-radius: 10px;
+  position: relative;
+  box-shadow: 0 1px 1px rgba(0,0,0,.06), 0 22px 30px -18px rgba(70,50,0,.5);
+  transform: rotate(-1.2deg);
+  transition: transform .3s;
+}
+
+.atelier-sticky:hover {
+  transform: rotate(0);
+}
+
+.dark .atelier-sticky,
+html.dark .atelier-sticky,
+[data-theme="dark"] .atelier-sticky {
+  --note: #F3E3A0;
+  --note-ink: #3D3420;
+  background: var(--note);
+  color: var(--note-ink);
+  box-shadow: 0 1px 1px rgba(0,0,0,.15), 0 22px 30px -18px rgba(0,0,0,.65);
+}
+
+.atelier-sticky::before {
+  content: "";
+  position: absolute;
+  top: -13px;
+  left: 50%;
+  width: 120px;
+  height: 28px;
+  transform: translateX(-50%) rotate(-3deg);
+  background: rgba(255,255,255,.5);
+  border-left: 1px dashed rgba(0,0,0,.08);
+  border-right: 1px dashed rgba(0,0,0,.08);
+  pointer-events: none;
+}
+
+.atelier-sticky::after {
+  display: none;
+}
+
+.atelier-sticky .atelier-panel-h h3 {
+  font-family: "Caveat", cursive;
+  font-size: 17.5px;
+  font-weight: 600;
+  font-style: normal !important;
+  line-height: 1;
+  color: var(--note-ink);
+}
+
+.atelier-sticky .atelier-eyebrow {
+  color: color-mix(in srgb, var(--note-ink) 60%, transparent);
+}
+
+.atelier-sticky .atelier-chip,
+.atelier-sticky .atelier-chip.brass {
+  background: rgba(61,52,32,.12);
+  color: var(--note-ink);
+}
+
+.atelier-seg {
+  display: flex;
+  background: var(--at-bg);
+  border-radius: 999px;
+  padding: 2px;
+  margin-bottom: 10px;
+}
+
+.atelier-seg button {
+  flex: 1;
+  padding: 4px 0;
+  border-radius: 999px;
+  font-size: 11px;
+  color: var(--at-muted);
+  transition: background .2s, color .2s;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+.atelier-seg button[aria-pressed="true"] {
+  background: var(--at-paper);
+  color: var(--at-ink);
+  box-shadow: 0 1px 3px rgba(0,0,0,.08);
+}
+
+.atelier-sticky .atelier-seg {
+  background: rgba(61,52,32,.08);
+}
+
+.atelier-sticky .atelier-seg button {
+  color: color-mix(in srgb, var(--note-ink) 65%, transparent);
+}
+
+.atelier-sticky .atelier-seg button[aria-pressed="true"] {
+  background: rgba(255,255,255,.6);
+  color: var(--note-ink);
+}
+
+.atelier-sticky .atelier-tasks {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  flex: 1;
+  background: repeating-linear-gradient(transparent 0 23px, rgba(90,70,20,.18) 23px 24px);
+}
+
+.atelier-sticky .atelier-task {
+  height: 24px;
+  padding: 0 4px;
+  border-radius: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.atelier-sticky .atelier-task:hover {
+  background: rgba(255,255,255,.22);
+}
+
+.atelier-sticky .atelier-task label {
+  font-family: "Caveat", cursive;
+  font-size: 13.5px;
+  font-weight: 500;
+  line-height: 1;
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  color: var(--note-ink);
+}
+
+.atelier-sticky .atelier-task input {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1.5px solid var(--note-ink);
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: all .2s;
+}
+
+.atelier-sticky .atelier-task input:checked {
+  background: var(--note-ink);
+  border-color: var(--note-ink);
+}
+
+.atelier-sticky .atelier-task input:checked::after {
+  content: "";
+  width: 4px;
+  height: 7px;
+  border: solid var(--note);
+  border-width: 0 1.8px 1.8px 0;
+  transform: rotate(45deg) translate(-1px, -1px);
+}
+
+.atelier-sticky .atelier-task.done label {
+  color: color-mix(in srgb, var(--note-ink) 45%, transparent);
+  text-decoration: line-through;
+}
+
+.atelier-sticky .atelier-add {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+  border-top: 1px dashed rgba(61,52,32,.3);
+  padding-top: 8px;
+}
+
+.atelier-sticky .atelier-add input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: none;
+  outline: none;
+  font-family: "Caveat", cursive;
+  font-size: 14px;
+  color: var(--note-ink);
+}
+
+.atelier-sticky .atelier-add input::placeholder {
+  color: color-mix(in srgb, var(--note-ink) 50%, transparent);
+}
+
+.atelier-sticky .atelier-add button {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--note-ink);
+  color: var(--note);
+  display: grid;
+  place-items: center;
+  border: none;
+  cursor: pointer;
+  margin-right: 26px;
+}
+
+/* Reminders Section - Compact */
+.atelier-rems {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.atelier-rem {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 10px;
+  border: 1px solid var(--at-line);
+  border-radius: 10px;
+  transition: border-color .2s;
+}
+
+.atelier-rem:hover {
+  border-color: var(--at-brass);
+}
+
+.atelier-rem-time {
+  font-family: var(--at-serif);
+  font-size: 14px;
+  line-height: 1;
+  text-align: center;
+  min-width: 44px;
+  color: var(--at-ink);
+}
+
+.atelier-rem-time small {
+  display: block;
+  font-family: var(--at-mono);
+  font-size: 9.5px;
+  color: var(--at-muted);
+  margin-top: 3px;
+}
+
+.atelier-rem .ti {
+  font-weight: 500;
+  font-size: 13.5px;
+  line-height: 1.35;
+  color: var(--at-ink);
+}
+
+.atelier-bell {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: var(--at-muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all .2s;
+}
+
+.atelier-bell[aria-pressed="true"] {
+  color: var(--at-brass);
+  background: var(--at-brass-soft);
+}
+
+.atelier-panel-f {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--at-line);
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--at-mono);
+  font-size: 11px;
+  color: var(--at-muted);
+}
+
+/* Add Tracker Dialog */
+.atelier-dialog-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(20, 18, 14, .45);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.atelier-dialog {
+  border: 1px solid var(--at-line);
+  border-radius: 24px;
+  background: var(--at-paper);
+  color: var(--at-ink);
+  padding: 28px;
+  width: min(440px, 92vw);
+  box-shadow: 0 40px 80px -30px rgba(0,0,0,.45);
+  animation: atelierFadeIn 0.2s ease-out;
+}
+
+@keyframes atelierFadeIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.atelier-dialog h3 {
+  font-family: var(--at-serif);
+  font-weight: 300;
+  font-size: 30px;
+  letter-spacing: -.02em;
+  margin-bottom: 18px;
+  color: var(--at-ink);
+}
+
+.atelier-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.atelier-field input {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  border: 1px solid var(--at-line);
+  background: var(--at-bg);
+  border-radius: 12px;
+  padding: 8px 10px;
+  outline: none;
+  color: var(--at-ink);
+  font-size: 13.5px;
+}
+
+.atelier-field input:focus {
+  border-color: var(--at-brass);
+}
+
+.atelier-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+}
+
+.atelier-types {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.atelier-types label {
+  border: 1px solid var(--at-line);
+  border-radius: 12px;
+  padding: 10px 4px;
+  text-align: center;
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--at-muted);
+  transition: all .2s;
+  user-select: none;
+}
+
+.atelier-types input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.atelier-types label.active {
+  border-color: var(--at-brass);
+  color: var(--at-ink);
+  background: var(--at-brass-soft);
+  font-weight: 500;
+}
+
+.atelier-d-acts {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1180px) {
+  .atelier-trio {
+    grid-template-columns: 1fr 1fr;
+  }
+  .atelier-trio .atelier-panel:last-child {
+    grid-column: 1 / -1;
+    min-height: 0;
+  }
+}
+
+@media (max-width: 960px) {
+  .atelier-main {
+    padding: 0 24px 60px;
+  }
+  .atelier-search {
+    width: 200px;
+  }
+}
+
+@media (max-width: 720px) {
+  .atelier-main {
+    padding: 0 12px 92px;
+  }
+  .atelier-top {
+    height: auto;
+    padding: 8px 0 4px;
+  }
+  .atelier-search {
+    width: 100%;
+    margin-left: 0;
+  }
+  .atelier-sec {
+    margin: 14px 0 8px;
+    gap: 8px;
+  }
+  .atelier-sec h2 {
+    font-size: 16px;
+  }
+  .atelier-trackers {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .atelier-tracker, .atelier-tr-add {
+    min-height: 112px;
+    padding: 10px;
+    border-radius: 12px;
+  }
+  .atelier-tr-add span {
+    font-size: 14px;
+  }
+  .atelier-tr-vis {
+    min-height: 48px;
+  }
+  .atelier-v-ring {
+    width: 52px;
+    height: 52px;
+  }
+  .atelier-v-bars {
+    height: 44px;
+    gap: 3px;
+  }
+  .atelier-v-bars i {
+    width: 5px;
+  }
+  .atelier-v-dots {
+    grid-template-columns: repeat(7, 8px);
+    gap: 4px;
+  }
+  .atelier-v-dots i {
+    width: 8px;
+    height: 8px;
+  }
+  .atelier-tr-val {
+    font-size: 16.5px;
+  }
+  .atelier-tr-val small {
+    font-size: 10px;
+  }
+  .atelier-tr-sub {
+    font-size: 9.5px;
+  }
+  .atelier-log {
+    width: 26px;
+    height: 26px;
+  }
+  .atelier-tr-del {
+    opacity: 0.78;
+  }
+  .atelier-sticky {
+    transform: none;
+    margin-top: 4px;
+  }
+  .atelier-trio {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .atelier-panel {
+    min-height: 150px;
+  }
+}
+
+/* =========================================================================
+   PANEL RESIZE JOYSTICK & MODAL ROBUSTNESS FIXES
+   ========================================================================= */
+.atelier-row {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.atelier-row .atelier-field {
+  min-width: 0 !important;
+  overflow: hidden !important;
+}
+
+.atelier-row input {
+  width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+
+.panel-resize-joystick-widget {
+  position: absolute;
+  bottom: 6px;
+  right: 6px;
+  z-index: 10;
+  background: transparent;
+  border: none;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  user-select: none;
+}
+
+.panel-resize-joystick {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: ns-resize;
+  border-radius: 6px;
+  background: rgba(164, 124, 67, 0.14);
+  color: var(--at-muted);
+  transition: all 0.2s;
+  user-select: none;
+}
+
+.atelier-sticky .panel-resize-joystick {
+  background: rgba(61, 52, 32, 0.10);
+  color: var(--note-ink);
+}
+
+.dark .panel-resize-joystick {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.dark .atelier-sticky .panel-resize-joystick {
+  background: rgba(61, 52, 32, 0.14);
+  color: var(--note-ink);
+}
+
+.panel-resize-joystick:hover,
+.panel-resize-joystick:active {
+  background: var(--at-brass);
+  color: #fff;
+  transform: scale(1.1);
+}
+
+/* =========================================================================
+   UNIFIED 10-THEME TOKENS FOR ATELIER COCKPIT (LIGHT + DARK)
+   Themes 2-10 use translucent backdrop so blurred wallpaper + watermark shine!
+   ========================================================================= */
+
+html[data-design="2"] .atelier-root,
+.atelier-root[data-atelier-theme="2"] {
+  --at-bg: rgba(235, 242, 231, 0.34);
+  --at-paper: rgba(247, 251, 244, 0.84);
+  --at-ink: #17261b;
+  --at-muted: #46614d;
+  --at-line: #c4d5bf;
+  --at-brass: #7a5c32;
+  --at-sage: #2f6b43;
+  --at-sage-soft: rgba(47, 107, 67, 0.14);
+  --at-brass-soft: rgba(122, 92, 50, 0.14);
+}
+html.dark[data-design="2"] .atelier-root,
+.dark .atelier-root[data-atelier-theme="2"] {
+  --at-bg: rgba(8, 18, 12, 0.36);
+  --at-paper: rgba(13, 28, 19, 0.84);
+  --at-ink: #e3f0e6;
+  --at-muted: #98bca2;
+  --at-line: #23422e;
+  --at-brass: #c49b57;
+  --at-sage: #58b37c;
+  --at-sage-soft: rgba(88, 179, 124, 0.18);
+  --at-brass-soft: rgba(196, 155, 87, 0.16);
+}
+
+html[data-design="3"] .atelier-root,
+.atelier-root[data-atelier-theme="3"] {
+  --at-bg: rgba(244, 239, 230, 0.34);
+  --at-paper: rgba(252, 249, 243, 0.84);
+  --at-ink: #152736;
+  --at-muted: #4c6578;
+  --at-line: #d4cab8;
+  --at-brass: #b07d4f;
+  --at-sage: #1c637a;
+  --at-sage-soft: rgba(28, 99, 122, 0.14);
+  --at-brass-soft: rgba(176, 125, 79, 0.14);
+}
+html.dark[data-design="3"] .atelier-root,
+.dark .atelier-root[data-atelier-theme="3"] {
+  --at-bg: rgba(7, 18, 29, 0.36);
+  --at-paper: rgba(12, 27, 41, 0.84);
+  --at-ink: #e6eff5;
+  --at-muted: #98bdd2;
+  --at-line: #1f415d;
+  --at-brass: #d4a373;
+  --at-sage: #4fb0cc;
+  --at-sage-soft: rgba(79, 176, 204, 0.18);
+  --at-brass-soft: rgba(212, 163, 115, 0.16);
+}
+
+html[data-design="4"] .atelier-root,
+.atelier-root[data-atelier-theme="4"] {
+  --at-bg: rgba(231, 237, 243, 0.34);
+  --at-paper: rgba(244, 248, 252, 0.82);
+  --at-ink: #182230;
+  --at-muted: #4b5e76;
+  --at-line: #c4d0de;
+  --at-brass: #9e6530;
+  --at-sage: #365578;
+  --at-sage-soft: rgba(54, 85, 120, 0.14);
+  --at-brass-soft: rgba(158, 101, 48, 0.14);
+}
+html.dark[data-design="4"] .atelier-root,
+.dark .atelier-root[data-atelier-theme="4"] {
+  --at-bg: rgba(9, 15, 24, 0.36);
+  --at-paper: rgba(15, 23, 36, 0.84);
+  --at-ink: #e6edf6;
+  --at-muted: #99aec9;
+  --at-line: #2c3f5b;
+  --at-brass: #d9934c;
+  --at-sage: #7ea5d6;
+  --at-sage-soft: rgba(126, 165, 214, 0.18);
+  --at-brass-soft: rgba(217, 147, 76, 0.16);
+}
+
+html[data-design="5"] .atelier-root,
+.atelier-root[data-atelier-theme="5"] {
+  --at-bg: rgba(238, 240, 242, 0.34);
+  --at-paper: rgba(250, 250, 251, 0.85);
+  --at-ink: #171b21;
+  --at-muted: #535d69;
+  --at-line: #ccd2da;
+  --at-brass: #a84732;
+  --at-sage: #364454;
+  --at-sage-soft: rgba(54, 68, 84, 0.14);
+  --at-brass-soft: rgba(168, 71, 50, 0.14);
+}
+html.dark[data-design="5"] .atelier-root,
+.dark .atelier-root[data-atelier-theme="5"] {
+  --at-bg: rgba(13, 16, 21, 0.36);
+  --at-paper: rgba(19, 24, 31, 0.85);
+  --at-ink: #eef1f5;
+  --at-muted: #9aa5b5;
+  --at-line: #2e3847;
+  --at-brass: #df7860;
+  --at-sage: #8da2bd;
+  --at-sage-soft: rgba(141, 162, 189, 0.16);
+  --at-brass-soft: rgba(223, 120, 96, 0.16);
+}
+
+html[data-design="6"] .atelier-root,
+.atelier-root[data-atelier-theme="6"] {
+  --at-bg: rgba(234, 243, 239, 0.34);
+  --at-paper: rgba(247, 252, 250, 0.84);
+  --at-ink: #132824;
+  --at-muted: #42665e;
+  --at-line: #c0d8cf;
+  --at-brass: #8c6b3f;
+  --at-sage: #1f6f62;
+  --at-sage-soft: rgba(31, 111, 98, 0.14);
+  --at-brass-soft: rgba(140, 107, 63, 0.14);
+}
+html.dark[data-design="6"] .atelier-root,
+.dark .atelier-root[data-atelier-theme="6"] {
+  --at-bg: rgba(7, 20, 18, 0.36);
+  --at-paper: rgba(11, 28, 25, 0.84);
+  --at-ink: #e3f3ef;
+  --at-muted: #92c2b7;
+  --at-line: #204840;
+  --at-brass: #c9a268;
+  --at-sage: #48b8a4;
+  --at-sage-soft: rgba(72, 184, 164, 0.18);
+  --at-brass-soft: rgba(201, 162, 104, 0.16);
+}
+
+html[data-design="7"] .atelier-root,
+.atelier-root[data-atelier-theme="7"] {
+  --at-bg: rgba(239, 238, 243, 0.34);
+  --at-paper: rgba(249, 248, 252, 0.84);
+  --at-ink: #1b1a2e;
+  --at-muted: #535170;
+  --at-line: #ccc8da;
+  --at-brass: #9e7b38;
+  --at-sage: #4b4a8a;
+  --at-sage-soft: rgba(75, 74, 138, 0.14);
+  --at-brass-soft: rgba(158, 123, 56, 0.14);
+}
+html.dark[data-design="7"] .atelier-root,
+.dark .atelier-root[data-atelier-theme="7"] {
+  --at-bg: rgba(8, 11, 22, 0.36);
+  --at-paper: rgba(14, 18, 34, 0.85);
+  --at-ink: #eaeaf6;
+  --at-muted: #a2a7cb;
+  --at-line: #2a3357;
+  --at-brass: #c9a65b;
+  --at-sage: #8d8ce0;
+  --at-sage-soft: rgba(141, 140, 224, 0.18);
+  --at-brass-soft: rgba(201, 166, 91, 0.17);
+}
+
+html[data-design="8"] .atelier-root,
+.atelier-root[data-atelier-theme="8"] {
+  --at-bg: rgba(245, 236, 238, 0.34);
+  --at-paper: rgba(253, 248, 249, 0.85);
+  --at-ink: #2b131b;
+  --at-muted: #6d4451;
+  --at-line: #dcc2c9;
+  --at-brass: #8c6638;
+  --at-sage: #7d2f45;
+  --at-sage-soft: rgba(125, 47, 69, 0.14);
+  --at-brass-soft: rgba(140, 102, 56, 0.14);
+}
+html.dark[data-design="8"] .atelier-root,
+.dark .atelier-root[data-atelier-theme="8"] {
+  --at-bg: rgba(20, 8, 12, 0.36);
+  --at-paper: rgba(28, 12, 18, 0.85);
+  --at-ink: #f4e6ea;
+  --at-muted: #c79aa7;
+  --at-line: #4c2231;
+  --at-brass: #d4a66a;
+  --at-sage: #d67e96;
+  --at-sage-soft: rgba(214, 126, 150, 0.18);
+  --at-brass-soft: rgba(212, 166, 106, 0.16);
+}
+
+html[data-design="9"] .atelier-root,
+.atelier-root[data-atelier-theme="9"] {
+  --at-bg: rgba(243, 237, 224, 0.34);
+  --at-paper: rgba(251, 248, 240, 0.86);
+  --at-ink: #1b1915;
+  --at-muted: #5e5648;
+  --at-line: #d4cab4;
+  --at-brass: #75532a;
+  --at-sage: #4b453a;
+  --at-sage-soft: rgba(75, 69, 58, 0.14);
+  --at-brass-soft: rgba(117, 83, 42, 0.14);
+}
+html.dark[data-design="9"] .atelier-root,
+.dark .atelier-root[data-atelier-theme="9"] {
+  --at-bg: rgba(16, 15, 11, 0.36);
+  --at-paper: rgba(23, 21, 16, 0.85);
+  --at-ink: #efeae0;
+  --at-muted: #b0a792;
+  --at-line: #3d372a;
+  --at-brass: #cfa86b;
+  --at-sage: #b3a78f;
+  --at-sage-soft: rgba(179, 167, 143, 0.16);
+  --at-brass-soft: rgba(207, 168, 107, 0.16);
+}
+
+html[data-design="10"] .atelier-root,
+.atelier-root[data-atelier-theme="10"] {
+  --at-bg: rgba(234, 241, 248, 0.34);
+  --at-paper: rgba(246, 250, 255, 0.82);
+  --at-ink: #132236;
+  --at-muted: #465f7e;
+  --at-line: #bed0e4;
+  --at-brass: #3e6b9c;
+  --at-sage: #2563a8;
+  --at-sage-soft: rgba(37, 99, 168, 0.14);
+  --at-brass-soft: rgba(62, 107, 156, 0.14);
+}
+html.dark[data-design="10"] .atelier-root,
+.dark .atelier-root[data-atelier-theme="10"] {
+  --at-bg: rgba(7, 15, 25, 0.36);
+  --at-paper: rgba(12, 23, 38, 0.84);
+  --at-ink: #e4eef9;
+  --at-muted: #92b0d4;
+  --at-line: #233f63;
+  --at-brass: #7cb6ed;
+  --at-sage: #5ea1e6;
+  --at-sage-soft: rgba(94, 161, 230, 0.18);
+  --at-brass-soft: rgba(124, 182, 237, 0.16);
+}
+
+/* Backdrop blur on cards in Themes 2..10 so blurred wallpaper & watermark glow subtly behind */
+html[data-design]:not([data-design="1"]) .atelier-root {
+  background: var(--at-bg);
+}
+html[data-design]:not([data-design="1"]) .atelier-root .atelier-card {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+html[data-design]:not([data-design="1"]) .atelier-root .atelier-top {
+  background: transparent;
+  backdrop-filter: none;
+}
+
+/* Sober Distinct Button Shapes per Theme inside Atelier Cockpit */
+@keyframes atelierSoftFadePress {
+  0% { opacity: 1; filter: blur(0px); }
+  45% { opacity: 0.62; filter: blur(0.4px); }
+  100% { opacity: 1; filter: blur(0px); }
+}
+
+.atelier-root[data-atelier-theme="2"] :is(.atelier-btn, .atelier-day, .atelier-seg button, .atelier-chip) {
+  border-radius: 16px 4px 16px 4px !important;
+}
+.atelier-root[data-atelier-theme="3"] :is(.atelier-btn, .atelier-day, .atelier-seg button, .atelier-chip):nth-of-type(3n+1) {
+  border-radius: 14px 20px 12px 18px !important;
+}
+.atelier-root[data-atelier-theme="3"] :is(.atelier-btn, .atelier-day, .atelier-seg button, .atelier-chip):nth-of-type(3n+2) {
+  border-radius: 19px 11px 21px 13px !important;
+}
+.atelier-root[data-atelier-theme="3"] :is(.atelier-btn, .atelier-day, .atelier-seg button, .atelier-chip):nth-of-type(3n+3) {
+  border-radius: 12px 17px 15px 22px !important;
+}
+.atelier-root[data-atelier-theme="4"] :is(.atelier-btn, .atelier-day, .atelier-seg button, .atelier-chip) {
+  border-radius: 16px 16px 16px 4px !important;
+  backdrop-filter: blur(8px);
+}
+.atelier-root[data-atelier-theme="5"] :is(.atelier-btn, .atelier-day, .atelier-seg button, .atelier-chip) {
+  border-radius: 3px !important;
+}
+.atelier-root[data-atelier-theme="6"] :is(.atelier-btn, .atelier-day, .atelier-seg button, .atelier-chip) {
+  border-radius: 14px 14px 4px 4px !important;
+}
+.atelier-root[data-atelier-theme="7"] :is(.atelier-btn, .atelier-day, .atelier-seg button, .atelier-chip) {
+  border-radius: 4px 15px 4px 15px !important;
+}
+.atelier-root[data-atelier-theme="8"] :is(.atelier-btn, .atelier-day, .atelier-seg button, .atelier-chip) {
+  border-radius: 4px 15px 15px 4px !important;
+}
+.atelier-root[data-atelier-theme="9"] :is(.atelier-btn, .atelier-day, .atelier-seg button, .atelier-chip) {
+  border-radius: 6px !important;
+}
+.atelier-root[data-atelier-theme="10"] :is(.atelier-btn, .atelier-day, .atelier-seg button, .atelier-chip) {
+  border-radius: 10px !important;
+  backdrop-filter: blur(10px);
+}
+
+.atelier-root:not([data-atelier-theme="1"]) :is(.atelier-btn, .atelier-day, .atelier-seg button):active {
+  animation: atelierSoftFadePress 0.34s ease;
+}
+
+/* Dark Mode Ink Buttons: Theme 1 uses Crisp Cream Gradient; Themes 2-10 use Sidebar-Matched Coloured Gradient */
+html.dark[data-design="1"] .atelier-root .atelier-btn-ink,
+html.dark[data-design="1"] .atelier-root .atelier-day[aria-pressed="true"] {
+  background: linear-gradient(180deg, #faf3e6 0%, #eadbc3 100%) !important;
+  color: #140e0a !important;
+  border-color: #d6c3a5 !important;
+  text-shadow: none !important;
+}
+
+html.dark[data-design="1"] .atelier-root .atelier-btn-ink *,
+html.dark[data-design="1"] .atelier-root .atelier-day[aria-pressed="true"] * {
+  color: #140e0a !important;
+  text-shadow: none !important;
+}
+
+html[data-design]:not([data-design="1"]) .atelier-root .atelier-btn-ink,
+html[data-design]:not([data-design="1"]) .atelier-root .atelier-day[aria-pressed="true"],
+html[data-design]:not([data-design="1"]) .atelier-root .atelier-seg button[aria-pressed="true"]:not(:where(.atelier-sticky .atelier-seg button)) {
+  background: var(--th-btn-active-bg) !important;
+  color: #ffffff !important;
+  border-color: var(--th-btn-active-border, transparent) !important;
+  text-shadow: none !important;
+}
+
+html[data-design]:not([data-design="1"]) .atelier-root .atelier-btn-ink *,
+html[data-design]:not([data-design="1"]) .atelier-root .atelier-day[aria-pressed="true"] *,
+html[data-design]:not([data-design="1"]) .atelier-root .atelier-seg button[aria-pressed="true"]:not(:where(.atelier-sticky .atelier-seg button)) * {
+  color: #ffffff !important;
+  text-shadow: none !important;
+}
+
+.dark .atelier-root .atelier-sticky .atelier-seg button[aria-pressed="true"],
+html.dark .atelier-root .atelier-sticky .atelier-seg button[aria-pressed="true"] {
+  background: rgba(255, 255, 255, 0.85) !important;
+  background-image: none !important;
+  color: #3d3420 !important;
+  text-shadow: none !important;
+}
+
+.dark .atelier-root .atelier-sticky .atelier-seg button[aria-pressed="true"] *,
+html.dark .atelier-root .atelier-sticky .atelier-seg button[aria-pressed="true"] * {
+  background: transparent !important;
+  color: #3d3420 !important;
+  text-shadow: none !important;
+}

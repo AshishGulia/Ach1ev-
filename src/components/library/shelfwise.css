@@ -1,0 +1,949 @@
+/* Shelfwise — Bookshelf Dashboard Styles */
+.shelfwise-root {
+  --wall: #ece4d6;
+  --wall-2: #e2d7c4;
+  --walnut: #6a4a30;
+  --walnut-d: #4a321f;
+  --walnut-l: #8a6544;
+  --back: #2a2019;
+  --brass: #b8975a;
+  --brass-l: #d8c08a;
+  --ink: #2b2118;
+  --muted: #7a6a58;
+  --paper: #f7f2e9;
+  --serif: "Fraunces", Georgia, serif;
+  --sans: "Geist", system-ui, -apple-system, sans-serif;
+  
+  font-family: var(--sans);
+  color: var(--ink);
+  min-height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, rgba(255,255,255,.55), transparent 35%), linear-gradient(var(--wall), var(--wall-2));
+  display: flex;
+  flex-direction: column;
+}
+
+.dark .shelfwise-root {
+  --wall: #080402;
+  --wall-2: #050201;
+  --walnut: #3b2416;
+  --walnut-d: #24150c;
+  --walnut-l: #563420;
+  --back: #060301;
+  --brass: #c49257;
+  --brass-l: #e5ce95;
+  --ink: #efe4d4;
+  --muted: #a69079;
+  --paper: #110804;
+  background: linear-gradient(90deg, rgba(196,146,87,.03), transparent 35%), linear-gradient(var(--wall), var(--wall-2));
+}
+
+/* App Chrome */
+.shelfwise-app {
+  display: flex;
+  flex: 1;
+  min-height: 100%;
+  overflow: hidden;
+}
+
+.shelfwise-aside {
+  width: 204px;
+  flex-shrink: 0;
+  padding: 16px 12px;
+  border-right: 1px solid rgba(74, 50, 31, .18);
+  background: rgba(245, 237, 224, .92);
+  backdrop-filter: blur(8px);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overflow-y: auto;
+}
+
+.dark .shelfwise-aside {
+  border-right-color: rgba(196, 146, 87, .18);
+  background: rgba(20, 14, 10, .86);
+}
+
+.shelfwise-brand {
+  font-family: var(--serif);
+  font-size: 24px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--ink);
+}
+
+.shelfwise-brand-mark {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, var(--walnut-l), var(--walnut-d));
+  display: grid;
+  place-items: center;
+  color: var(--brass-l);
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: 0 2px 4px rgba(0,0,0,.2);
+}
+
+.shelfwise-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
+}
+
+.shelfwise-stat {
+  background: var(--paper);
+  border: 1px solid rgba(74, 50, 31, .12);
+  border-radius: 10px;
+  padding: 8px 4px;
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(0,0,0,.04);
+}
+
+.dark .shelfwise-stat {
+  border-color: rgba(229, 206, 149, .15);
+}
+
+.shelfwise-stat b {
+  display: block;
+  font-family: var(--serif);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.1;
+}
+
+.shelfwise-stat span {
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.shelfwise-label {
+  font-size: 13px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--ink);
+  opacity: 0.78;
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+
+.shelfwise-sec-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.shelfwise-sec-list button {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 7px 8px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  text-align: left;
+  color: var(--ink);
+  transition: all .15s;
+}
+
+.shelfwise-sec-list button:hover {
+  background: rgba(106, 74, 48, .12);
+}
+
+.shelfwise-sec-list em {
+  font-style: normal;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--muted);
+  background: rgba(106, 74, 48, .1);
+  padding: 2px 8px;
+  border-radius: 99px;
+}
+
+.shelfwise-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.shelfwise-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 28px;
+  flex-wrap: wrap;
+  border-bottom: 1px solid rgba(74, 50, 31, .08);
+}
+
+.shelfwise-header h1 {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 34px;
+  flex: 1;
+  color: var(--ink);
+  min-width: 200px;
+}
+
+.shelfwise-header h1 small {
+  display: block;
+  font-family: var(--sans);
+  font-size: 12.5px;
+  font-weight: 400;
+  color: var(--muted);
+  margin-top: 3px;
+}
+
+.shelfwise-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 15px;
+  border-radius: 10px;
+  font-size: 13.5px;
+  font-weight: 500;
+  transition: all .18s;
+  cursor: pointer;
+}
+
+.shelfwise-btn-primary {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.shelfwise-btn-primary:hover {
+  background: var(--walnut-d);
+  transform: translateY(-1px);
+}
+
+.shelfwise-btn-ghost {
+  background: var(--paper);
+  border: 1px solid rgba(74, 50, 31, .18);
+  color: var(--ink);
+}
+
+.shelfwise-btn-ghost:hover {
+  background: rgba(106, 74, 48, .08);
+}
+
+/* Stage & Bookcase */
+.shelfwise-stage {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 16px 20px 100px;
+}
+
+.shelfwise-case {
+  width: min(960px, 100%);
+  position: relative;
+}
+
+.shelfwise-crown {
+  height: 16px;
+  border-radius: 4px 4px 0 0;
+  background: linear-gradient(var(--walnut-l), var(--walnut));
+  box-shadow: 0 2px 0 var(--walnut-d);
+}
+
+.shelfwise-frame {
+  background: var(--walnut);
+  padding: 0 14px;
+  box-shadow: 0 30px 60px -20px rgba(43, 33, 24, .45);
+  border-left: 1px solid rgba(255,255,255,.1);
+  border-right: 1px solid rgba(255,255,255,.1);
+}
+
+.shelfwise-compartment {
+  position: relative;
+}
+
+.shelfwise-bay {
+  min-height: 275px;
+  background: linear-gradient(180deg, #17110b 0, var(--back) 16%, #281e15);
+  box-shadow: inset 0 12px 24px rgba(0, 0, 0, .55), inset 10px 0 16px rgba(0, 0, 0, .3), inset -10px 0 16px rgba(0, 0, 0, .3);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  border-radius: 1px;
+}
+
+/* Shelf Bay Topbar with Section Label & Right Upper Filter */
+.shelfwise-bay-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  background: rgba(18, 12, 8, 0.55);
+  border-bottom: 1px solid rgba(184, 151, 90, 0.16);
+  backdrop-filter: blur(4px);
+  z-index: 5;
+}
+
+.shelfwise-bay-tag {
+  font-family: var(--serif);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--brass-l);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  letter-spacing: 0.02em;
+}
+
+.shelfwise-bay-filter {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.shelfwise-sort-select {
+  background: rgba(26, 18, 12, 0.9);
+  color: #f7f2e9;
+  border: 1px solid rgba(184, 151, 90, 0.38);
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 8px;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.shelfwise-sort-select:hover,
+.shelfwise-sort-select:focus {
+  border-color: var(--brass);
+  background: rgba(38, 27, 18, 0.95);
+  box-shadow: 0 0 0 1px var(--brass);
+}
+
+.shelfwise-sort-select option {
+  background: #20160f;
+  color: #f7f2e9;
+}
+
+/* Shelf Books Row */
+.shelfwise-bay-books {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  padding: 18px 20px 14px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+}
+
+.shelfwise-bay-books::-webkit-scrollbar {
+  display: none;
+}
+
+/* Front-Facing Book */
+.shelfwise-front-book {
+  width: 140px;
+  height: 200px;
+  flex-shrink: 0;
+  border-radius: 4px 8px 8px 4px;
+  position: relative;
+  cursor: pointer;
+  box-shadow: -3px 4px 10px rgba(0, 0, 0, .45), 4px 8px 18px rgba(0, 0, 0, .35), inset -2px 0 2px rgba(255, 255, 255, .15);
+  transition: transform .25s cubic-bezier(.2, .8, .2, 1), box-shadow .25s ease;
+  transform-origin: bottom center;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 12px 10px 10px 15px;
+  overflow: hidden;
+  user-select: none;
+}
+
+/* Spine hinge line on left */
+.shelfwise-front-book::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 9px;
+  background: linear-gradient(90deg, rgba(0, 0, 0, .5) 0%, rgba(255, 255, 255, .18) 35%, rgba(0, 0, 0, .25) 100%);
+  box-shadow: 1px 0 0 rgba(0, 0, 0, .3);
+  z-index: 2;
+}
+
+/* Right page stack paper edge */
+.shelfwise-front-book::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  right: 0;
+  width: 4px;
+  background: repeating-linear-gradient(180deg, #f8f4e6, #ded7c2 2px);
+  border-radius: 0 3px 3px 0;
+  box-shadow: inset 1px 0 2px rgba(0, 0, 0, .35);
+}
+
+.shelfwise-front-book:hover {
+  transform: translateY(-10px) scale(1.025);
+  box-shadow: -4px 10px 22px rgba(0, 0, 0, .6), 8px 14px 28px rgba(0, 0, 0, .5);
+  z-index: 10;
+}
+
+.shelfwise-front-book-badge {
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #fce7b2;
+  background: rgba(0, 0, 0, 0.45);
+  padding: 2px 6px;
+  border-radius: 99px;
+  display: inline-block;
+  align-self: flex-start;
+  border: 1px solid rgba(252, 231, 178, 0.25);
+  backdrop-filter: blur(2px);
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.shelfwise-front-book-title {
+  font-family: var(--serif);
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #fffaf0;
+  line-height: 1.28;
+  margin: 6px 0 3px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+.shelfwise-front-book-author {
+  font-size: 9.5px;
+  color: rgba(254, 243, 199, 0.82);
+  font-style: italic;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.shelfwise-front-book-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  font-size: 8.5px;
+  color: rgba(255, 255, 255, 0.75);
+  font-family: var(--sans);
+}
+
+/* Add book front card */
+.shelfwise-add-front-slot {
+  width: 115px;
+  height: 200px;
+  flex-shrink: 0;
+  border-radius: 6px;
+  border: 2px dashed rgba(184, 151, 90, 0.4);
+  background: rgba(255, 255, 255, 0.03);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: var(--brass-l);
+}
+
+.shelfwise-add-front-slot:hover {
+  background: rgba(184, 151, 90, 0.12);
+  border-color: var(--brass);
+  transform: translateY(-4px);
+}
+
+/* Shelf Slide Bar */
+.shelfwise-slider-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 14px;
+  background: rgba(15, 10, 6, 0.65);
+  border-top: 1px solid rgba(184, 151, 90, 0.18);
+  z-index: 5;
+}
+
+.shelfwise-arrow-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(184, 151, 90, 0.15);
+  color: var(--brass-l);
+  border: 1px solid rgba(184, 151, 90, 0.3);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.shelfwise-arrow-btn:hover {
+  background: var(--brass);
+  color: #1a120b;
+  transform: scale(1.08);
+}
+
+.shelfwise-track-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.shelfwise-track-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(216, 192, 138, 0.7);
+  white-space: nowrap;
+}
+
+.shelfwise-range-slider {
+  flex: 1;
+  height: 4px;
+  border-radius: 99px;
+  appearance: none;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(184, 151, 90, 0.25);
+  outline: none;
+  cursor: pointer;
+}
+
+.shelfwise-range-slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--brass-l), var(--brass));
+  border: 1px solid #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+
+.shelfwise-range-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+.shelfwise-slab {
+  position: relative;
+  height: 30px;
+  background: linear-gradient(var(--walnut-l), var(--walnut) 40%, var(--walnut-d));
+  margin: 0 -14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 6px -2px rgba(0, 0, 0, .35);
+  border-top: 1px solid rgba(255,255,255,.15);
+}
+
+.shelfwise-plate {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 3px 6px 3px 14px;
+  border-radius: 4px;
+  background: linear-gradient(var(--brass-l), var(--brass));
+  color: #3a2a14;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .5), 0 1px 3px rgba(0, 0, 0, .4);
+  max-width: calc(100% - 40px);
+  cursor: pointer;
+  transition: filter .15s;
+}
+
+.shelfwise-plate:hover {
+  filter: brightness(1.08);
+}
+
+.shelfwise-plate .name {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 13.5px;
+  letter-spacing: .04em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.shelfwise-plate .count {
+  font-size: 11px;
+  font-weight: 600;
+  background: rgba(58, 42, 20, .15);
+  padding: 1px 7px;
+  border-radius: 99px;
+  white-space: nowrap;
+}
+
+.shelfwise-plate .edit {
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  display: grid;
+  place-items: center;
+}
+
+.shelfwise-plate .edit:hover {
+  background: rgba(58, 42, 20, .18);
+  transform: scale(1.05);
+}
+
+.shelfwise-empty {
+  color: rgba(216, 192, 138, .6);
+  font-size: 13px;
+  align-self: center;
+  margin: auto;
+  font-style: italic;
+  font-family: var(--serif);
+}
+
+/* Cabinet (Notes) */
+.shelfwise-cabinet {
+  display: flex;
+  gap: 6px;
+  height: 195px;
+  padding: 12px 14px;
+  background: var(--walnut);
+}
+
+.shelfwise-door-wrap {
+  flex: 1;
+  position: relative;
+  perspective: 900px;
+  background: linear-gradient(#1c150f, #33271d);
+  border-radius: 2px;
+  box-shadow: inset 0 8px 14px rgba(0, 0, 0, .5);
+  display: flex;
+  align-items: flex-end;
+  padding: 0 12px 10px;
+  gap: 3px;
+  overflow: hidden;
+}
+
+.shelfwise-door {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(90deg, var(--walnut-l) 0 3px, var(--walnut) 3px 9px);
+  transition: transform .6s cubic-bezier(.2, .7, .2, 1);
+  box-shadow: inset 0 0 0 1px var(--walnut-d);
+  display: flex;
+  align-items: center;
+  z-index: 2;
+  cursor: pointer;
+}
+
+.shelfwise-door-wrap.l .shelfwise-door {
+  transform-origin: left center;
+  justify-content: flex-end;
+  padding-right: 12px;
+}
+
+.shelfwise-door-wrap.r .shelfwise-door {
+  transform-origin: right center;
+  justify-content: flex-start;
+  padding-left: 12px;
+}
+
+.shelfwise-handle {
+  width: 6px;
+  height: 46px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--brass-l), var(--brass));
+  box-shadow: 0 2px 4px rgba(0,0,0,.3);
+}
+
+.shelfwise-cabinet.open .shelfwise-door-wrap.l .shelfwise-door {
+  transform: rotateY(-105deg);
+}
+
+.shelfwise-cabinet.open .shelfwise-door-wrap.r .shelfwise-door {
+  transform: rotateY(105deg);
+}
+
+.shelfwise-notebook {
+  flex-shrink: 0;
+  width: 100%;
+  max-width: 150px;
+  border-radius: 2px;
+  background: var(--paper);
+  box-shadow: 0 -1px 0 rgba(0, 0, 0, .2) inset, 0 1px 3px rgba(0,0,0,.2);
+  cursor: pointer;
+  transition: transform .15s;
+}
+
+.shelfwise-notebook:hover {
+  transform: scale(1.03);
+}
+
+.shelfwise-stack {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 2.5px;
+  width: 100%;
+  align-items: center;
+}
+
+.shelfwise-legs {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 30px;
+}
+
+.shelfwise-leg {
+  width: 8px;
+  height: 56px;
+  background: linear-gradient(90deg, var(--brass-l), var(--brass) 60%, #8c6f3c);
+  border-radius: 0 0 2px 2px;
+  box-shadow: 0 4px 8px rgba(0,0,0,.2);
+}
+
+.shelfwise-floor-shadow {
+  height: 14px;
+  margin: -6px 10px 0;
+  background: radial-gradient(ellipse at center, rgba(43, 33, 24, .35), transparent 70%);
+}
+
+/* Modal Dialog */
+.shelfwise-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(43, 33, 24, .45);
+  backdrop-filter: blur(4px);
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.shelfwise-dlg {
+  width: min(420px, 100%);
+  background: var(--paper);
+  color: var(--ink);
+  border-radius: 16px;
+  padding: 22px;
+  box-shadow: 0 30px 80px -20px rgba(43, 33, 24, .5);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  border: 1px solid rgba(74, 50, 31, .15);
+}
+
+.shelfwise-dlg h2 {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 26px;
+}
+
+.shelfwise-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.shelfwise-field input[type=text] {
+  font: inherit;
+  font-size: 15px;
+  color: var(--ink);
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(74, 50, 31, .2);
+  background: #fff;
+  outline: none;
+}
+
+.shelfwise-field input[type=text]:focus {
+  border-color: var(--brass);
+  box-shadow: 0 0 0 2px rgba(184, 151, 90, .2);
+}
+
+.dark .shelfwise-field input[type=text] {
+  background: #140e0a;
+  border-color: #382518;
+  color: #efe4d4;
+}
+
+.shelfwise-stepper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.shelfwise-stepper button {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: #fff;
+  border: 1px solid rgba(74, 50, 31, .2);
+  font-size: 18px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  color: var(--ink);
+}
+
+.dark .shelfwise-stepper button {
+  background: #140e0a;
+  border-color: #382518;
+  color: #efe4d4;
+}
+
+.shelfwise-stepper output {
+  font-family: var(--serif);
+  font-size: 26px;
+  font-weight: 600;
+  min-width: 48px;
+  text-align: center;
+  color: var(--ink);
+}
+
+.shelfwise-slider {
+  width: 100%;
+  accent-color: var(--walnut);
+}
+
+.shelfwise-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.shelfwise-row .spacer {
+  flex: 1;
+}
+
+.shelfwise-btn-danger {
+  color: #7f1d1d;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.shelfwise-btn-danger:hover {
+  background: rgba(127, 29, 29, .12);
+}
+
+.dark .shelfwise-btn-danger {
+  color: #b0363b;
+}
+
+.dark .shelfwise-btn-danger:hover {
+  background: rgba(110, 23, 27, .3);
+  color: #d97074;
+}
+
+/* Mobile & Tablet */
+@media (max-width: 1024px) {
+  .shelfwise-aside {
+    width: 182px;
+    padding: 14px 10px;
+  }
+}
+
+@media (max-width: 820px) {
+  .shelfwise-aside {
+    display: none;
+  }
+  .shelfwise-header {
+    padding: 8px 12px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .shelfwise-header h1 {
+    font-size: 18px;
+  }
+  .shelfwise-header .shelfwise-btn {
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+  .shelfwise-stage {
+    padding: 4px 10px 80px;
+  }
+  .shelfwise-bay {
+    min-height: 150px;
+    padding: 0 8px;
+  }
+  .shelfwise-frame {
+    padding: 0 10px;
+  }
+  .shelfwise-slab {
+    margin: 0 -10px;
+  }
+  .shelfwise-cabinet {
+    height: 155px;
+  }
+  .shelfwise-legs {
+    padding: 0 20px;
+  }
+  .shelfwise-leg {
+    height: 40px;
+  }
+}
+
+/* Unified Theme 2-10 ShelfWise Layout & Blurred Wallpaper Adaptation */
+html[data-design]:not([data-design="1"]) .shelfwise-root {
+  --wall: transparent;
+  --wall-2: transparent;
+  --paper: var(--th-surface);
+  --ink: var(--th-ink);
+  --muted: var(--th-muted);
+  --brass: var(--th-accent);
+  --brass-l: color-mix(in srgb, var(--th-accent) 65%, #fff);
+  background: color-mix(in srgb, var(--th-bg) 32%, transparent) !important;
+  background-image: none !important;
+}
+
+html[data-design]:not([data-design="1"]) .shelfwise-aside {
+  background: color-mix(in srgb, var(--th-surface) 84%, transparent) !important;
+  border-right-color: var(--th-border) !important;
+  backdrop-filter: blur(12px);
+}
+
+html[data-design]:not([data-design="1"]) .shelfwise-header {
+  background: color-mix(in srgb, var(--th-header) 80%, transparent);
+  border-bottom: 1px solid var(--th-border);
+  backdrop-filter: blur(10px);
+}
+
+html[data-design]:not([data-design="1"]) .shelfwise-btn-primary {
+  background: linear-gradient(180deg, var(--th-accent) 0%, color-mix(in srgb, var(--th-accent) 74%, #000) 100%) !important;
+  color: #ffffff !important;
+  border-color: transparent !important;
+}
+
+html[data-design]:not([data-design="1"]) .shelfwise-sec-list button:hover,
+html[data-design]:not([data-design="1"]) .shelfwise-sec-list button.active {
+  background: var(--th-accent-soft) !important;
+  color: var(--th-ink) !important;
+}
