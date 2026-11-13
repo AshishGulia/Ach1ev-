@@ -196,6 +196,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
           color: sb.activeBtnText,
           borderRadius: resolvedDesign === '1' ? '9px' : themeMeta.buttonRadius,
           fontWeight: 600,
+          boxShadow: isNightMode
+            ? '0 6px 16px -2px rgba(0, 0, 0, 0.9), 0 2px 6px rgba(0, 0, 0, 0.72), inset 0 1px 0 rgba(255, 245, 228, 0.1)'
+            : '0 4px 12px -2px rgba(36, 22, 10, 0.34), 0 2px 4px rgba(36, 22, 10, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.16)',
         }
       : {
           background: sb.idleBtnBg,
@@ -360,8 +363,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
         aria-label="Workspace sidebar"
         className={`fixed md:relative top-0 left-0 bottom-0 z-50 md:z-40 shrink-0 h-[100dvh] flex flex-col justify-between select-none shadow-2xl md:shadow-none transition-all duration-200 ease-in-out overflow-hidden ${
           isOpen
-            ? 'w-[216px] md:w-[162px] translate-x-0'
-            : '-translate-x-full md:translate-x-0 w-0 md:w-9 overflow-hidden md:overflow-visible'
+            ? 'w-[192px] md:w-[144px] translate-x-0'
+            : '-translate-x-full md:translate-x-0 w-0 md:w-8 overflow-hidden md:overflow-visible'
         }`}
         style={sidebarSurfaceStyle}
       >
@@ -404,15 +407,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   border: `1px solid ${sb.sectionBorder}`,
                 }}
               >
-                <div className="px-1 pt-0.5 mb-0.5">
-                  <span
-                    className="text-[10px] font-mono uppercase tracking-wider font-semibold"
-                    style={{ color: sb.mutedLabelColor }}
-                  >
-                    Workspaces
-                  </span>
-                </div>
-
                 {navItems.map((item) => {
                   const Icon = item.icon;
                   const isActive = activeView === item.id;
@@ -441,7 +435,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
             {/* Section 3: Daily Thought of the Day (Plain floating editorial quote, zero card/button styling) */}
             <div
-              className="px-3 py-2.5 mx-1 mb-2 mt-auto select-none group"
+              className="px-2.5 py-2 mx-0.5 mb-1.5 mt-auto select-none group"
               style={{
                 background: 'transparent',
                 border: 'none',
@@ -552,18 +546,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
         ) : (
           /* Persistent Minimized Thin Slab on Left Border */
-          <div className="relative z-10 flex flex-col items-center justify-between h-full py-2.5 px-1 w-full animate-in fade-in duration-150">
+          <div className="relative z-10 flex flex-col items-center justify-between h-full py-2.5 px-0.5 w-full animate-in fade-in duration-150">
             <div className="flex flex-col items-center space-y-2.5 w-full">
               <div
                 onClick={onToggle}
                 role="button"
                 tabIndex={0}
                 title="Ach1ev · Settle Ideas - Click to expand sidebar"
-                className="w-7 h-7 flex items-center justify-center cursor-pointer hover:scale-105 transition-transform bg-transparent"
+                className="w-6 h-6 flex items-center justify-center cursor-pointer hover:scale-105 transition-transform bg-transparent"
               >
                 <AchievBrand
                   variant="emblem"
-                  imgClassName="w-6 h-6"
+                  imgClassName="w-5 h-5"
                   title="Ach1ev · Settle Ideas - Click to expand sidebar"
                 />
               </div>
@@ -573,12 +567,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 title="Expand sidebar column"
                 aria-label="Expand sidebar column"
                 style={toggleBtnStyle}
-                className={`w-7 h-7 group flex items-center justify-center transition-all shadow-xs hover:brightness-110 active:scale-[0.96] cursor-pointer ${leatherBtnCls}`}
+                className={`w-6 h-6 group flex items-center justify-center transition-all shadow-xs hover:brightness-110 active:scale-[0.96] cursor-pointer ${leatherBtnCls}`}
               >
-                <ArrowRight className="w-4 h-4 stroke-[2.2] transition-transform duration-200 group-hover:translate-x-0.5" />
+                <ArrowRight className="w-3.5 h-3.5 stroke-[2.2] transition-transform duration-200 group-hover:translate-x-0.5" />
               </button>
 
-              <div className="w-5 h-[1px]" style={{ background: sb.sectionBorder }} />
+              <div className="w-4 h-[1px]" style={{ background: sb.sectionBorder }} />
 
               <div className="flex flex-col items-center space-y-1 w-full">
                 {navItems.map((item) => {
@@ -604,7 +598,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <div
                 title={`Active Subject: ${currentSubject}`}
                 style={toggleBtnStyle}
-                className={`mt-1.5 w-7 h-7 flex items-center justify-center text-[9px] font-mono font-bold uppercase cursor-default ${leatherBtnCls}`}
+                className={`mt-1.5 w-6 h-6 flex items-center justify-center text-[8.5px] font-mono font-bold uppercase cursor-default ${leatherBtnCls}`}
               >
                 {currentSubject.slice(0, 2)}
               </div>

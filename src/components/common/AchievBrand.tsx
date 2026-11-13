@@ -80,15 +80,15 @@ export const AchievBrand: React.FC<AchievBrandProps> = ({
 
   // 'compact' sidebar header: extracted Champagne Gold emblem + extracted ACH1EV / SETTLE IDEAS wordmark
   return (
-    <div className={`flex items-center gap-2 bg-transparent select-none min-w-0 w-full overflow-visible py-0.5 ${className}`} title={title}>
-      <EmblemWithGlare sizeClass={imgClassName || 'w-[44px] h-[44px] shrink-0'} alt="Ach1ev emblem" />
+    <div className={`flex items-center gap-1.5 bg-transparent select-none min-w-0 w-full overflow-visible py-0.5 ${className}`} title={title}>
+      <EmblemWithGlare sizeClass={imgClassName || 'w-[38px] h-[38px] shrink-0'} alt="Ach1ev emblem" />
       <div className="min-w-0 flex-1 flex items-center justify-start overflow-visible">
         <span className="relative inline-block max-w-full" style={wordmarkMaskStyle}>
           <img
             src={ACHIEV_WORDMARK_URL}
             alt="Ach1ev — Settle Ideas"
             draggable={false}
-            className="h-[34px] max-w-full w-auto object-contain select-none achiev-brand-clean"
+            className="h-[30px] max-w-full w-auto object-contain select-none achiev-brand-clean"
           />
           <span className="achiev-masked-glare" aria-hidden="true" />
         </span>
