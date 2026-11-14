@@ -6,7 +6,7 @@ import {
   saveRuntimeGoogleClientId,
   prefetchGoogleOAuth,
 } from '../../services/googleDriveService';
-import { AchievBrand, ACHIEV_LOGO_URL } from '../common/AchievBrand';
+import { ACHIEV_LEATHER_HERO_URL, ACHIEV_LEATHER_LOGIN_URL } from '../common/AchievBrand';
 import {
   Database,
   Eye,
@@ -282,27 +282,27 @@ export const AuthPortal: React.FC<AuthPortalProps> = ({
           className="fixed inset-0 z-[70] flex flex-col items-center justify-center overflow-hidden"
           style={{
             background:
-              'radial-gradient(ellipse 90% 80% at 50% 42%, #2b1309 0%, #170804 50%, #090301 100%)',
+              'radial-gradient(ellipse 85% 78% at 50% 50%, #1c0c05 0%, #100502 50%, #090301 100%)',
             animation: 'loginIntroFadeOut 0.45s ease-in 2.55s both',
           }}
         >
-          {/* Horizontal Logo + Name Lockup */}
+          {/* Feathered Leather & Gold Lockup seamlessly melted into HTML Espresso Background */}
           <div
-            className="relative flex items-center justify-center px-6 py-8"
+            className="relative flex items-center justify-center w-[min(94vw,760px)] aspect-[1920/1152] select-none"
             style={{ animation: 'loginFinalReveal 0.65s cubic-bezier(0.22, 1, 0.36, 1) both' }}
           >
-            <span
-              className="relative inline-block select-none"
-              style={{ ['--achiev-mask' as string]: `url(${ACHIEV_LOGO_URL})` } as React.CSSProperties}
-            >
-              <img
-                src={ACHIEV_LOGO_URL}
-                alt="Ach1ev — Settle Ideas"
-                draggable={false}
-                className="h-24 sm:h-32 md:h-36 w-auto max-w-[88vw] object-contain select-none achiev-brand-clean"
-              />
-              <span className="achiev-masked-glare achiev-masked-glare-intro" aria-hidden="true" />
-            </span>
+            <img
+              src={ACHIEV_LEATHER_HERO_URL}
+              alt="Ach1ev — Settle Ideas"
+              draggable={false}
+              className="w-full h-full object-contain select-none pointer-events-none"
+              style={{
+                WebkitMaskImage:
+                  'radial-gradient(ellipse 48% 46% at 50% 50%, #000 44%, rgba(0,0,0,0.88) 62%, rgba(0,0,0,0.38) 80%, transparent 98%)',
+                maskImage:
+                  'radial-gradient(ellipse 48% 46% at 50% 50%, #000 44%, rgba(0,0,0,0.88) 62%, rgba(0,0,0,0.38) 80%, transparent 98%)',
+              }}
+            />
           </div>
         </div>
       )}
@@ -341,12 +341,21 @@ export const AuthPortal: React.FC<AuthPortalProps> = ({
       <div className="relative z-10 w-full max-w-4xl grid grid-cols-1 lg:grid-cols-12 gap-6 items-center my-auto">
         {/* Left: Frameless Brand Panel */}
         <div className="lg:col-span-5 flex flex-col items-center lg:items-start justify-center text-center lg:text-left p-4 sm:p-6 relative">
-          <div className="flex flex-col items-center lg:items-start gap-5 w-full">
-            <AchievBrand
-              variant="lockup"
-              isDarkMode={isDarkMode}
-              imgClassName="h-20 sm:h-24 md:h-[104px] w-auto max-w-full"
-            />
+          <div className="flex flex-col items-center lg:items-start gap-2 w-full">
+            <div className="relative flex items-center justify-center lg:justify-start lg:-ml-5 -my-3 select-none">
+              <img
+                src={ACHIEV_LEATHER_LOGIN_URL}
+                alt="Ach1ev — Settle Ideas"
+                draggable={false}
+                className="h-[108px] sm:h-[134px] w-auto max-w-none object-contain select-none pointer-events-none"
+                style={{
+                  WebkitMaskImage:
+                    'radial-gradient(ellipse 48% 46% at 50% 50%, #000 54%, rgba(0,0,0,0.86) 70%, rgba(0,0,0,0.32) 86%, transparent 98%)',
+                  maskImage:
+                    'radial-gradient(ellipse 48% 46% at 50% 50%, #000 54%, rgba(0,0,0,0.86) 70%, rgba(0,0,0,0.32) 86%, transparent 98%)',
+                }}
+              />
+            </div>
 
             <p
               className="leading-relaxed max-w-xs italic font-serif text-[#c9b08a] opacity-75"

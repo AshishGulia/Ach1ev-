@@ -563,16 +563,44 @@ export const FlowchartStudio: React.FC<FlowchartStudioProps> = ({
   };
 
   const handleDeleteNode = (nodeId: string) => {
-    if (!activeChart || activeChart.nodes.length <= 1) return;
-    const updatedNodes = activeChart.nodes.filter((n) => n.id !== nodeId);
+    if (!activeChart) return;
+    const updatedNodes = activeChart.nodes
+      .filter((n) => n.id !== nodeId)
+      .map((n) => (n.parentId === nodeId ? { ...n, parentId: null } : n));
     updateActiveChart((c) => ({
       ...c,
       nodes: updatedNodes,
       nodesCount: updatedNodes.length,
-      levelsCount: Math.max(...updatedNodes.map((n) => n.level), 1),
+      levelsCount: updatedNodes.length > 0 ? Math.max(...updatedNodes.map((n) => n.level), 1) : 1,
       infoCount: updatedNodes.length,
     }));
-    setSelectedNodeId(updatedNodes[0]?.id || '');
+    if (selectedNodeId === nodeId) {
+      setSelectedNodeId(updatedNodes[0]?.id || '');
+    }
+  };
+
+  const handleAddRootBox = () => {
+    if (!activeChart) return;
+    const rootNode: StudioFlowNode = {
+      id: `n_${Date.now()}`,
+      title: 'Root Topic',
+      subtitle: 'Start here',
+      description: 'Click to edit heading, subheading, body & color.',
+      level: 1,
+      parentId: null,
+      phraseTag: COMMON_FLOWCHART_PHRASES[0] || 'Main Topic',
+      shape: 'rounded',
+      pearls: [],
+    };
+    updateActiveChart((c) => ({
+      ...c,
+      nodes: [rootNode],
+      nodesCount: 1,
+      levelsCount: 1,
+      infoCount: 1,
+    }));
+    setSelectedNodeId(rootNode.id);
+    setInspectorDrawerOpen(true);
   };
 
   const handleGeminiExpand = () => {
@@ -987,6 +1015,30 @@ export const FlowchartStudio: React.FC<FlowchartStudioProps> = ({
                   </button>
                 </div>
               </div>
+            ) : activeChart.nodes.length === 0 ? (
+              <div className="h-full flex items-center justify-center p-6">
+                <div className="max-w-sm w-full rounded-3xl border border-stone-200 dark:border-[#382518] bg-white/85 dark:bg-[#160f0b] p-7 text-center space-y-3 shadow-md">
+                  <div className="w-11 h-11 rounded-2xl bg-amber-500/15 text-[#8f5f2c] dark:text-[#d4a373] flex items-center justify-center mx-auto">
+                    <GitBranch className="w-5 h-5" />
+                  </div>
+                  <div className="space-y-1">
+                    <h4 className="font-serif font-bold text-base text-stone-900 dark:text-[#efe4d4]">
+                      Canvas is empty
+                    </h4>
+                    <p className="text-xs text-stone-500 dark:text-[#a69079]">
+                      Add a starting box to begin building your flowchart.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleAddRootBox}
+                    className="themed-accent-btn px-4 py-2 rounded-full bg-[#A47C43] hover:bg-[#8e6834] text-white text-xs font-semibold inline-flex items-center gap-1.5 shadow-sm cursor-pointer"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Add First Box</span>
+                  </button>
+                </div>
+              </div>
             ) : activeViewMode === 'tree' ? (
               <div
                 className="min-w-max min-h-max pb-32 pr-32 transition-transform duration-150 origin-top-left"
@@ -1169,6 +1221,7 @@ export const FlowchartStudio: React.FC<FlowchartStudioProps> = ({
                                   }}
                                   onAddSideways={() => handleAddBoxes(node, 'sideways', addBoxCount)}
                                   onAddBelow={() => handleAddBoxes(node, 'below', addBoxCount)}
+                                  onDelete={() => handleDeleteNode(node.id)}
                                   addBoxCount={addBoxCount}
                                   searchQuery={searchQuery}
                                 />
@@ -2050,6 +2103,7 @@ const NodeBox: React.FC<{
   onSelect: () => void;
   onAddSideways: () => void;
   onAddBelow: () => void;
+  onDelete?: () => void;
   addBoxCount: number;
   searchQuery?: string;
 }> = ({
@@ -2059,6 +2113,7 @@ const NodeBox: React.FC<{
   onSelect,
   onAddSideways,
   onAddBelow,
+  onDelete,
   addBoxCount,
   searchQuery = '',
 }) => {
@@ -2099,6 +2154,21 @@ const NodeBox: React.FC<{
           borderTopWidth: shape === 'card' ? '4px' : '2px',
         }}
       >
+        {/* Top-Right Hover Delete Cross */}
+        {onDelete && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete();
+            }}
+            title="Delete this box"
+            aria-label={`Delete ${node.title}`}
+            className="raw-icon-btn absolute -top-2 -right-2 w-6 h-6 rounded-full bg-red-600 hover:bg-red-700 text-white shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-all hover:scale-110 z-30 cursor-pointer"
+          >
+            <X className="w-3.5 h-3.5 stroke-[2.5]" />
+          </button>
+        )}
         {/* Top Row: Phrase Tag + Avatar */}
         <div className="flex items-center justify-between gap-2 mb-1.5">
           <span

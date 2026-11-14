@@ -99,7 +99,7 @@ export const Design10FluentGlass: React.FC<Design10Props> = ({
       badge: 'Anatomy Atlas',
       accentColor: 'sky',
       enabled: true,
-      linkAction: 'explore-body',
+      linkAction: 'open-book',
       size: 'normal',
     },
     {
@@ -810,9 +810,9 @@ export const Design10FluentGlass: React.FC<Design10Props> = ({
           <BookOpen className="w-4 h-4" />
         </button>
         <button
-          onClick={() => onOpenStudio('explore-body')}
+          onClick={() => onOpenStudio('open-book')}
           className="p-2 hover:bg-stone-100 dark:hover:bg-[#242e3c] rounded-xl transition-colors text-indigo-500"
-          title="Explore 3D Body"
+          title="Open Medical Reader"
         >
           <Sparkles className="w-4 h-4" />
         </button>

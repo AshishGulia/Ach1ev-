@@ -41,12 +41,7 @@ import {
   ForestSanctuaryBackdrop,
   BeachBalconyWithDolphins,
   MonsoonRainBackdrop,
-  SwissAlpineBackdrop,
-  ConservatoryBackdrop,
-  ObservatoryBackdrop,
-  RosewoodScriptoriumBackdrop,
-  BroadsheetAtriumBackdrop,
-  MicaFjordBackdrop,
+  PistachioObsidianBackdrop,
   ShelfThemeCarpet,
   type ShelfThemeId,
 } from './ShelfRoomWorlds';
@@ -636,7 +631,7 @@ export function Room({
     switch (themeId) {
       case '2':
         return night
-          ? 'linear-gradient(180deg, rgba(0,0,0,0.58), rgba(0,0,0,0.22) 35%), repeating-linear-gradient(90deg, #2d3827 0 130px, #1d2519 130px 132px)'
+          ? 'linear-gradient(180deg, rgba(0,0,0,0.68), rgba(0,0,0,0.32) 35%), repeating-linear-gradient(90deg, #151c17 0 130px, #0b100d 130px 132px)'
           : 'linear-gradient(180deg, rgba(0,0,0,0.24), transparent 35%), repeating-linear-gradient(90deg, #6d6146 0 130px, #584e37 130px 132px)';
       case '3':
         return night
@@ -648,28 +643,8 @@ export function Room({
           : 'linear-gradient(180deg, rgba(35,45,58,0.3), rgba(255,255,255,0.06) 35%, transparent 60%), repeating-linear-gradient(90deg, #6b727d 0 110px, #545b65 110px 113px)';
       case '5':
         return night
-          ? 'linear-gradient(180deg, rgba(0,0,0,0.54), rgba(0,0,0,0.2) 35%), repeating-linear-gradient(90deg, #323942 0 120px, #232830 120px 122px)'
-          : 'linear-gradient(180deg, rgba(0,0,0,0.16), transparent 35%), repeating-linear-gradient(90deg, #b8aa98 0 120px, #a29380 120px 122px)';
-      case '6':
-        return night
-          ? 'linear-gradient(180deg, rgba(0,0,0,0.55), rgba(0,0,0,0.22) 35%), repeating-linear-gradient(90deg, #1b302b 0 118px, #12211e 118px 120px)'
-          : 'linear-gradient(180deg, rgba(0,0,0,0.18), transparent 35%), repeating-linear-gradient(90deg, #7f9486 0 118px, #687c6f 118px 120px)';
-      case '7':
-        return night
-          ? 'linear-gradient(180deg, rgba(0,0,0,0.6), rgba(0,0,0,0.22) 35%), repeating-linear-gradient(90deg, #1e2138 0 126px, #131526 126px 128px)'
-          : 'linear-gradient(180deg, rgba(0,0,0,0.2), transparent 35%), repeating-linear-gradient(90deg, #6c6a80 0 126px, #585669 126px 128px)';
-      case '8':
-        return night
-          ? 'linear-gradient(180deg, rgba(0,0,0,0.6), rgba(0,0,0,0.24) 35%), repeating-linear-gradient(90deg, #3b1721 0 124px, #290e16 124px 126px)'
-          : 'linear-gradient(180deg, rgba(0,0,0,0.24), transparent 35%), repeating-linear-gradient(90deg, #7d4c55 0 124px, #653b43 124px 126px)';
-      case '9':
-        return night
-          ? 'linear-gradient(180deg, rgba(0,0,0,0.58), rgba(0,0,0,0.22) 35%), repeating-linear-gradient(90deg, #2e2920 0 132px, #201c16 132px 134px)'
-          : 'linear-gradient(180deg, rgba(0,0,0,0.18), transparent 35%), repeating-linear-gradient(90deg, #b8ab92 0 132px, #a09278 132px 134px)';
-      case '10':
-        return night
-          ? 'linear-gradient(180deg, rgba(0,0,0,0.56), rgba(0,0,0,0.2) 35%), repeating-linear-gradient(90deg, #1d2b3b 0 126px, #131e2b 126px 128px)'
-          : 'linear-gradient(180deg, rgba(0,0,0,0.14), transparent 35%), repeating-linear-gradient(90deg, #bfd0e0 0 126px, #a7bad0 126px 128px)';
+          ? 'linear-gradient(180deg, rgba(0,0,0,0.62), rgba(0,0,0,0.26) 35%), repeating-linear-gradient(90deg, #16171a 0 120px, #0c0d0f 120px 122px)'
+          : 'linear-gradient(180deg, rgba(0,0,0,0.12), transparent 35%), repeating-linear-gradient(90deg, #e2ecd3 0 120px, #ceddb8 120px 122px)';
       default:
         return night
           ? 'linear-gradient(180deg, rgba(0,0,0,0.55), rgba(0,0,0,0.2) 35%), repeating-linear-gradient(90deg, #573a21 0 130px, #422915 130px 132px)'
@@ -679,14 +654,14 @@ export function Room({
 
   const baseboardBg = (() => {
     if (night) {
-      if (themeId === '4' || themeId === '10') return 'linear-gradient(#263140, #121821)';
-      if (themeId === '2' || themeId === '6') return 'linear-gradient(#213227, #111b14)';
-      if (themeId === '7') return 'linear-gradient(#282b45, #141626)';
-      if (themeId === '8') return 'linear-gradient(#421d27, #220d13)';
+      if (themeId === '4') return 'linear-gradient(#263140, #121821)';
+      if (themeId === '2') return 'linear-gradient(#111a14, #070b08)';
+      if (themeId === '5') return 'linear-gradient(#1a1b1f, #0b0c0e)';
       return 'linear-gradient(#3a332d, #1c1815)';
     }
-    if (themeId === '4' || themeId === '10') return 'linear-gradient(#e5edf5, #b8c6d6)';
-    if (themeId === '2' || themeId === '6') return 'linear-gradient(#ebf2ec, #c2d1c6)';
+    if (themeId === '4') return 'linear-gradient(#e5edf5, #b8c6d6)';
+    if (themeId === '2') return 'linear-gradient(#ebf2ec, #c2d1c6)';
+    if (themeId === '5') return 'linear-gradient(#f7faef, #dce7ca)';
     return 'linear-gradient(#f7f2eb, #d6cbba)';
   })();
 
@@ -705,7 +680,7 @@ export function Room({
         touchAction: 'pan-x pan-y pinch-zoom',
       }}
     >
-      {/* 1. ROOM WALL / WORLD BACKDROP (10 Themes x 5 Almirah Bays = 50 Zero-Repeat Backdrops) */}
+      {/* 1. ROOM WALL / WORLD BACKDROP (5 Themes x 5 Almirah Bays = 25 Zero-Repeat Backdrops) */}
       {themeId === '1' ? (
         <ShelfTheme1BayWall night={night} variantIdx={bayIdx} />
       ) : themeId === '2' ? (
@@ -714,18 +689,8 @@ export function Room({
         <BeachBalconyWithDolphins night={night} variantIdx={bayIdx} />
       ) : themeId === '4' ? (
         <MonsoonRainBackdrop night={night} variantIdx={bayIdx} />
-      ) : themeId === '5' ? (
-        <SwissAlpineBackdrop night={night} variantIdx={bayIdx} />
-      ) : themeId === '6' ? (
-        <ConservatoryBackdrop night={night} variantIdx={bayIdx} />
-      ) : themeId === '7' ? (
-        <ObservatoryBackdrop night={night} variantIdx={bayIdx} />
-      ) : themeId === '8' ? (
-        <RosewoodScriptoriumBackdrop night={night} variantIdx={bayIdx} />
-      ) : themeId === '9' ? (
-        <BroadsheetAtriumBackdrop night={night} variantIdx={bayIdx} />
       ) : (
-        <MicaFjordBackdrop night={night} variantIdx={bayIdx} />
+        <PistachioObsidianBackdrop night={night} variantIdx={bayIdx} />
       )}
 
       {/* 2. REALISTIC HARDWOOD / VERANDA FLOOR */}
@@ -844,8 +809,8 @@ export function Room({
       </div>
       )}
 
-      {/* 4b. SUNLIGHT ROOM BEAMS (Suppressed on rainy monsoon veranda '4' and celestial observatory '7') */}
-      {!night && themeId !== '4' && themeId !== '7' && (
+      {/* 4b. SUNLIGHT ROOM BEAMS (Suppressed on rainy monsoon veranda '4') */}
+      {!night && themeId !== '4' && (
         <div
           style={{
             position: 'absolute',
@@ -4263,39 +4228,9 @@ export default function ShelfRoom({
           ]
         : themeId === '5'
         ? [
-            { type: 'modern-ring', label: 'Alpine Geometric Ring' },
-            { type: 'clock-brass', label: 'Swiss Precision Chronometer' },
-            { type: 'book-stack', label: 'Chalet Compendium' },
-          ]
-        : themeId === '6'
-        ? [
-            { type: 'moss-terrarium', label: 'Conservatory Terrarium' },
-            { type: 'succulent-pot', label: 'Botanical Specimen' },
-            { type: 'bottles-apothecary', label: 'Apothecary Vial Pair' },
-          ]
-        : themeId === '7'
-        ? [
-            { type: 'clock-brass', label: 'Astronomer Astrolabe Clock' },
-            { type: 'modern-ring', label: 'Celestial Brass Ring' },
-            { type: 'forest-lantern', label: 'Observatory Hurricane Lamp' },
-          ]
-        : themeId === '8'
-        ? [
-            { type: 'vase-gold', label: 'Oxford Gilded Urn' },
-            { type: 'book-stack', label: 'Bound Folio Stack' },
-            { type: 'clock-brass', label: 'Scriptorium Mantel Clock' },
-          ]
-        : themeId === '9'
-        ? [
-            { type: 'rattan-basket', label: 'Woven Archival Crate' },
-            { type: 'book-stack', label: 'Broadsheet Bindings' },
-            { type: 'vase-gold', label: 'Travertine Studio Vessel' },
-          ]
-        : themeId === '10'
-        ? [
-            { type: 'modern-ring', label: 'Nordic Ring Sculpture' },
-            { type: 'bottles-apothecary', label: 'Fjord Frosted Glass' },
-            { type: 'succulent-pot', label: 'Arctic Lichen Planter' },
+            { type: 'modern-ring', label: 'Obsidian Geometric Ring' },
+            { type: 'succulent-pot', label: 'Pistachio Botanica Planter' },
+            { type: 'book-stack', label: 'Monograph Folio Stack' },
           ]
         : [];
 

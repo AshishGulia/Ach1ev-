@@ -167,9 +167,9 @@ export const Design3NightDesk: React.FC<Design3Props> = ({
                   </button>
                 ))}
                 <button
-                  onClick={() => onOpenStudio('explore-body')}
+                  onClick={() => onOpenStudio('open-book')}
                   className="p-1 text-slate-400 hover:text-white ml-1"
-                  title="Expand to Fullscreen Explorer"
+                  title="Open Textbook Atlas"
                 >
                   <Maximize2 className="w-3.5 h-3.5" />
                 </button>
@@ -178,7 +178,7 @@ export const Design3NightDesk: React.FC<Design3Props> = ({
 
             {/* Central Interactive Anatomy Display */}
             <div
-              onClick={() => onOpenStudio('explore-body')}
+              onClick={() => onOpenStudio('open-book')}
               className="relative w-full h-56 rounded-xl bg-gradient-to-b from-[#0b1017] to-[#151f2b] border border-cyan-500/10 flex items-center justify-center cursor-pointer group overflow-hidden"
             >
               {/* Glowing anatomical figure representation */}
@@ -208,10 +208,10 @@ export const Design3NightDesk: React.FC<Design3Props> = ({
           <div className="pt-3 mt-3 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400 font-mono">
             <span>Rotate · Zoom · Explore</span>
             <button
-              onClick={() => onOpenStudio('explore-body')}
+              onClick={() => onOpenStudio('open-book')}
               className="text-cyan-400 hover:underline flex items-center gap-1 font-bold"
             >
-              <span>Full 3D Suite</span>
+              <span>Open Reader</span>
               <ChevronRight className="w-3.5 h-3.5" />
             </button>
           </div>

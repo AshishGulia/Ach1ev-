@@ -53,7 +53,6 @@ const EN_BASE: Record<string, string> = {
   'nav.mnemonics': 'Mnemonics',
   'nav.community': 'Ach1evers Hub',
   'nav.leisure': 'Leisure',
-  'nav.exploreBody': 'Explore Body',
   'nav.talkToDev': 'Talk to Developer',
   'nav.settings': 'Settings',
   'nav.trash': 'Trash',

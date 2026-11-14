@@ -6,6 +6,7 @@ export interface AchievBrandProps {
   showTagline?: boolean;
   className?: string;
   imgClassName?: string;
+  emblemClassName?: string;
   title?: string;
 }
 
@@ -15,20 +16,22 @@ const resolveAssetUrl = (relativePath: string): string => {
   return `${normalizedBase}${relativePath.replace(/^\/+/, '')}`;
 };
 
-export const ACHIEV_LOGO_URL = resolveAssetUrl('assets/brand/achiev-logo.png?v=hd5');
-export const ACHIEV_EMBLEM_URL = resolveAssetUrl('assets/brand/achiev-emblem.png?v=hd5');
-export const ACHIEV_WORDMARK_URL = resolveAssetUrl('assets/brand/achiev-wordmark.png?v=hd5');
+export const ACHIEV_LOGO_URL = resolveAssetUrl('assets/brand/achiev-emblem.png?v=hd6');
+export const ACHIEV_EMBLEM_URL = resolveAssetUrl('assets/brand/achiev-emblem.png?v=hd6');
+export const ACHIEV_WORDMARK_URL = resolveAssetUrl('assets/brand/achiev-wordmark.png?v=hd6');
+export const ACHIEV_LEATHER_HERO_URL = resolveAssetUrl('assets/brand/achiev-leather-hero.jpg?v=1');
+export const ACHIEV_LEATHER_LOGIN_URL = resolveAssetUrl('assets/brand/achiev-leather-login.jpg?v=1');
 
 export const AchievBrand: React.FC<AchievBrandProps> = ({
   variant = 'compact',
   showTagline = true,
   className = '',
   imgClassName = '',
+  emblemClassName = '',
   title = 'Ach1ev — Settle Ideas',
 }) => {
   const emblemMaskStyle = { ['--achiev-mask' as string]: `url(${ACHIEV_EMBLEM_URL})` } as React.CSSProperties;
   const wordmarkMaskStyle = { ['--achiev-mask' as string]: `url(${ACHIEV_WORDMARK_URL})` } as React.CSSProperties;
-  const lockupMaskStyle = { ['--achiev-mask' as string]: `url(${ACHIEV_LOGO_URL})` } as React.CSSProperties;
 
   const EmblemWithGlare = ({ sizeClass, alt = 'Ach1ev' }: { sizeClass: string; alt?: string }) => (
     <span className="achiev-emblem-wrap" style={emblemMaskStyle}>
@@ -49,15 +52,24 @@ export const AchievBrand: React.FC<AchievBrandProps> = ({
 
   if (variant === 'lockup') {
     return (
-      <span className={`relative inline-block bg-transparent select-none ${className}`} style={lockupMaskStyle} title={title}>
-        <img
-          src={ACHIEV_LOGO_URL}
-          alt="Ach1ev — Settle Ideas"
-          draggable={false}
-          className={`bg-transparent select-none object-contain max-w-full achiev-brand-clean ${imgClassName || 'h-[72px] w-auto'}`}
+      <div
+        className={`inline-flex items-center justify-center gap-3 sm:gap-4 bg-transparent select-none max-w-full ${className}`}
+        title={title}
+      >
+        <EmblemWithGlare
+          sizeClass={emblemClassName || 'w-14 h-14 sm:w-[70px] sm:h-[70px] shrink-0'}
+          alt="Ach1ev emblem"
         />
-        <span className="achiev-masked-glare" aria-hidden="true" />
-      </span>
+        <span className="relative inline-block max-w-full" style={wordmarkMaskStyle}>
+          <img
+            src={ACHIEV_WORDMARK_URL}
+            alt="Ach1ev — Settle Ideas"
+            draggable={false}
+            className={`bg-transparent select-none object-contain max-w-full achiev-brand-clean ${imgClassName || 'h-12 sm:h-[58px] w-auto'}`}
+          />
+          <span className="achiev-masked-glare" aria-hidden="true" />
+        </span>
+      </div>
     );
   }
 

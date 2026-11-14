@@ -218,7 +218,7 @@ export interface UserProfile {
   authProvider?: string;
 }
 
-export type DesignId = '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10';
+export type DesignId = '1' | '2' | '3' | '4' | '5';
 
 export interface DesignMeta {
   id: DesignId;
@@ -300,7 +300,6 @@ export interface SidebarSettings {
   showMnemonics?: boolean;
   showCommunity: boolean;
   showLeisure?: boolean;
-  showExploreBody?: boolean;
   showTalkToDev: boolean;
 }
 

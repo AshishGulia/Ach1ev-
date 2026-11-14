@@ -169,10 +169,12 @@ html[data-design="1"].dark {
   --th-dark-surface: #110804;
   --th-dark-raised: #1b0d06;
   --th-dark-border: #2e180c;
-  --th-btn-idle-bg: linear-gradient(180deg, rgba(42, 21, 10, 0.94) 0%, rgba(22, 10, 5, 0.96) 100%);
-  --th-btn-idle-ink: #e8d8c3;
-  --th-btn-active-bg: linear-gradient(145deg, rgba(224, 198, 168, 0.27) 0%, rgba(168, 128, 90, 0.18) 54%, rgba(112, 78, 48, 0.22) 100%);
-  --th-btn-active-border: rgba(235, 212, 184, 0.32);
+  --th-btn-idle-bg: linear-gradient(180deg, #382113 0%, #26150b 58%, #1a0d06 100%);
+  --th-btn-idle-ink: #f4e2cb;
+  --th-btn-idle-border: #543320;
+  --th-btn-active-bg: linear-gradient(155deg, #9c623d 0%, #7d4b2c 52%, #5e351c 100%);
+  --th-btn-active-ink: #ffffff;
+  --th-btn-active-border: #cf8e63;
 }
 
 html[data-design="2"] {
@@ -185,31 +187,33 @@ html[data-design="2"] {
   --th-muted: #46614d;
   --th-accent: #2f6b43;
   --th-accent-soft: rgba(47, 107, 67, 0.14);
-  --th-dark-surface: #0d1c13;
-  --th-dark-raised: #162c1e;
-  --th-dark-border: #23422e;
+  --th-dark-surface: #060b08;
+  --th-dark-raised: #0b130e;
+  --th-dark-border: #17261c;
   --th-btn-idle-bg: linear-gradient(180deg, rgba(230, 242, 224, 0.94) 0%, rgba(208, 226, 201, 0.94) 100%);
   --th-btn-idle-ink: #1d3523;
   --th-btn-active-bg: linear-gradient(145deg, #326443 0%, #234930 100%);
   --th-btn-active-border: #3f7c54;
 }
 html[data-design="2"].dark {
-  --th-bg: #08120c;
-  --th-surface: rgba(13, 28, 19, 0.88);
-  --th-raised: rgba(22, 44, 30, 0.92);
-  --th-header: rgba(10, 22, 15, 0.88);
-  --th-border: #23422e;
+  --th-bg: #030604;
+  --th-surface: rgba(6, 11, 8, 0.92);
+  --th-raised: rgba(11, 19, 14, 0.94);
+  --th-header: rgba(4, 8, 6, 0.92);
+  --th-border: #17261c;
   --th-ink: #e3f0e6;
-  --th-muted: #98bca2;
-  --th-accent: #58b37c;
-  --th-accent-soft: rgba(88, 179, 124, 0.16);
-  --th-dark-surface: #0d1c13;
-  --th-dark-raised: #162c1e;
-  --th-dark-border: #23422e;
-  --th-btn-idle-bg: linear-gradient(180deg, rgba(26, 56, 37, 0.92) 0%, rgba(14, 32, 21, 0.96) 100%);
-  --th-btn-idle-ink: #cfe5d5;
-  --th-btn-active-bg: linear-gradient(145deg, #2b6442 0%, #1c442d 100%);
-  --th-btn-active-border: #479466;
+  --th-muted: #93b39c;
+  --th-accent: #63c287;
+  --th-accent-soft: rgba(99, 194, 135, 0.16);
+  --th-dark-surface: #060b08;
+  --th-dark-raised: #0b130e;
+  --th-dark-border: #17261c;
+  --th-btn-idle-bg: linear-gradient(180deg, #131c16 0%, #0c120e 58%, #070b09 100%);
+  --th-btn-idle-ink: #d4e8da;
+  --th-btn-idle-border: #223629;
+  --th-btn-active-bg: linear-gradient(155deg, #439162 0%, #316e49 52%, #235235 100%);
+  --th-btn-active-ink: #ffffff;
+  --th-btn-active-border: #6fd195;
 }
 
 html[data-design="3"] {
@@ -243,10 +247,12 @@ html[data-design="3"].dark {
   --th-dark-surface: #0c1b29;
   --th-dark-raised: #13293d;
   --th-dark-border: #1f415d;
-  --th-btn-idle-bg: linear-gradient(180deg, rgba(22, 50, 74, 0.92) 0%, rgba(12, 30, 46, 0.96) 100%);
-  --th-btn-idle-ink: #cbe1ef;
-  --th-btn-active-bg: linear-gradient(145deg, #216680 0%, #154659 100%);
-  --th-btn-active-border: #3b92b0;
+  --th-btn-idle-bg: linear-gradient(180deg, #16374b 0%, #0f2736 58%, #0a1b26 100%);
+  --th-btn-idle-ink: #d3ecf8;
+  --th-btn-idle-border: #23526e;
+  --th-btn-active-bg: linear-gradient(155deg, #3c8fbd 0%, #2b6f96 52%, #1d5270 100%);
+  --th-btn-active-ink: #ffffff;
+  --th-btn-active-border: #6cc5f0;
 }
 
 html[data-design="4"] {
@@ -280,232 +286,51 @@ html[data-design="4"].dark {
   --th-dark-surface: #0f1724;
   --th-dark-raised: #172336;
   --th-dark-border: #2c3f5b;
-  --th-btn-idle-bg: linear-gradient(180deg, rgba(28, 43, 64, 0.92) 0%, rgba(16, 25, 39, 0.96) 100%);
-  --th-btn-idle-ink: #cfddf0;
-  --th-btn-active-bg: linear-gradient(145deg, #3c597d 0%, #273c57 100%);
-  --th-btn-active-border: #5d83b3;
+  --th-btn-idle-bg: linear-gradient(180deg, #1e2d45 0%, #152033 58%, #0f1726 100%);
+  --th-btn-idle-ink: #d6e3f8;
+  --th-btn-idle-border: #30486e;
+  --th-btn-active-bg: linear-gradient(155deg, #4e73ab 0%, #3a5887 52%, #2a4166 100%);
+  --th-btn-active-ink: #ffffff;
+  --th-btn-active-border: #86aee6;
 }
 
 html[data-design="5"] {
-  --th-bg: #eef0f2;
-  --th-surface: rgba(250, 250, 251, 0.88);
-  --th-raised: rgba(232, 235, 239, 0.9);
-  --th-header: rgba(246, 247, 249, 0.88);
-  --th-border: #c6ccd4;
-  --th-ink: #171b21;
-  --th-muted: #535d69;
-  --th-accent: #a84732;
-  --th-accent-soft: rgba(168, 71, 50, 0.14);
-  --th-dark-surface: #13181f;
-  --th-dark-raised: #1d242e;
-  --th-dark-border: #2e3847;
-  --th-btn-idle-bg: linear-gradient(180deg, rgba(240, 243, 247, 0.94) 0%, rgba(223, 228, 234, 0.94) 100%);
-  --th-btn-idle-ink: #27303b;
-  --th-btn-active-bg: linear-gradient(145deg, #a6432e 0%, #833221 100%);
-  --th-btn-active-border: #bf563f;
+  --th-bg: #f5f8ee;
+  --th-surface: rgba(248, 251, 242, 0.74);
+  --th-raised: rgba(238, 245, 226, 0.74);
+  --th-header: rgba(248, 251, 242, 0.74);
+  --th-border: rgba(196, 214, 168, 0.8);
+  --th-ink: #1e2b18;
+  --th-muted: #566b4c;
+  --th-accent: #578440;
+  --th-accent-soft: rgba(87, 132, 64, 0.14);
+  --th-dark-surface: #0b0b0d;
+  --th-dark-raised: #131317;
+  --th-dark-border: #27282e;
+  --th-btn-idle-bg: linear-gradient(180deg, rgba(245, 249, 236, 0.76) 0%, rgba(231, 240, 214, 0.7) 100%);
+  --th-btn-idle-ink: #25371e;
+  --th-btn-active-bg: linear-gradient(145deg, #54833d 0%, #3d632b 100%);
+  --th-btn-active-border: #689c4f;
 }
 html[data-design="5"].dark {
-  --th-bg: #0d1015;
-  --th-surface: rgba(19, 24, 31, 0.88);
-  --th-raised: rgba(29, 36, 46, 0.92);
-  --th-header: rgba(15, 19, 25, 0.9);
-  --th-border: #2e3847;
-  --th-ink: #eef1f5;
-  --th-muted: #9aa5b5;
-  --th-accent: #df7860;
-  --th-accent-soft: rgba(223, 120, 96, 0.16);
-  --th-dark-surface: #13181f;
-  --th-dark-raised: #1d242e;
-  --th-dark-border: #2e3847;
-  --th-btn-idle-bg: linear-gradient(180deg, rgba(33, 40, 51, 0.92) 0%, rgba(20, 25, 33, 0.96) 100%);
-  --th-btn-idle-ink: #d4dce6;
-  --th-btn-active-bg: linear-gradient(145deg, #ab4934 0%, #833322 100%);
-  --th-btn-active-border: #cf644c;
-}
-
-html[data-design="6"] {
-  --th-bg: #eaf3ef;
-  --th-surface: rgba(247, 252, 250, 0.88);
-  --th-raised: rgba(225, 239, 234, 0.9);
-  --th-header: rgba(241, 249, 246, 0.86);
-  --th-border: #b7d2c8;
-  --th-ink: #132824;
-  --th-muted: #42665e;
-  --th-accent: #1f6f62;
-  --th-accent-soft: rgba(31, 111, 98, 0.14);
-  --th-dark-surface: #0b1c19;
-  --th-dark-raised: #122c27;
-  --th-dark-border: #204840;
-  --th-btn-idle-bg: linear-gradient(180deg, rgba(231, 244, 239, 0.94) 0%, rgba(208, 228, 221, 0.94) 100%);
-  --th-btn-idle-ink: #1a3d36;
-  --th-btn-active-bg: linear-gradient(145deg, #1f6b5f 0%, #154e45 100%);
-  --th-btn-active-border: #2c8a7b;
-}
-html[data-design="6"].dark {
-  --th-bg: #071412;
-  --th-surface: rgba(11, 28, 25, 0.88);
-  --th-raised: rgba(18, 44, 39, 0.92);
-  --th-header: rgba(8, 21, 19, 0.88);
-  --th-border: #204840;
-  --th-ink: #e3f3ef;
-  --th-muted: #92c2b7;
-  --th-accent: #48b8a4;
-  --th-accent-soft: rgba(72, 184, 164, 0.16);
-  --th-dark-surface: #0b1c19;
-  --th-dark-raised: #122c27;
-  --th-dark-border: #204840;
-  --th-btn-idle-bg: linear-gradient(180deg, rgba(22, 52, 46, 0.92) 0%, rgba(11, 30, 26, 0.96) 100%);
-  --th-btn-idle-ink: #c8e5de;
-  --th-btn-active-bg: linear-gradient(145deg, #217062 0%, #154d43 100%);
-  --th-btn-active-border: #3b9f8d;
-}
-
-html[data-design="7"] {
-  --th-bg: #efeef3;
-  --th-surface: rgba(249, 248, 252, 0.88);
-  --th-raised: rgba(232, 229, 240, 0.9);
-  --th-header: rgba(245, 243, 250, 0.87);
-  --th-border: #c8c3d6;
-  --th-ink: #1b1a2e;
-  --th-muted: #535170;
-  --th-accent: #4b4a8a;
-  --th-accent-soft: rgba(75, 74, 138, 0.14);
-  --th-dark-surface: #0e1222;
-  --th-dark-raised: #171d34;
-  --th-dark-border: #2a3357;
-  --th-btn-idle-bg: linear-gradient(180deg, rgba(238, 235, 247, 0.94) 0%, rgba(220, 216, 234, 0.94) 100%);
-  --th-btn-idle-ink: #29284a;
-  --th-btn-active-bg: linear-gradient(145deg, #43437d 0%, #2f2f5c 100%);
-  --th-btn-active-border: #5d5da1;
-}
-html[data-design="7"].dark {
-  --th-bg: #080b16;
-  --th-surface: rgba(14, 18, 34, 0.88);
-  --th-raised: rgba(23, 29, 52, 0.92);
-  --th-header: rgba(10, 14, 27, 0.89);
-  --th-border: #2a3357;
-  --th-ink: #eaeaf6;
-  --th-muted: #a2a7cb;
-  --th-accent: #c9a65b;
-  --th-accent-soft: rgba(201, 166, 91, 0.17);
-  --th-dark-surface: #0e1222;
-  --th-dark-raised: #171d34;
-  --th-dark-border: #2a3357;
-  --th-btn-idle-bg: linear-gradient(180deg, rgba(28, 34, 62, 0.92) 0%, rgba(16, 20, 38, 0.96) 100%);
-  --th-btn-idle-ink: #d6d7ed;
-  --th-btn-active-bg: linear-gradient(145deg, #4b498a 0%, #323163 100%);
-  --th-btn-active-border: #c9a65b;
-}
-
-html[data-design="8"] {
-  --th-bg: #f5ecee;
-  --th-surface: rgba(253, 248, 249, 0.88);
-  --th-raised: rgba(239, 224, 228, 0.9);
-  --th-header: rgba(250, 242, 244, 0.87);
-  --th-border: #d7bcc3;
-  --th-ink: #2b131b;
-  --th-muted: #6d4451;
-  --th-accent: #7d2f45;
-  --th-accent-soft: rgba(125, 47, 69, 0.14);
-  --th-dark-surface: #1c0c12;
-  --th-dark-raised: #2b131c;
-  --th-dark-border: #4c2231;
-  --th-btn-idle-bg: linear-gradient(180deg, rgba(247, 236, 239, 0.94) 0%, rgba(232, 214, 220, 0.94) 100%);
-  --th-btn-idle-ink: #411d28;
-  --th-btn-active-bg: linear-gradient(145deg, #7a2d44 0%, #571f30 100%);
-  --th-btn-active-border: #9b3e5a;
-}
-html[data-design="8"].dark {
-  --th-bg: #14080c;
-  --th-surface: rgba(28, 12, 18, 0.88);
-  --th-raised: rgba(43, 19, 28, 0.92);
-  --th-header: rgba(21, 9, 14, 0.89);
-  --th-border: #4c2231;
-  --th-ink: #f4e6ea;
-  --th-muted: #c79aa7;
-  --th-accent: #d67e96;
-  --th-accent-soft: rgba(214, 126, 150, 0.16);
-  --th-dark-surface: #1c0c12;
-  --th-dark-raised: #2b131c;
-  --th-dark-border: #4c2231;
-  --th-btn-idle-bg: linear-gradient(180deg, rgba(54, 23, 34, 0.92) 0%, rgba(30, 13, 19, 0.96) 100%);
-  --th-btn-idle-ink: #ebd4dc;
-  --th-btn-active-bg: linear-gradient(145deg, #87324b 0%, #5e2033 100%);
-  --th-btn-active-border: #b55470;
-}
-
-html[data-design="9"] {
-  --th-bg: #f3ede0;
-  --th-surface: rgba(251, 248, 240, 0.89);
-  --th-raised: rgba(235, 227, 210, 0.9);
-  --th-header: rgba(247, 243, 233, 0.88);
-  --th-border: #cfc4ac;
-  --th-ink: #1b1915;
-  --th-muted: #5e5648;
-  --th-accent: #75532a;
-  --th-accent-soft: rgba(117, 83, 42, 0.14);
-  --th-dark-surface: #171510;
-  --th-dark-raised: #232018;
-  --th-dark-border: #3d372a;
-  --th-btn-idle-bg: linear-gradient(180deg, rgba(243, 237, 224, 0.94) 0%, rgba(226, 218, 202, 0.94) 100%);
-  --th-btn-idle-ink: #322c23;
-  --th-btn-active-bg: linear-gradient(145deg, #544636 0%, #3a3025 100%);
-  --th-btn-active-border: #705e48;
-}
-html[data-design="9"].dark {
-  --th-bg: #100f0b;
-  --th-surface: rgba(23, 21, 16, 0.88);
-  --th-raised: rgba(35, 32, 24, 0.92);
-  --th-header: rgba(18, 16, 12, 0.9);
-  --th-border: #3d372a;
-  --th-ink: #efeae0;
-  --th-muted: #b0a792;
-  --th-accent: #cfa86b;
-  --th-accent-soft: rgba(207, 168, 107, 0.16);
-  --th-dark-surface: #171510;
-  --th-dark-raised: #232018;
-  --th-dark-border: #3d372a;
-  --th-btn-idle-bg: linear-gradient(180deg, rgba(40, 36, 27, 0.92) 0%, rgba(23, 21, 16, 0.96) 100%);
-  --th-btn-idle-ink: #dfd8ca;
-  --th-btn-active-bg: linear-gradient(145deg, #69563c 0%, #483b28 100%);
-  --th-btn-active-border: #917853;
-}
-
-html[data-design="10"] {
-  --th-bg: #eaf1f8;
-  --th-surface: rgba(246, 250, 255, 0.86);
-  --th-raised: rgba(226, 236, 248, 0.9);
-  --th-header: rgba(241, 247, 253, 0.85);
-  --th-border: #b8cbe0;
-  --th-ink: #132236;
-  --th-muted: #465f7e;
-  --th-accent: #2563a8;
-  --th-accent-soft: rgba(37, 99, 168, 0.14);
-  --th-dark-surface: #0c1726;
-  --th-dark-raised: #14253b;
-  --th-dark-border: #233f63;
-  --th-btn-idle-bg: linear-gradient(180deg, rgba(232, 241, 251, 0.94) 0%, rgba(212, 226, 242, 0.94) 100%);
-  --th-btn-idle-ink: #1d3654;
-  --th-btn-active-bg: linear-gradient(145deg, #25609e 0%, #194575 100%);
-  --th-btn-active-border: #3b7ec4;
-}
-html[data-design="10"].dark {
-  --th-bg: #070f19;
-  --th-surface: rgba(12, 23, 38, 0.88);
-  --th-raised: rgba(20, 37, 59, 0.92);
-  --th-header: rgba(9, 18, 30, 0.88);
-  --th-border: #233f63;
-  --th-ink: #e4eef9;
-  --th-muted: #92b0d4;
-  --th-accent: #5ea1e6;
-  --th-accent-soft: rgba(94, 161, 230, 0.16);
-  --th-dark-surface: #0c1726;
-  --th-dark-raised: #14253b;
-  --th-dark-border: #233f63;
-  --th-btn-idle-bg: linear-gradient(180deg, rgba(24, 46, 74, 0.92) 0%, rgba(13, 26, 44, 0.96) 100%);
-  --th-btn-idle-ink: #cce0f5;
-  --th-btn-active-bg: linear-gradient(145deg, #2762a3 0%, #194473 100%);
-  --th-btn-active-border: #478cd4;
+  --th-bg: #040405;
+  --th-surface: rgba(11, 11, 13, 0.9);
+  --th-raised: rgba(19, 19, 23, 0.92);
+  --th-header: rgba(8, 8, 10, 0.9);
+  --th-border: #27282e;
+  --th-ink: #eef4ea;
+  --th-muted: #9aa498;
+  --th-accent: #e5eed6;
+  --th-accent-soft: rgba(229, 238, 214, 0.14);
+  --th-dark-surface: #0b0b0d;
+  --th-dark-raised: #131317;
+  --th-dark-border: #27282e;
+  --th-btn-idle-bg: linear-gradient(180deg, rgba(221, 230, 207, 0.72) 0%, rgba(196, 211, 174, 0.68) 58%, rgba(182, 198, 160, 0.64) 100%);
+  --th-btn-idle-ink: #0f160d;
+  --th-btn-idle-border: rgba(221, 230, 207, 0.74);
+  --th-btn-active-bg: linear-gradient(155deg, rgba(250, 252, 245, 0.88) 0%, rgba(237, 244, 224, 0.82) 52%, rgba(220, 232, 200, 0.76) 100%);
+  --th-btn-active-ink: #070a06;
+  --th-btn-active-border: rgba(255, 255, 255, 0.9);
 }
 
 @layer base {
@@ -548,7 +373,7 @@ html[data-design="10"].dark {
   font-family: var(--sample-font, inherit) !important;
 }
 
-/* Non-Repetitive Organic Abstract Theme Backdrop Layer (Themes 2-10 Light & Dark) */
+/* Crisp Marble (Theme 1 Light) & Sober Abstract Theme Backdrop Layer (Themes 1–5 Light & Dark) */
 .app-theme-wallpaper {
   position: fixed;
   inset: 0;
@@ -557,12 +382,12 @@ html[data-design="10"].dark {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  filter: blur(4px) saturate(1.08);
-  transform: scale(1.03);
+  filter: none;
+  transform: none;
   transition: opacity 0.35s ease;
 }
 
-/* Dark Blurred Abstract Background - Coal Dark Burnt Wood Brown Glow for Theme 1, Theme-tinted for 2-10 */
+/* Dark Blurred Abstract Background - Coal Dark Burnt Wood Brown Glow for Theme 1, Theme-tinted for 2-5 */
 .dark-ambient-backdrop {
   position: fixed;
   inset: 0;
@@ -575,7 +400,7 @@ html[data-design="1"].dark .dark-ambient-backdrop {
   background-color: #080402;
 }
 html[data-design="2"].dark .dark-ambient-backdrop {
-  background-color: #08110c;
+  background-color: #020403;
 }
 html[data-design="3"].dark .dark-ambient-backdrop {
   background-color: #07111c;
@@ -584,22 +409,7 @@ html[data-design="4"].dark .dark-ambient-backdrop {
   background-color: #090f18;
 }
 html[data-design="5"].dark .dark-ambient-backdrop {
-  background-color: #0d1015;
-}
-html[data-design="6"].dark .dark-ambient-backdrop {
-  background-color: #071412;
-}
-html[data-design="7"].dark .dark-ambient-backdrop {
-  background-color: #080b16;
-}
-html[data-design="8"].dark .dark-ambient-backdrop {
-  background-color: #14080c;
-}
-html[data-design="9"].dark .dark-ambient-backdrop {
-  background-color: #100f0b;
-}
-html[data-design="10"].dark .dark-ambient-backdrop {
-  background-color: #070f19;
+  background-color: #040405;
 }
 .dark-ambient-mesh-1 {
   position: absolute;
@@ -615,7 +425,7 @@ html[data-design="1"].dark .dark-ambient-mesh-1 {
   background: radial-gradient(circle, rgba(46, 22, 9, 0.36) 0%, rgba(16, 7, 3, 0.24) 52%, transparent 78%);
 }
 html[data-design="2"].dark .dark-ambient-mesh-1 {
-  background: radial-gradient(circle, rgba(38, 86, 56, 0.4) 0%, rgba(14, 34, 22, 0.26) 52%, transparent 78%);
+  background: radial-gradient(circle, rgba(14, 34, 21, 0.32) 0%, rgba(5, 11, 7, 0.22) 52%, transparent 78%);
 }
 html[data-design="3"].dark .dark-ambient-mesh-1 {
   background: radial-gradient(circle, rgba(32, 92, 114, 0.42) 0%, rgba(12, 32, 48, 0.26) 52%, transparent 78%);
@@ -624,22 +434,7 @@ html[data-design="4"].dark .dark-ambient-mesh-1 {
   background: radial-gradient(circle, rgba(58, 80, 118, 0.36) 0%, rgba(18, 28, 44, 0.26) 52%, transparent 78%);
 }
 html[data-design="5"].dark .dark-ambient-mesh-1 {
-  background: radial-gradient(circle, rgba(120, 62, 48, 0.26) 0%, rgba(28, 36, 48, 0.28) 52%, transparent 78%);
-}
-html[data-design="6"].dark .dark-ambient-mesh-1 {
-  background: radial-gradient(circle, rgba(28, 92, 80, 0.38) 0%, rgba(10, 32, 28, 0.26) 52%, transparent 78%);
-}
-html[data-design="7"].dark .dark-ambient-mesh-1 {
-  background: radial-gradient(circle, rgba(66, 62, 128, 0.36) 0%, rgba(16, 20, 42, 0.26) 52%, transparent 78%);
-}
-html[data-design="8"].dark .dark-ambient-mesh-1 {
-  background: radial-gradient(circle, rgba(102, 34, 54, 0.38) 0%, rgba(28, 11, 18, 0.26) 52%, transparent 78%);
-}
-html[data-design="9"].dark .dark-ambient-mesh-1 {
-  background: radial-gradient(circle, rgba(96, 78, 48, 0.28) 0%, rgba(26, 23, 17, 0.24) 52%, transparent 78%);
-}
-html[data-design="10"].dark .dark-ambient-mesh-1 {
-  background: radial-gradient(circle, rgba(38, 92, 152, 0.38) 0%, rgba(12, 26, 46, 0.26) 52%, transparent 78%);
+  background: radial-gradient(circle, rgba(42, 44, 48, 0.34) 0%, rgba(16, 17, 20, 0.28) 52%, transparent 78%);
 }
 .dark-ambient-mesh-2 {
   position: absolute;
@@ -655,7 +450,7 @@ html[data-design="1"].dark .dark-ambient-mesh-2 {
   background: radial-gradient(circle, rgba(72, 34, 14, 0.20) 0%, rgba(12, 5, 2, 0.14) 60%, transparent 82%);
 }
 
-/* Harmonize ALL Theme-1 espresso/brown shells, modals, panels, borders, accents & gradient buttons in Themes 2-10 */
+/* Harmonize ALL Theme-1 espresso/brown shells, modals, panels, borders, accents & gradient buttons in Themes 2-5 */
 html[data-design]:not([data-design="1"]).dark :is(.dark\:bg-\[\#110c09\], .dark\:bg-\[\#140e0a\], .dark\:bg-\[\#140d09\], .dark\:bg-\[\#160f0b\], .dark\:bg-\[\#18110c\], .dark\:bg-\[\#18100c\], .dark\:bg-\[\#19120d\], .dark\:bg-\[\#1a120d\], .dark\:bg-\[\#1b120d\], .dark\:bg-\[\#1c130e\], .dark\:bg-\[\#120c08\], .dark\:bg-\[\#0e0907\]):not(.shelf-world-root):not(.shelf-world-root *) {
   background-color: var(--th-surface) !important;
 }
@@ -899,27 +694,15 @@ html:not(.dark) .atelier-btn-ink,
   color: #ffffff;
 }
 
-/* Zero-specificity exclusions via :where() so light/cream/brass active pills always win cleanly */
-.dark button[aria-pressed="true"]:not(:where(.dark\:bg-stone-100, .dark\:bg-stone-50, .dark\:bg-white, .dark\:bg-\[\#efe4d4\], .dark\:bg-\[\#f0e5d5\], .dark\:bg-\[\#f5ead9\], [class*="dark:text-stone-9"], [class*="dark:text-slate-9"], [class*="dark:text-\[#1"], [class*="dark:text-\[#2"], .atelier-day, .atelier-btn-ink, .atelier-bell, .atelier-sticky button, .an-seg button, .an-speed button, .an-atabs button, .an-icon-btn)),
-.dark button[aria-selected="true"]:not(:where(.dark\:bg-stone-100, .dark\:bg-stone-50, .dark\:bg-white, .dark\:bg-\[\#efe4d4\], .dark\:bg-\[\#f0e5d5\], .dark\:bg-\[\#f5ead9\], [class*="dark:text-stone-9"], [class*="dark:text-slate-9"], [class*="dark:text-\[#1"], [class*="dark:text-\[#2"], .atelier-day, .atelier-btn-ink, .atelier-bell, .atelier-sticky button, .an-seg button, .an-speed button, .an-atabs button, .an-icon-btn)) {
-  color: #ffffff !important;
+/* Active pill contrast in dark mode uses each theme's extra-light cream text */
+.dark button[aria-pressed="true"]:not(:where(.atelier-bell, .atelier-sticky button, [data-swatch], [role="switch"])),
+.dark button[aria-selected="true"]:not(:where([data-swatch], [role="switch"])) {
+  color: var(--th-btn-active-ink, #fff7eb) !important;
   text-shadow: none !important;
   -webkit-font-smoothing: subpixel-antialiased;
 }
 
-/* Dark-mode cream active ink button strictly for Theme 1 */
-html.dark[data-design="1"] .atelier-btn-ink {
-  background: linear-gradient(180deg, #f8f1e4 0%, #e6d3b8 100%) !important;
-  color: #160e07 !important;
-  border-color: #d4b995 !important;
-  text-shadow: none !important;
-}
-html.dark[data-design="1"] .atelier-btn-ink * {
-  color: #160e07 !important;
-  text-shadow: none !important;
-}
-
-/* Themes 2-10: EVERY panel/ribbon/toolbar/tab button uses sidebar-matched coloured gradient tokens */
+/* Themes 2-10: Panel/ribbon/toolbar/tab buttons inherit each theme's palette & dark-mode lightened surface gradients */
 html[data-design]:not([data-design="1"]) :is(
   button[class*="bg-[#A47C43]"],
   button[class*="bg-[#a47c43]"],
@@ -944,11 +727,11 @@ html[data-design]:not([data-design="1"]) :is(
   .an-btn.primary,
   .an-btn-primary,
   .an-paper-mini-pills button.active
-):not(.shelf-world-root):not(.shelf-world-root *):not([data-swatch]):not([role="switch"]) {
+):not(.shelf-world-root):not(.shelf-world-root *):not([data-swatch]):not([role="switch"]):not(.raw-icon-btn):not([class*="bg-red-"]) {
   background: var(--th-btn-active-bg) !important;
-  color: #ffffff !important;
+  color: var(--th-btn-active-ink, #ffffff) !important;
   border-color: var(--th-btn-active-border, transparent) !important;
-  box-shadow: 0 3px 9px -2px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.34), inset 0 1px 0 rgba(255, 255, 255, 0.24);
 }
 
 html[data-design]:not([data-design="1"]) :is(
@@ -967,10 +750,10 @@ html[data-design]:not([data-design="1"]) :is(
   .an-btn.primary *,
   .an-paper-mini-pills button.active *
 ):not(.shelf-world-root):not(.shelf-world-root *) {
-  color: #ffffff !important;
+  color: var(--th-btn-active-ink, #ffffff) !important;
 }
 
-/* Themes 2-10: Neutral / brown-tinted panel action buttons adopt the theme sidebar tonal gradient */
+/* Themes 2-10: Neutral / brown-tinted panel action buttons adopt the theme tonal gradient */
 html[data-design]:not([data-design="1"]) :is(
   button.bg-stone-100,
   button.bg-stone-200,
@@ -997,7 +780,7 @@ html[data-design]:not([data-design="1"]) :is(
 ):not(.shelf-world-root):not(.shelf-world-root *):not([data-swatch]):not([role="switch"]):not(.raw-icon-btn):not(.atelier-bell) {
   background: var(--th-btn-idle-bg) !important;
   color: var(--th-btn-idle-ink) !important;
-  border-color: var(--th-border) !important;
+  border-color: var(--th-btn-idle-border, var(--th-border)) !important;
 }
 
 /* Automatic button height/label accommodation when translations or long labels appear */
@@ -1018,64 +801,13 @@ button[class*="rounded"]:not([data-swatch]):not([role="switch"]):not(.raw-icon-b
 }
 
 .dark .atelier-seg button[aria-pressed="true"]:not(:where(.atelier-sticky .atelier-seg button)) {
-  color: #fff6e8 !important;
+  color: var(--th-btn-active-ink, #fff7eb) !important;
   text-shadow: none !important;
 }
 
 .dark .atelier-bell[aria-pressed="true"] {
   color: var(--at-brass) !important;
   background: var(--at-brass-soft) !important;
-  text-shadow: none !important;
-}
-
-html[data-design="1"].dark :is(
-  button.dark\:bg-stone-100,
-  button.dark\:bg-stone-50,
-  button.dark\:bg-white,
-  button.dark\:bg-\[\#efe4d4\],
-  button.dark\:bg-\[\#f0e5d5\],
-  button.dark\:bg-\[\#f5ead9\],
-  button[class*="dark:text-stone-9"],
-  button[class*="dark:text-slate-9"],
-  button[class*="dark:text-\[#110c09\]"],
-  .atelier-day[aria-pressed="true"],
-  .an-seg button[aria-pressed="true"],
-  .an-speed button[aria-pressed="true"]
-),
-html[data-design="1"].dark :is(
-  button.dark\:bg-stone-100,
-  button.dark\:bg-stone-50,
-  button.dark\:bg-white,
-  button.dark\:bg-\[\#efe4d4\],
-  button.dark\:bg-\[\#f0e5d5\],
-  button.dark\:bg-\[\#f5ead9\],
-  button[class*="dark:text-stone-9"],
-  button[class*="dark:text-slate-9"],
-  button[class*="dark:text-\[#110c09\]"],
-  .atelier-day[aria-pressed="true"],
-  .an-seg button[aria-pressed="true"],
-  .an-speed button[aria-pressed="true"]
-) * {
-  color: #140e0a !important;
-  text-shadow: none !important;
-}
-
-/* Crisp light cream buttons in dark mode strictly for Theme 1 (Clean tonal gradient — ZERO marble!) */
-html[data-design="1"].dark :is(
-  button.dark\:bg-stone-100,
-  button.dark\:bg-stone-50,
-  button.dark\:bg-white,
-  button.dark\:bg-\[\#efe4d4\],
-  button.dark\:bg-\[\#f0e5d5\],
-  button.dark\:bg-\[\#f5ead9\],
-  .atelier-day[aria-pressed="true"],
-  .an-seg button[aria-pressed="true"],
-  .an-speed button[aria-pressed="true"]
-) {
-  background-color: #f6efe3 !important;
-  background-image: linear-gradient(180deg, #fbf7ef 0%, #efe3cf 60%, #e4d4ba 100%) !important;
-  border-color: #d6c3a5 !important;
-  color: #140e0a !important;
   text-shadow: none !important;
 }
 
@@ -1337,48 +1069,11 @@ html[data-design="4"] :is(.atelier-btn, .atelier-log, .an-btn, .an-btn-primary, 
   backdrop-filter: blur(8px);
 }
 
-/* Theme 5 — Swiss Alpine Atelier: Crisp Micro-Rectilinear (3px) */
+/* Theme 5 — Pistachio & Obsidian: Crisp Pistachio Tab (8px 14px 8px 14px) */
 html[data-design="5"] button[class*="bg-"]:not([data-swatch]):not([role="switch"]):not(.raw-icon-btn):not(.joystick-btn):not(.atelier-tr-del):not(.beach-dolphin-btn):not(.rounded-full),
 html[data-design="5"] button[class*="border"]:not([data-swatch]):not([role="switch"]):not(.raw-icon-btn):not(.joystick-btn):not(.atelier-tr-del):not(.beach-dolphin-btn):not(.rounded-full),
 html[data-design="5"] :is(.atelier-btn, .atelier-log, .an-btn, .an-btn-primary, .read-attach-btn, .read-icon-btn, .read-tab, .shelfwise-btn, .shelfwise-seg-btn, .rs-btn, .rs-tab) {
-  border-radius: 3px !important;
-}
-
-/* Theme 6 — Botanical Conservatory: Arched Glasshouse Tab */
-html[data-design="6"] button[class*="bg-"]:not([data-swatch]):not([role="switch"]):not(.raw-icon-btn):not(.joystick-btn):not(.atelier-tr-del):not(.beach-dolphin-btn):not(.rounded-full),
-html[data-design="6"] button[class*="border"]:not([data-swatch]):not([role="switch"]):not(.raw-icon-btn):not(.joystick-btn):not(.atelier-tr-del):not(.beach-dolphin-btn):not(.rounded-full),
-html[data-design="6"] :is(.atelier-btn, .atelier-log, .an-btn, .an-btn-primary, .read-attach-btn, .read-icon-btn, .read-tab, .shelfwise-btn, .shelfwise-seg-btn, .rs-btn, .rs-tab) {
-  border-radius: 14px 14px 4px 4px !important;
-}
-
-/* Theme 7 — Nocturne Observatory: Counter-Diagonal Chamfer */
-html[data-design="7"] button[class*="bg-"]:not([data-swatch]):not([role="switch"]):not(.raw-icon-btn):not(.joystick-btn):not(.atelier-tr-del):not(.beach-dolphin-btn):not(.rounded-full),
-html[data-design="7"] button[class*="border"]:not([data-swatch]):not([role="switch"]):not(.raw-icon-btn):not(.joystick-btn):not(.atelier-tr-del):not(.beach-dolphin-btn):not(.rounded-full),
-html[data-design="7"] :is(.atelier-btn, .atelier-log, .an-btn, .an-btn-primary, .read-attach-btn, .read-icon-btn, .read-tab, .shelfwise-btn, .shelfwise-seg-btn, .rs-btn, .rs-tab) {
-  border-radius: 4px 15px 4px 15px !important;
-}
-
-/* Theme 8 — Rosewood Scriptorium: Bookplate Ribbon Tag */
-html[data-design="8"] button[class*="bg-"]:not([data-swatch]):not([role="switch"]):not(.raw-icon-btn):not(.joystick-btn):not(.atelier-tr-del):not(.beach-dolphin-btn):not(.rounded-full),
-html[data-design="8"] button[class*="border"]:not([data-swatch]):not([role="switch"]):not(.raw-icon-btn):not(.joystick-btn):not(.atelier-tr-del):not(.beach-dolphin-btn):not(.rounded-full),
-html[data-design="8"] :is(.atelier-btn, .atelier-log, .an-btn, .an-btn-primary, .read-attach-btn, .read-icon-btn, .read-tab, .shelfwise-btn, .shelfwise-seg-btn, .rs-btn, .rs-tab) {
-  border-radius: 4px 15px 15px 4px !important;
-}
-
-/* Theme 9 — Archival Broadsheet: Tactile Press Stamp */
-html[data-design="9"] button[class*="bg-"]:not([data-swatch]):not([role="switch"]):not(.raw-icon-btn):not(.joystick-btn):not(.atelier-tr-del):not(.beach-dolphin-btn):not(.rounded-full),
-html[data-design="9"] button[class*="border"]:not([data-swatch]):not([role="switch"]):not(.raw-icon-btn):not(.joystick-btn):not(.atelier-tr-del):not(.beach-dolphin-btn):not(.rounded-full),
-html[data-design="9"] :is(.atelier-btn, .atelier-log, .an-btn, .an-btn-primary, .read-attach-btn, .read-icon-btn, .read-tab, .shelfwise-btn, .shelfwise-seg-btn, .rs-btn, .rs-tab) {
-  border-radius: 6px !important;
-  box-shadow: 0 2px 0 rgba(48, 38, 22, 0.34), 0 4px 9px -2px rgba(24, 18, 10, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.25);
-}
-
-/* Theme 10 — Fluent Mica Studio: Soft Frosted Squircle */
-html[data-design="10"] button[class*="bg-"]:not([data-swatch]):not([role="switch"]):not(.raw-icon-btn):not(.joystick-btn):not(.atelier-tr-del):not(.beach-dolphin-btn):not(.rounded-full),
-html[data-design="10"] button[class*="border"]:not([data-swatch]):not([role="switch"]):not(.raw-icon-btn):not(.joystick-btn):not(.atelier-tr-del):not(.beach-dolphin-btn):not(.rounded-full),
-html[data-design="10"] :is(.atelier-btn, .atelier-log, .an-btn, .an-btn-primary, .read-attach-btn, .read-icon-btn, .read-tab, .shelfwise-btn, .shelfwise-seg-btn, .rs-btn, .rs-tab) {
-  border-radius: 10px !important;
-  backdrop-filter: blur(10px);
+  border-radius: 8px 14px 8px 14px !important;
 }
 
 html[data-design]:not([data-design="1"]) button:not([data-swatch]):not([role="switch"]):active {
@@ -1467,22 +1162,26 @@ html[data-design]:not([data-design="1"]) button:not([data-swatch]):not([role="sw
 .sh-cat-pupil   { animation: sneakEyeScan 2.2s ease-in-out infinite; }
 
 /* Leisure Dashboard:
-   Calacatta White-Cream Gold-Vein Marble in Theme 1 Light Leisure,
-   Smooth Classy Dark Chocolate in Theme 1 Dark Leisure.
-   Themes 2-10 use prominent non-repetitive abstract compositions. */
+   Crisp Calacatta White-Cream Gold-Vein Marble in Theme 1 Light Leisure,
+   Sober Espresso & Warm Bronze Abstract in Theme 1 Dark Leisure.
+   Themes 2-5 use prominent sober non-repetitive abstract compositions. */
 html[data-design="1"]:not(.dark) .leisure-surface,
 html:not([data-design]):not(.dark) .leisure-surface {
   background-color: #faf6ee !important;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='480' height='480' viewBox='0 0 480 480'%3E%3Cpath d='M-20 80 C85 110, 175 45, 290 78 C375 102, 435 55, 510 85' stroke='%23c9a252' stroke-width='1.3' fill='none' opacity='0.24'/%3E%3Cpath d='M40 -10 C120 95, 220 170, 310 265 C375 335, 420 400, 495 495' stroke='%23d4b16a' stroke-width='1.1' fill='none' opacity='0.20'/%3E%3Cpath d='M-15 320 C90 280, 185 335, 285 295 C380 258, 430 300, 505 270' stroke='%23ba8e3d' stroke-width='0.95' fill='none' opacity='0.20'/%3E%3Cpath d='M180 490 C215 390, 275 350, 355 210 C400 130, 445 80, 485 -10' stroke='%23d8be82' stroke-width='0.8' fill='none' opacity='0.22'/%3E%3Cpath d='M10 190 C95 215, 145 170, 225 192' stroke='%23c49d52' stroke-width='0.65' fill='none' opacity='0.18'/%3E%3C/svg%3E"), linear-gradient(155deg, #fdfcf8 0%, #f8f3ea 48%, #f1e8d9 100%) !important;
+  background-image: url("/assets/themes/marble-gold-light.jpg?v=1"), linear-gradient(155deg, #fdfcf8 0%, #f8f3ea 48%, #f1e8d9 100%) !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
   background-attachment: fixed;
 }
 
 html[data-design="1"].dark .leisure-surface,
 html:not([data-design]).dark .leisure-surface {
-  background-color: #0b0502 !important;
+  background-color: #090402 !important;
   background-image:
-    radial-gradient(ellipse 82% 58% at 22% 16%, rgba(86, 44, 18, 0.22) 0%, transparent 66%),
-    radial-gradient(ellipse 75% 60% at 84% 78%, rgba(62, 30, 12, 0.18) 0%, transparent 68%),
+    radial-gradient(ellipse 84% 62% at 20% 18%, rgba(114, 59, 24, 0.36) 0%, transparent 64%),
+    radial-gradient(ellipse 76% 64% at 84% 78%, rgba(142, 86, 39, 0.28) 0%, transparent 66%),
+    conic-gradient(from 155deg at 52% 46%, rgba(16, 7, 3, 0.78) 0deg, rgba(78, 39, 15, 0.34) 130deg, rgba(24, 10, 4, 0.72) 250deg, rgba(16, 7, 3, 0.78) 360deg),
     linear-gradient(165deg, #120804 0%, #0b0502 52%, #060201 100%) !important;
   background-size: 100% 100% !important;
   background-repeat: no-repeat !important;
@@ -1490,7 +1189,7 @@ html:not([data-design]).dark .leisure-surface {
 }
 
 /* Hide theme-wide abstract backdrop overlay inside Leisure so Leisure renders its prominent pure abstract artwork */
-[data-active-view="leisure"]:not([data-active-design="1"]) .app-theme-wallpaper {
+[data-active-view="leisure"] .app-theme-wallpaper {
   opacity: 0 !important;
 }
 
@@ -1508,13 +1207,13 @@ html[data-design="2"]:not(.dark) .leisure-surface {
   background-attachment: fixed;
 }
 html[data-design="2"].dark .leisure-surface {
-  background-color: #07140c !important;
+  background-color: #020403 !important;
   background-image:
-    radial-gradient(ellipse 86% 66% at 18% 20%, rgba(44, 124, 78, 0.62) 0%, transparent 64%),
-    radial-gradient(ellipse 78% 72% at 86% 28%, rgba(18, 72, 46, 0.72) 0%, transparent 60%),
-    radial-gradient(ellipse 80% 70% at 52% 90%, rgba(132, 178, 92, 0.28) 0%, transparent 65%),
-    conic-gradient(from 210deg at 36% 52%, rgba(8, 22, 14, 0.72) 0deg, rgba(52, 138, 86, 0.36) 130deg, rgba(12, 42, 26, 0.65) 260deg, rgba(8, 22, 14, 0.72) 360deg),
-    linear-gradient(145deg, #06120b 0%, #0d2417 52%, #050d08 100%) !important;
+    radial-gradient(ellipse 86% 66% at 18% 20%, rgba(18, 52, 32, 0.42) 0%, transparent 64%),
+    radial-gradient(ellipse 78% 72% at 86% 28%, rgba(8, 28, 17, 0.54) 0%, transparent 60%),
+    radial-gradient(ellipse 80% 70% at 52% 90%, rgba(44, 72, 36, 0.16) 0%, transparent 65%),
+    conic-gradient(from 210deg at 36% 52%, rgba(2, 5, 3, 0.85) 0deg, rgba(16, 46, 28, 0.32) 130deg, rgba(4, 12, 7, 0.78) 260deg, rgba(2, 5, 3, 0.85) 360deg),
+    linear-gradient(145deg, #020403 0%, #050b07 52%, #010202 100%) !important;
   background-size: 100% 100% !important;
   background-repeat: no-repeat !important;
   background-attachment: fixed;
@@ -1571,150 +1270,25 @@ html[data-design="4"].dark .leisure-surface {
 }
 
 html[data-design="5"]:not(.dark) .leisure-surface {
-  background-color: #e4e7ec !important;
+  background-color: #f6f9ef !important;
   background-image:
-    radial-gradient(ellipse 84% 64% at 14% 20%, rgba(196, 98, 72, 0.34) 0%, transparent 62%),
-    radial-gradient(ellipse 78% 68% at 86% 26%, rgba(126, 142, 164, 0.48) 0%, transparent 64%),
-    radial-gradient(ellipse 82% 66% at 48% 90%, rgba(168, 71, 50, 0.24) 0%, transparent 64%),
-    conic-gradient(from 95deg at 60% 42%, rgba(252, 253, 255, 0.65) 0deg, rgba(164, 176, 192, 0.34) 125deg, rgba(188, 92, 68, 0.28) 245deg, rgba(252, 253, 255, 0.65) 360deg),
-    linear-gradient(140deg, #f3f5f8 0%, #dde2ea 52%, #eceae8 100%) !important;
+    radial-gradient(ellipse 88% 66% at 16% 18%, rgba(226, 239, 206, 0.64) 0%, transparent 64%),
+    radial-gradient(ellipse 76% 68% at 88% 26%, rgba(182, 212, 152, 0.32) 0%, transparent 62%),
+    radial-gradient(ellipse 82% 66% at 52% 90%, rgba(238, 245, 224, 0.62) 0%, transparent 64%),
+    conic-gradient(from 125deg at 54% 44%, rgba(252, 253, 248, 0.72) 0deg, rgba(214, 232, 188, 0.32) 130deg, rgba(168, 202, 138, 0.2) 245deg, rgba(252, 253, 248, 0.72) 360deg),
+    linear-gradient(142deg, rgba(251, 252, 247, 0.74) 0%, rgba(235, 243, 220, 0.74) 52%, rgba(245, 248, 238, 0.74) 100%) !important;
   background-size: 100% 100% !important;
   background-repeat: no-repeat !important;
   background-attachment: fixed;
 }
 html[data-design="5"].dark .leisure-surface {
-  background-color: #0b0e14 !important;
+  background-color: #030304 !important;
   background-image:
-    radial-gradient(ellipse 84% 64% at 18% 22%, rgba(204, 96, 72, 0.42) 0%, transparent 62%),
-    radial-gradient(ellipse 78% 70% at 84% 26%, rgba(58, 74, 98, 0.62) 0%, transparent 62%),
-    radial-gradient(ellipse 76% 64% at 50% 90%, rgba(142, 74, 58, 0.34) 0%, transparent 65%),
-    conic-gradient(from 190deg at 46% 48%, rgba(12, 16, 23, 0.72) 0deg, rgba(168, 82, 62, 0.34) 130deg, rgba(36, 46, 62, 0.68) 255deg, rgba(12, 16, 23, 0.72) 360deg),
-    linear-gradient(145deg, #090c11 0%, #151c26 52%, #07090d 100%) !important;
-  background-size: 100% 100% !important;
-  background-repeat: no-repeat !important;
-  background-attachment: fixed;
-}
-
-html[data-design="6"]:not(.dark) .leisure-surface {
-  background-color: #d9ece4 !important;
-  background-image:
-    radial-gradient(ellipse 88% 66% at 16% 18%, rgba(72, 168, 146, 0.48) 0%, transparent 64%),
-    radial-gradient(ellipse 76% 68% at 88% 26%, rgba(31, 111, 98, 0.38) 0%, transparent 62%),
-    radial-gradient(ellipse 82% 66% at 52% 90%, rgba(196, 174, 114, 0.34) 0%, transparent 64%),
-    conic-gradient(from 130deg at 56% 46%, rgba(246, 253, 250, 0.64) 0deg, rgba(84, 178, 156, 0.32) 130deg, rgba(42, 128, 112, 0.28) 245deg, rgba(246, 253, 250, 0.64) 360deg),
-    linear-gradient(142deg, #eaf5f0 0%, #cae3d9 52%, #e1efe9 100%) !important;
-  background-size: 100% 100% !important;
-  background-repeat: no-repeat !important;
-  background-attachment: fixed;
-}
-html[data-design="6"].dark .leisure-surface {
-  background-color: #061311 !important;
-  background-image:
-    radial-gradient(ellipse 86% 64% at 18% 20%, rgba(56, 162, 142, 0.52) 0%, transparent 64%),
-    radial-gradient(ellipse 78% 70% at 85% 24%, rgba(20, 82, 72, 0.7) 0%, transparent 62%),
-    radial-gradient(ellipse 76% 64% at 48% 90%, rgba(192, 156, 92, 0.24) 0%, transparent 65%),
-    conic-gradient(from 205deg at 42% 48%, rgba(6, 20, 18, 0.72) 0deg, rgba(48, 148, 128, 0.35) 130deg, rgba(16, 52, 46, 0.68) 255deg, rgba(6, 20, 18, 0.72) 360deg),
-    linear-gradient(146deg, #05110f 0%, #0d2823 52%, #040c0b 100%) !important;
-  background-size: 100% 100% !important;
-  background-repeat: no-repeat !important;
-  background-attachment: fixed;
-}
-
-html[data-design="7"]:not(.dark) .leisure-surface {
-  background-color: #e4e1f0 !important;
-  background-image:
-    radial-gradient(ellipse 88% 66% at 14% 18%, rgba(118, 114, 188, 0.48) 0%, transparent 64%),
-    radial-gradient(ellipse 78% 68% at 88% 24%, rgba(75, 74, 138, 0.4) 0%, transparent 62%),
-    radial-gradient(ellipse 82% 66% at 50% 90%, rgba(201, 166, 91, 0.36) 0%, transparent 64%),
-    conic-gradient(from 140deg at 54% 44%, rgba(248, 247, 253, 0.64) 0deg, rgba(124, 120, 194, 0.32) 130deg, rgba(84, 80, 152, 0.28) 245deg, rgba(248, 247, 253, 0.64) 360deg),
-    linear-gradient(144deg, #efedf7 0%, #d4d1e8 52%, #e8e5f2 100%) !important;
-  background-size: 100% 100% !important;
-  background-repeat: no-repeat !important;
-  background-attachment: fixed;
-}
-html[data-design="7"].dark .leisure-surface {
-  background-color: #070a15 !important;
-  background-image:
-    radial-gradient(ellipse 86% 64% at 18% 20%, rgba(92, 90, 168, 0.56) 0%, transparent 64%),
-    radial-gradient(ellipse 78% 70% at 86% 24%, rgba(44, 48, 108, 0.68) 0%, transparent 62%),
-    radial-gradient(ellipse 78% 64% at 50% 90%, rgba(201, 166, 91, 0.28) 0%, transparent 65%),
-    conic-gradient(from 215deg at 44% 48%, rgba(8, 11, 23, 0.72) 0deg, rgba(84, 82, 164, 0.38) 130deg, rgba(28, 32, 68, 0.68) 255deg, rgba(8, 11, 23, 0.72) 360deg),
-    linear-gradient(148deg, #060913 0%, #11162e 52%, #050710 100%) !important;
-  background-size: 100% 100% !important;
-  background-repeat: no-repeat !important;
-  background-attachment: fixed;
-}
-
-html[data-design="8"]:not(.dark) .leisure-surface {
-  background-color: #eedee2 !important;
-  background-image:
-    radial-gradient(ellipse 88% 66% at 16% 18%, rgba(188, 102, 126, 0.44) 0%, transparent 64%),
-    radial-gradient(ellipse 76% 68% at 88% 26%, rgba(125, 47, 69, 0.36) 0%, transparent 62%),
-    radial-gradient(ellipse 82% 66% at 52% 90%, rgba(212, 174, 128, 0.38) 0%, transparent 64%),
-    conic-gradient(from 125deg at 54% 44%, rgba(253, 248, 249, 0.64) 0deg, rgba(178, 94, 118, 0.32) 130deg, rgba(125, 47, 69, 0.26) 245deg, rgba(253, 248, 249, 0.64) 360deg),
-    linear-gradient(142deg, #f8eff1 0%, #e5ccd3 52%, #f2e4e7 100%) !important;
-  background-size: 100% 100% !important;
-  background-repeat: no-repeat !important;
-  background-attachment: fixed;
-}
-html[data-design="8"].dark .leisure-surface {
-  background-color: #12060a !important;
-  background-image:
-    radial-gradient(ellipse 86% 64% at 18% 20%, rgba(168, 62, 92, 0.52) 0%, transparent 64%),
-    radial-gradient(ellipse 78% 70% at 86% 24%, rgba(92, 24, 46, 0.72) 0%, transparent 62%),
-    radial-gradient(ellipse 76% 64% at 48% 90%, rgba(212, 166, 106, 0.24) 0%, transparent 65%),
-    conic-gradient(from 200deg at 42% 48%, rgba(18, 7, 11, 0.72) 0deg, rgba(154, 54, 84, 0.36) 130deg, rgba(64, 18, 34, 0.68) 255deg, rgba(18, 7, 11, 0.72) 360deg),
-    linear-gradient(148deg, #100509 0%, #260d16 52%, #0a0305 100%) !important;
-  background-size: 100% 100% !important;
-  background-repeat: no-repeat !important;
-  background-attachment: fixed;
-}
-
-html[data-design="9"]:not(.dark) .leisure-surface {
-  background-color: #e9dfc9 !important;
-  background-image:
-    radial-gradient(ellipse 88% 66% at 16% 18%, rgba(186, 152, 98, 0.48) 0%, transparent 64%),
-    radial-gradient(ellipse 76% 68% at 88% 26%, rgba(117, 83, 42, 0.36) 0%, transparent 62%),
-    radial-gradient(ellipse 82% 66% at 50% 90%, rgba(168, 148, 112, 0.4) 0%, transparent 64%),
-    conic-gradient(from 135deg at 52% 46%, rgba(251, 248, 240, 0.64) 0deg, rgba(178, 146, 94, 0.32) 130deg, rgba(117, 83, 42, 0.25) 245deg, rgba(251, 248, 240, 0.64) 360deg),
-    linear-gradient(142deg, #f5efe2 0%, #dfd2b6 52%, #ede4d1 100%) !important;
-  background-size: 100% 100% !important;
-  background-repeat: no-repeat !important;
-  background-attachment: fixed;
-}
-html[data-design="9"].dark .leisure-surface {
-  background-color: #0e0d09 !important;
-  background-image:
-    radial-gradient(ellipse 86% 64% at 18% 20%, rgba(162, 128, 76, 0.44) 0%, transparent 64%),
-    radial-gradient(ellipse 78% 70% at 86% 24%, rgba(78, 66, 44, 0.68) 0%, transparent 62%),
-    radial-gradient(ellipse 76% 64% at 48% 90%, rgba(207, 168, 107, 0.26) 0%, transparent 65%),
-    conic-gradient(from 210deg at 42% 48%, rgba(15, 13, 9, 0.72) 0deg, rgba(146, 116, 68, 0.34) 130deg, rgba(46, 40, 28, 0.68) 255deg, rgba(15, 13, 9, 0.72) 360deg),
-    linear-gradient(148deg, #0d0c08 0%, #1e1b13 52%, #080705 100%) !important;
-  background-size: 100% 100% !important;
-  background-repeat: no-repeat !important;
-  background-attachment: fixed;
-}
-
-html[data-design="10"]:not(.dark) .leisure-surface {
-  background-color: #dce9f7 !important;
-  background-image:
-    radial-gradient(ellipse 88% 66% at 16% 18%, rgba(84, 152, 224, 0.52) 0%, transparent 64%),
-    radial-gradient(ellipse 76% 68% at 88% 24%, rgba(37, 99, 168, 0.4) 0%, transparent 62%),
-    radial-gradient(ellipse 82% 66% at 50% 90%, rgba(124, 198, 228, 0.42) 0%, transparent 64%),
-    conic-gradient(from 135deg at 56% 44%, rgba(246, 250, 255, 0.64) 0deg, rgba(94, 161, 230, 0.34) 130deg, rgba(37, 99, 168, 0.28) 245deg, rgba(246, 250, 255, 0.64) 360deg),
-    linear-gradient(142deg, #ecf3fb 0%, #c8dcf2 52%, #dfecfa 100%) !important;
-  background-size: 100% 100% !important;
-  background-repeat: no-repeat !important;
-  background-attachment: fixed;
-}
-html[data-design="10"].dark .leisure-surface {
-  background-color: #060e18 !important;
-  background-image:
-    radial-gradient(ellipse 86% 64% at 18% 20%, rgba(62, 136, 212, 0.56) 0%, transparent 64%),
-    radial-gradient(ellipse 78% 70% at 86% 24%, rgba(24, 68, 124, 0.72) 0%, transparent 62%),
-    radial-gradient(ellipse 78% 64% at 48% 90%, rgba(88, 192, 232, 0.28) 0%, transparent 65%),
-    conic-gradient(from 215deg at 42% 48%, rgba(7, 15, 25, 0.72) 0deg, rgba(64, 138, 214, 0.38) 130deg, rgba(18, 42, 76, 0.68) 255deg, rgba(7, 15, 25, 0.72) 360deg),
-    linear-gradient(148deg, #050c15 0%, #0e2036 52%, #040910 100%) !important;
+    radial-gradient(ellipse 86% 64% at 18% 20%, rgba(40, 42, 48, 0.42) 0%, transparent 64%),
+    radial-gradient(ellipse 78% 70% at 86% 24%, rgba(26, 28, 32, 0.68) 0%, transparent 62%),
+    radial-gradient(ellipse 76% 64% at 48% 90%, rgba(74, 108, 62, 0.14) 0%, transparent 65%),
+    conic-gradient(from 200deg at 42% 48%, rgba(4, 4, 5, 0.85) 0deg, rgba(36, 38, 42, 0.35) 130deg, rgba(14, 15, 18, 0.78) 255deg, rgba(4, 4, 5, 0.85) 360deg),
+    linear-gradient(148deg, #020203 0%, #09090b 52%, #010102 100%) !important;
   background-size: 100% 100% !important;
   background-repeat: no-repeat !important;
   background-attachment: fixed;
@@ -2089,24 +1663,22 @@ html:not(.dark) button:not([data-swatch]):not([role="switch"]):not(.raw-icon-btn
 }
 
 /* =========================================================================
-   UNIFIED THEME SURFACE UTILITIES (THEMES 2-10 TRANSLUCENT WALLPAPER + PALETTE)
-   Theme 1 preserves its warm Heritage Linen & Espresso Walnut palette untouched.
-   Themes 2-10 inherit exact --th-* colors & blurred wallpaper/watermarks.
+   UNIFIED THEME SURFACE UTILITIES (THEMES 1–5 CLEAR MARBLE & ABSTRACT BACKDROPS)
    ========================================================================= */
-html[data-design]:not([data-design="1"]) .themed-workspace-surface {
-  background-color: color-mix(in srgb, var(--th-bg) 34%, transparent) !important;
+html[data-design] .themed-workspace-surface {
+  background-color: color-mix(in srgb, var(--th-bg) 18%, transparent) !important;
   color: var(--th-ink);
 }
 
-html[data-design]:not([data-design="1"]) .themed-glass-bar {
-  background-color: color-mix(in srgb, var(--th-header) 84%, transparent) !important;
+html[data-design] .themed-glass-bar {
+  background-color: color-mix(in srgb, var(--th-header) 82%, transparent) !important;
   border-color: var(--th-border) !important;
   backdrop-filter: blur(12px);
   color: var(--th-ink);
 }
 
-html[data-design]:not([data-design="1"]) .themed-glass-card {
-  background-color: color-mix(in srgb, var(--th-surface) 88%, transparent) !important;
+html[data-design] .themed-glass-card {
+  background-color: color-mix(in srgb, var(--th-surface) 86%, transparent) !important;
   border-color: var(--th-border) !important;
   backdrop-filter: blur(10px);
   color: var(--th-ink);
@@ -2147,125 +1719,217 @@ html[data-design]:not([data-design="1"]) .shelfwise-root .themed-glass-card {
 }
 
 /* =========================================================================
-   DARK MODE BRIGHT-BUTTON BLACK-TEXT GUARANTEE (ALL THEMES 1–10)
-   Every button that renders a bright/light/amber-gold fill in dark mode
-   always renders crisp black (#110c09) ink & icons for guaranteed legibility.
+   DARK MODE UNIFIED TONAL BUTTON SYSTEM (ALL THEMES 1–10, EVERY SEGMENT)
+   Every dark-mode button across every workspace/segment renders a lighter
+   tonal gradient of that theme's dark hue with soft multi-layer depth
+   shadow and ultra-light / cream tint of that category's hue for text & icons.
    ========================================================================= */
+
+/* 1) Idle / Secondary / Panel / Surface Buttons in Dark Mode */
 html.dark :is(
+  button[class*="bg-"]:not([class*="bg-transparent"]):not([class*="bg-none"]):not([class*="bg-red-"]),
+  button[class*="border"],
+  .atelier-btn,
+  .atelier-day,
+  .atelier-seg button,
+  .atelier-chip,
+  .atelier-log,
+  .an-btn,
+  .an-icon-btn,
+  .an-ribbon-feat,
+  .an-pill,
+  .an-seg button,
+  .an-speed button,
+  .an-atabs button,
+  .an-paper-mini-pills button,
+  .read-attach-btn,
+  .read-icon-btn,
+  .read-tab,
+  .read-tab-item,
+  .shelfwise-btn,
+  .shelfwise-sec-item,
+  .shelfwise-seg-btn,
+  .rs-chip,
+  .rs-tab,
+  .rs-btn
+):not([aria-pressed="true"]):not([aria-selected="true"]):not(.active):not(.primary):not(.themed-accent-btn):not(.themed-tab-active):not(.shelfwise-btn-primary):not(.an-btn-primary):not(.atelier-btn-ink):not([data-swatch]):not([role="switch"]):not(.raw-icon-btn):not(.joystick-btn):not(.atelier-tr-del):not(.atelier-bell):not(.beach-dolphin-btn):not(.sidebar-trash-btn):not(.atelier-sticky button):not(.shelf-world-root):not(.shelf-world-root *) {
+  background-color: transparent !important;
+  background-image: var(--th-btn-idle-bg) !important;
+  border-color: var(--th-btn-idle-border, var(--th-border)) !important;
+  color: var(--th-btn-idle-ink) !important;
+  text-shadow: none !important;
+  box-shadow:
+    0 4px 12px -2px rgba(0, 0, 0, 0.76),
+    0 1px 4px rgba(0, 0, 0, 0.52),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+}
+
+html.dark :is(
+  button[class*="bg-"]:not([class*="bg-transparent"]):not([class*="bg-none"]):not([class*="bg-red-"]),
+  button[class*="border"],
+  .atelier-btn,
+  .atelier-day,
+  .atelier-seg button,
+  .atelier-chip,
+  .atelier-log,
+  .an-btn,
+  .an-icon-btn,
+  .an-ribbon-feat,
+  .an-pill,
+  .an-seg button,
+  .an-speed button,
+  .an-atabs button,
+  .an-paper-mini-pills button,
+  .read-attach-btn,
+  .read-icon-btn,
+  .read-tab,
+  .read-tab-item,
+  .shelfwise-btn,
+  .shelfwise-sec-item,
+  .shelfwise-seg-btn,
+  .rs-chip,
+  .rs-tab,
+  .rs-btn
+):not([aria-pressed="true"]):not([aria-selected="true"]):not([data-selected="true"]):not([aria-current="page"]):not([aria-current="true"]):not(.active):not(.primary):not(.themed-accent-btn):not(.themed-tab-active):not(.shelfwise-btn-primary):not(.an-btn-primary):not(.atelier-btn-ink):not([data-swatch]):not([role="switch"]):not(.raw-icon-btn):not(.joystick-btn):not(.atelier-tr-del):not(.atelier-bell):not(.beach-dolphin-btn):not(.sidebar-trash-btn):not(.atelier-sticky button):not(.shelf-world-root):not(.shelf-world-root *) * {
+  color: var(--th-btn-idle-ink) !important;
+  text-shadow: none !important;
+}
+
+/* Explicit dark-maroon contrast guarantee for Theme 5 Dark Trash button */
+html[data-design="5"].dark .sidebar-trash-btn {
+  color: #5e0b15 !important;
+}
+html[data-design="5"].dark .sidebar-trash-btn svg,
+html[data-design="5"].dark .sidebar-trash-btn span {
+  color: #5e0b15 !important;
+}
+
+/* 2) Active / Primary / Selected / Accent / Bright-fill Buttons in Dark Mode */
+html.dark :is(
+  button[aria-pressed="true"],
+  button[aria-selected="true"],
+  button[data-selected="true"],
+  button[aria-current="page"],
+  button[aria-current="true"],
+  button.active,
+  button.primary,
+  .themed-accent-btn,
+  .themed-tab-active,
+  .atelier-btn-ink,
+  .atelier-day[aria-pressed="true"],
+  .atelier-seg button[aria-pressed="true"],
+  .atelier-seg button.active,
+  .an-btn.primary,
+  .an-btn-primary,
+  .an-icon-btn.active,
+  .an-ribbon-feat.active,
+  .an-seg button[aria-pressed="true"],
+  .an-seg button.active,
+  .an-speed button[aria-pressed="true"],
+  .an-atabs button.active,
+  .an-paper-mini-pills button.active,
+  .read-icon-btn.active,
+  .read-tab-item.active,
+  .shelfwise-btn-primary,
+  .shelfwise-sec-item.active,
+  .shelfwise-seg-btn.active,
+  .rs-tab.active,
   button.bg-white,
   button.bg-stone-50,
   button.bg-stone-100,
-  button.bg-stone-200,
-  button.bg-stone-300,
-  button.bg-amber-200,
-  button.bg-amber-300,
+  button.bg-stone-900,
   button.bg-amber-400,
   button.bg-amber-500,
-  button.bg-yellow-300,
-  button.bg-yellow-400,
-  button.bg-yellow-500,
-  button.bg-lime-300,
-  button.bg-lime-400,
-  button.bg-emerald-300,
-  button.bg-emerald-400,
-  button.bg-sky-300,
-  button.bg-sky-400,
-  button.bg-cyan-300,
-  button.bg-cyan-400,
-  button.bg-\[\#efe4d4\],
-  button.bg-\[\#f0e5d5\],
-  button.bg-\[\#f5ead9\],
-  button.bg-\[\#faf6ee\],
-  button.bg-\[\#fdfbf7\],
+  button.bg-amber-600,
+  button.bg-amber-700,
+  button.bg-amber-800,
+  button[class*="bg-[#A47C43]"],
+  button[class*="bg-[#a47c43]"],
+  button[class*="bg-[#8f6d3b]"],
+  button[class*="bg-[#775734]"],
+  button[class*="bg-[#5c351c]"],
+  button[class*="bg-[#422515]"],
+  button[class*="bg-[#4e2c18]"],
   button[class*="dark:bg-white"],
   button[class*="dark:bg-stone-50"],
   button[class*="dark:bg-stone-100"],
   button[class*="dark:bg-stone-200"],
   button[class*="dark:bg-stone-300"],
-  button[class*="dark:bg-slate-100"],
-  button[class*="dark:bg-slate-200"],
-  button[class*="dark:bg-zinc-100"],
-  button[class*="dark:bg-zinc-200"],
-  button[class*="dark:bg-amber-2"],
   button[class*="dark:bg-amber-3"],
   button[class*="dark:bg-amber-4"],
   button[class*="dark:bg-amber-5"],
-  button[class*="dark:bg-yellow-3"],
-  button[class*="dark:bg-yellow-4"],
-  button[class*="dark:bg-yellow-5"],
-  button[class*="dark:bg-lime-3"],
-  button[class*="dark:bg-lime-4"],
-  button[class*="dark:bg-emerald-3"],
-  button[class*="dark:bg-emerald-4"],
-  button[class*="dark:bg-sky-3"],
-  button[class*="dark:bg-sky-4"],
-  button[class*="dark:bg-cyan-3"],
-  button[class*="dark:bg-cyan-4"],
   button[class*="dark:bg-\[\#efe4d4\]"],
   button[class*="dark:bg-\[\#f0e5d5\]"],
   button[class*="dark:bg-\[\#f5ead9\]"],
-  button[class*="dark:bg-\[\#faf6ee\]"],
-  button[class*="dark:bg-\[\#fdfbf7\]"],
   button[class*="dark:bg-\[\#e8be82\]"]
-):not([data-swatch]):not([role="switch"]):not(.raw-icon-btn):not(.shelf-world-root):not(.shelf-world-root *),
+):not([data-swatch]):not([role="switch"]):not(.raw-icon-btn):not(.joystick-btn):not(.atelier-tr-del):not(.atelier-bell):not(.beach-dolphin-btn):not([class*="bg-red-"]):not(.atelier-sticky button):not(.shelf-world-root):not(.shelf-world-root *) {
+  background-color: transparent !important;
+  background-image: var(--th-btn-active-bg) !important;
+  border-color: var(--th-btn-active-border, rgba(255, 255, 255, 0.35)) !important;
+  color: var(--th-btn-active-ink) !important;
+  text-shadow: none !important;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.18),
+    0 6px 18px -3px rgba(0, 0, 0, 0.85),
+    0 2px 6px rgba(0, 0, 0, 0.56),
+    inset 0 1px 0 rgba(255, 255, 255, 0.38),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.22) !important;
+}
+
 html.dark :is(
+  button[aria-pressed="true"],
+  button[aria-selected="true"],
+  button.active,
+  button.primary,
+  .themed-accent-btn,
+  .themed-tab-active,
+  .atelier-btn-ink,
+  .atelier-day[aria-pressed="true"],
+  .atelier-seg button[aria-pressed="true"],
+  .an-btn.primary,
+  .an-btn-primary,
+  .an-icon-btn.active,
+  .an-ribbon-feat.active,
+  .an-seg button[aria-pressed="true"],
+  .an-speed button[aria-pressed="true"],
+  .an-atabs button.active,
+  .an-paper-mini-pills button.active,
+  .read-icon-btn.active,
+  .read-tab-item.active,
+  .shelfwise-btn-primary,
+  .shelfwise-sec-item.active,
+  .shelfwise-seg-btn.active,
+  .rs-tab.active,
   button.bg-white,
   button.bg-stone-50,
   button.bg-stone-100,
-  button.bg-stone-200,
-  button.bg-stone-300,
-  button.bg-amber-200,
-  button.bg-amber-300,
+  button.bg-stone-900,
   button.bg-amber-400,
   button.bg-amber-500,
-  button.bg-yellow-300,
-  button.bg-yellow-400,
-  button.bg-yellow-500,
-  button.bg-lime-300,
-  button.bg-lime-400,
-  button.bg-emerald-300,
-  button.bg-emerald-400,
-  button.bg-sky-300,
-  button.bg-sky-400,
-  button.bg-cyan-300,
-  button.bg-cyan-400,
-  button.bg-\[\#efe4d4\],
-  button.bg-\[\#f0e5d5\],
-  button.bg-\[\#f5ead9\],
-  button.bg-\[\#faf6ee\],
-  button.bg-\[\#fdfbf7\],
+  button.bg-amber-600,
+  button.bg-amber-700,
+  button.bg-amber-800,
+  button[class*="bg-[#A47C43]"],
+  button[class*="bg-[#a47c43]"],
+  button[class*="bg-[#8f6d3b]"],
+  button[class*="bg-[#775734]"],
+  button[class*="bg-[#5c351c]"],
+  button[class*="bg-[#422515]"],
+  button[class*="bg-[#4e2c18]"],
   button[class*="dark:bg-white"],
   button[class*="dark:bg-stone-50"],
   button[class*="dark:bg-stone-100"],
   button[class*="dark:bg-stone-200"],
   button[class*="dark:bg-stone-300"],
-  button[class*="dark:bg-slate-100"],
-  button[class*="dark:bg-slate-200"],
-  button[class*="dark:bg-zinc-100"],
-  button[class*="dark:bg-zinc-200"],
-  button[class*="dark:bg-amber-2"],
   button[class*="dark:bg-amber-3"],
   button[class*="dark:bg-amber-4"],
   button[class*="dark:bg-amber-5"],
-  button[class*="dark:bg-yellow-3"],
-  button[class*="dark:bg-yellow-4"],
-  button[class*="dark:bg-yellow-5"],
-  button[class*="dark:bg-lime-3"],
-  button[class*="dark:bg-lime-4"],
-  button[class*="dark:bg-emerald-3"],
-  button[class*="dark:bg-emerald-4"],
-  button[class*="dark:bg-sky-3"],
-  button[class*="dark:bg-sky-4"],
-  button[class*="dark:bg-cyan-3"],
-  button[class*="dark:bg-cyan-4"],
   button[class*="dark:bg-\[\#efe4d4\]"],
   button[class*="dark:bg-\[\#f0e5d5\]"],
   button[class*="dark:bg-\[\#f5ead9\]"],
-  button[class*="dark:bg-\[\#faf6ee\]"],
-  button[class*="dark:bg-\[\#fdfbf7\]"],
   button[class*="dark:bg-\[\#e8be82\]"]
-):not([data-swatch]):not([role="switch"]):not(.raw-icon-btn):not(.shelf-world-root):not(.shelf-world-root *) * {
-  color: #110c09 !important;
+):not([data-swatch]):not([role="switch"]):not(.raw-icon-btn):not(.joystick-btn):not(.atelier-tr-del):not(.atelier-bell):not(.beach-dolphin-btn):not([class*="bg-red-"]):not(.atelier-sticky button):not(.shelf-world-root):not(.shelf-world-root *) * {
+  color: var(--th-btn-active-ink) !important;
   text-shadow: none !important;
 }
 

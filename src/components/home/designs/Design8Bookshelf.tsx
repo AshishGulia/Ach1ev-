@@ -120,7 +120,7 @@ export const Design8Bookshelf: React.FC<Design8Props> = ({
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-[#4d3221]/80">
         <div>
           <div className="flex items-center gap-3">
-            <AchievBrand variant="lockup" isDarkMode={true} imgClassName="h-11 w-auto" />
+            <AchievBrand variant="lockup" isDarkMode={true} emblemClassName="w-10 h-10 shrink-0" imgClassName="h-9 w-auto" />
             <span className="text-xs font-mono px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/20">
               Cockpit · Bookshelf
             </span>

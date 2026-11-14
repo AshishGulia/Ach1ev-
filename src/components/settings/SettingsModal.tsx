@@ -162,92 +162,17 @@ export const MASTER_EDITIONS: MasterEdition[] = [
   },
   {
     id: '5',
-    title: 'Swiss Alpine Atelier',
-    badge: 'Theme 5 · Precision Chalet',
-    category: 'Exact Atelier Replica · Glacier & Terracotta',
-    tagline: 'Precision drafting wallpaper, Swiss 3px Rectilinear buttons & 5 Alpine peak vistas',
-    description: 'Exact structural replica of Theme 1 with crisp Swiss drafting precision. Features Glacier Slate & Alpine Terracotta accents, sharp 3px rectilinear buttons, Alpine chalet Shelf views & herringbone wool rug.',
-    paletteColors: ['#eef0f2', '#a84732', '#df7860', '#2e3847', '#0d1015'],
+    title: 'Pistachio & Obsidian',
+    badge: 'Theme 5 · Cream Pista & Black',
+    category: 'Exact Atelier Replica · Creamish Pista & Noir',
+    tagline: 'Creamish Pista in Light Mode, Obsidian Black in Dark Mode with Cream-Pista dark-ink buttons',
+    description: 'Exact structural replica of Theme 1 dressed in airy Creamish Pista by day and deep Obsidian Black by night, pairing creamish-pista buttons with crisp dark ink in Dark Mode.',
+    paletteColors: ['#f5f8ee', '#dde6cf', '#578440', '#172114', '#040405'],
     keyHighlights: [
-      'Swiss Precision (3px) crisp rectilinear buttons',
-      'Blurred Alpine glacier wallpaper & geometric watermarks',
-      '5 Alpine chalet & glacier bays in Shelf',
-      'Bordered Herringbone Alpine Wool rug',
-    ],
-  },
-  {
-    id: '6',
-    title: 'Botanical Conservatory',
-    badge: 'Theme 6 · Glasshouse Atrium',
-    category: 'Exact Atelier Replica · Eucalyptus & Teal',
-    tagline: 'Arched glasshouse wallpaper, Herbarium watermarks, Conservatory Arch buttons & botanical Shelf',
-    description: 'Exact structural replica of Theme 1 inside a Victorian glasshouse atrium. Features Conservatory Arch buttons (14px 14px 4px 4px), blurred glasshouse panes & 5 lush botanical atrium vistas.',
-    paletteColors: ['#eaf3ef', '#1f6f62', '#48b8a4', '#204840', '#071412'],
-    keyHighlights: [
-      'Conservatory Arch button silhouettes (arched top corners)',
-      'Blurred Victorian atrium wallpaper & herbarium watermarks',
-      '5 botanical glasshouse wings + octagonal conservatory mat in Shelf',
-      'Teal-patina & cedar almirah refinements',
-    ],
-  },
-  {
-    id: '7',
-    title: 'Nocturne Observatory',
-    badge: 'Theme 7 · Celestial Dome',
-    category: 'Exact Atelier Replica · Midnight Indigo & Brass',
-    tagline: 'Celestial constellation wallpaper, Counter-Chamfer buttons & 5 observatory dome bays',
-    description: 'Exact structural replica of Theme 1 under a celestial observatory dome. Features Counter-Chamfer (4px 15px 4px 15px) buttons, celestial brass accents & 5 stargazing gallery bays.',
-    paletteColors: ['#efeef3', '#4b4a8a', '#c9a65b', '#2a3357', '#080b16'],
-    keyHighlights: [
-      'Counter-Chamfer button silhouettes (4px 15px 4px 15px)',
-      'Blurred celestial dome wallpaper & star-chart watermarks',
-      '5 observatory arch vistas + Hexagonal Celestial Medallion rug',
-      'Twilight brass & midnight indigo almirah trim',
-    ],
-  },
-  {
-    id: '8',
-    title: 'Rosewood Scriptorium',
-    badge: 'Theme 8 · Burgundy Library',
-    category: 'Exact Atelier Replica · Rosewood & Cream',
-    tagline: 'Scriptorium rosewood wallpaper, Ex-Libris watermarks, Bookplate Flag buttons & Oxford alcoves',
-    description: 'Exact structural replica of Theme 1 inside an Oxford scriptorium library. Features Bookplate Flag buttons (4px 15px 15px 4px), rich burgundy-rosewood surfaces & 5 scriptorium alcove views.',
-    paletteColors: ['#f5ecee', '#7d2f45', '#d67e96', '#4c2231', '#14080c'],
-    keyHighlights: [
-      'Bookplate Flag button silhouettes (4px 15px 15px 4px)',
-      'Blurred Scriptorium wallpaper & Ex-Libris crest watermarks',
-      '5 arched rosewood study alcoves + Persian Fringed Velvet carpet',
-      'Burgundy mahogany & antique cream almirah cabinetry',
-    ],
-  },
-  {
-    id: '9',
-    title: 'Archival Broadsheet',
-    badge: 'Theme 9 · Press Vellum',
-    category: 'Exact Atelier Replica · Sepia Newsprint',
-    tagline: 'Letterpress vellum wallpaper, Press-Stamp buttons (6px) & archival colonnade gallery',
-    description: 'Exact structural replica of Theme 1 in warm archival newsprint vellum. Features Press-Stamp (6px) tactile buttons, broadsheet colophon watermarks & 5 colonnade press gallery views.',
-    paletteColors: ['#f3ede0', '#75532a', '#cfa86b', '#3d372a', '#100f0b'],
-    keyHighlights: [
-      'Press Stamp (6px) tactile editorial button silhouettes',
-      'Blurred vellum press wallpaper & fleuron watermarks',
-      '5 sandstone colonnade atrium views + Kilim Diamond Weave rug',
-      'Smoked oak & parchment brass almirah finish',
-    ],
-  },
-  {
-    id: '10',
-    title: 'Fluent Mica Studio',
-    badge: 'Theme 10 · Nordic Fjord',
-    category: 'Exact Atelier Replica · Fjord Azure Glass',
-    tagline: 'Fjord glass wallpaper, Fluent Squircle buttons (10px) & 5 Nordic terrace Shelf vistas',
-    description: 'Exact structural replica of Theme 1 in calm Nordic fjord glassmorphism. Features Fluent Squircle (10px) frosted buttons, cool azure wallpaper & 5 panoramic fjord glass-terrace bays.',
-    paletteColors: ['#eaf1f8', '#2563a8', '#5ea1e6', '#233f63', '#070f19'],
-    keyHighlights: [
-      'Fluent Squircle (10px) modern frosted button shapes',
-      'Blurred Fjord Azure wallpaper & prism watermarks',
-      '5 Nordic fjord terrace vistas + Dual-Tone Boucle rug',
-      'Brushed anodized steel & glacier oak almirahs',
+      'Creamish Pista Light Mode & true Obsidian Black Dark Mode',
+      'Creamish Pista dark-mode buttons with crisp dark ink & brighter selected state',
+      '5 Pistachio & Obsidian Shelf lounge vistas + woven geometric carpet',
+      'Pistachio Tab (8px 14px 8px 14px) button silhouettes',
     ],
   },
 ];
@@ -511,7 +436,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     showMnemonics: false,
     showCommunity: true,
     showLeisure: false,
-    showExploreBody: false,
     showTalkToDev: true,
   };
 
@@ -539,7 +463,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     { id: 'mnemonics', key: 'showMnemonics', label: 'Mnemonics' },
     { id: 'community', key: 'showCommunity', label: 'Ach1evers Hub' },
     { id: 'leisure', key: 'showLeisure', label: 'Leisure' },
-    { id: 'explore-body', key: 'showExploreBody', label: 'Explore Body' },
     { id: 'talk-to-dev', key: 'showTalkToDev', label: 'Talk to Developer' },
   ];
 
@@ -999,7 +922,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     <span>Themes</span>
                   </h4>
                   <span className="text-[10px] font-mono text-stone-500 dark:text-stone-400">
-                    All 10 Editions · Light &amp; Dark Previews
+                    All 5 Editions · Light &amp; Dark Previews
                   </span>
                 </div>
                 <div className="grid grid-cols-1 gap-2.5 sm:gap-4">

@@ -1902,8 +1902,6 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
       {isEagleViewOpen && (() => {
         const themeMeta = getThemeMeta(activeDesign);
         const isHeritage = activeDesign === '1';
-        const isFluent = activeDesign === '10';
-        const isBroadsheet = activeDesign === '9';
         const themeAccent = isDarkMode ? themeMeta.darkAccent : themeMeta.lightAccent;
         const solidShellBg = isDarkMode ? themeMeta.darkBg : themeMeta.lightBg;
 
@@ -1911,7 +1909,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
           ? isDarkMode
             ? 'bg-[#18110c] border border-[#4b3322] text-[#efe4d4]'
             : 'bg-[#fbf9f5] border border-amber-900/30 text-stone-800'
-          : `border ${isBroadsheet ? 'border-2 font-serif' : ''} ${isFluent || activeDesign === '4' ? 'backdrop-blur-xl' : ''}`;
+          : `border ${activeDesign === '4' ? 'backdrop-blur-xl' : ''}`;
 
         const shellStyle: React.CSSProperties | undefined = isHeritage
           ? undefined
@@ -1949,7 +1947,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
           {
             subject: 'Pharmacology',
             subtitle: 'Autonomics, Antimicrobials & Therapeutics',
-            accent: isHeritage ? '#A47C43' : isFluent ? '#0284c7' : isBroadsheet ? '#1c1917' : themeAccent,
+            accent: isHeritage ? '#A47C43' : themeAccent,
             cardBg: !isHeritage
               ? 'themed-glass-card'
               : isDarkMode ? 'bg-[#1a120d] border-[#4b3322]' : 'bg-[#fdfaf3] border-amber-800/25',
@@ -1957,7 +1955,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
           {
             subject: 'Pathology',
             subtitle: 'Cellular Injury, Neoplasia & Histology',
-            accent: isHeritage ? '#8A3B2E' : isFluent ? '#4f46e5' : isBroadsheet ? '#7f1d1d' : '#9f4a3c',
+            accent: isHeritage ? '#8A3B2E' : '#9f4a3c',
             cardBg: !isHeritage
               ? 'themed-glass-card'
               : isDarkMode ? 'bg-[#1d120e] border-[#593326]' : 'bg-[#fdf7f5] border-rose-900/20',
@@ -1965,7 +1963,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
           {
             subject: 'Internal Medicine',
             subtitle: 'Harrison Rounds, Cardiology & Nephrology',
-            accent: isHeritage ? '#7a5233' : isFluent ? '#0ea5e9' : isBroadsheet ? '#1e3a5f' : '#2e6b7c',
+            accent: isHeritage ? '#7a5233' : '#2e6b7c',
             cardBg: !isHeritage
               ? 'themed-glass-card'
               : isDarkMode ? 'bg-[#19120d] border-[#3d2a1c]' : 'bg-[#faf7f2] border-stone-300',
@@ -1973,7 +1971,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
           {
             subject: 'Anatomy',
             subtitle: 'Gross Dissections & Clinical Plates',
-            accent: isHeritage ? '#9a6b3b' : isFluent ? '#0284c7' : isBroadsheet ? '#78350f' : '#4a744e',
+            accent: isHeritage ? '#9a6b3b' : '#4a744e',
             cardBg: !isHeritage
               ? 'themed-glass-card'
               : isDarkMode ? 'bg-[#16130e] border-[#423823]' : 'bg-[#f7f7f2] border-stone-300',
@@ -1981,7 +1979,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
           {
             subject: 'Physiology',
             subtitle: 'Electrophysiology, Hemodynamics & Renal',
-            accent: isHeritage ? '#9a5b25' : isFluent ? '#0284c7' : isBroadsheet ? '#9a3412' : '#7b5e34',
+            accent: isHeritage ? '#9a5b25' : '#7b5e34',
             cardBg: !isHeritage
               ? 'themed-glass-card'
               : isDarkMode ? 'bg-[#1c130d] border-[#4a321e]' : 'bg-[#fdf8ee] border-amber-700/25',
@@ -1989,7 +1987,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
           {
             subject: 'Surgery',
             subtitle: 'Operative Practice, Trauma & Emergency',
-            accent: isHeritage ? '#6e4520' : isFluent ? '#2563eb' : isBroadsheet ? '#44403c' : '#5b526e',
+            accent: isHeritage ? '#6e4520' : '#5b526e',
             cardBg: !isHeritage
               ? 'themed-glass-card'
               : isDarkMode ? 'bg-[#17110c] border-[#3d291a]' : 'bg-[#f9f6f0] border-stone-300',

@@ -1,7 +1,7 @@
 /* Notist — Atelier My Space Dashboard Styles */
 :root {
-  --at-bg: #F3EEE6;
-  --at-paper: #FBF8F3;
+  --at-bg: rgba(247, 243, 236, 0.16);
+  --at-paper: rgba(253, 250, 244, 0.84);
   --at-ink: #1E2622;
   --at-muted: #6F726B;
   --at-line: #E3DBCF;
@@ -18,8 +18,8 @@
 .dark .atelier-root,
 [data-theme="dark"] .atelier-root,
 html.dark .atelier-root {
-  --at-bg: #080402;
-  --at-paper: #110804;
+  --at-bg: rgba(8, 4, 2, 0.24);
+  --at-paper: rgba(17, 8, 4, 0.88);
   --at-ink: #f0e5d5;
   --at-muted: #a69079;
   --at-line: #2d180d;
@@ -1287,13 +1287,13 @@ html.dark .atelier-sticky,
 }
 
 /* =========================================================================
-   UNIFIED 10-THEME TOKENS FOR ATELIER COCKPIT (LIGHT + DARK)
-   Themes 2-10 use translucent backdrop so blurred wallpaper + watermark shine!
+   UNIFIED 5-THEME TOKENS FOR ATELIER COCKPIT (LIGHT + DARK)
+   Themes 2-5 use translucent backdrop so blurred wallpaper + watermark shine!
    ========================================================================= */
 
 html[data-design="2"] .atelier-root,
 .atelier-root[data-atelier-theme="2"] {
-  --at-bg: rgba(235, 242, 231, 0.34);
+  --at-bg: rgba(235, 242, 231, 0.18);
   --at-paper: rgba(247, 251, 244, 0.84);
   --at-ink: #17261b;
   --at-muted: #46614d;
@@ -1305,20 +1305,20 @@ html[data-design="2"] .atelier-root,
 }
 html.dark[data-design="2"] .atelier-root,
 .dark .atelier-root[data-atelier-theme="2"] {
-  --at-bg: rgba(8, 18, 12, 0.36);
-  --at-paper: rgba(13, 28, 19, 0.84);
+  --at-bg: rgba(3, 6, 4, 0.28);
+  --at-paper: rgba(6, 11, 8, 0.9);
   --at-ink: #e3f0e6;
-  --at-muted: #98bca2;
-  --at-line: #23422e;
+  --at-muted: #93b39c;
+  --at-line: #17261c;
   --at-brass: #c49b57;
-  --at-sage: #58b37c;
-  --at-sage-soft: rgba(88, 179, 124, 0.18);
+  --at-sage: #63c287;
+  --at-sage-soft: rgba(99, 194, 135, 0.18);
   --at-brass-soft: rgba(196, 155, 87, 0.16);
 }
 
 html[data-design="3"] .atelier-root,
 .atelier-root[data-atelier-theme="3"] {
-  --at-bg: rgba(244, 239, 230, 0.34);
+  --at-bg: rgba(244, 239, 230, 0.18);
   --at-paper: rgba(252, 249, 243, 0.84);
   --at-ink: #152736;
   --at-muted: #4c6578;
@@ -1330,7 +1330,7 @@ html[data-design="3"] .atelier-root,
 }
 html.dark[data-design="3"] .atelier-root,
 .dark .atelier-root[data-atelier-theme="3"] {
-  --at-bg: rgba(7, 18, 29, 0.36);
+  --at-bg: rgba(7, 18, 29, 0.22);
   --at-paper: rgba(12, 27, 41, 0.84);
   --at-ink: #e6eff5;
   --at-muted: #98bdd2;
@@ -1343,7 +1343,7 @@ html.dark[data-design="3"] .atelier-root,
 
 html[data-design="4"] .atelier-root,
 .atelier-root[data-atelier-theme="4"] {
-  --at-bg: rgba(231, 237, 243, 0.34);
+  --at-bg: rgba(231, 237, 243, 0.18);
   --at-paper: rgba(244, 248, 252, 0.82);
   --at-ink: #182230;
   --at-muted: #4b5e76;
@@ -1355,7 +1355,7 @@ html[data-design="4"] .atelier-root,
 }
 html.dark[data-design="4"] .atelier-root,
 .dark .atelier-root[data-atelier-theme="4"] {
-  --at-bg: rgba(9, 15, 24, 0.36);
+  --at-bg: rgba(9, 15, 24, 0.22);
   --at-paper: rgba(15, 23, 36, 0.84);
   --at-ink: #e6edf6;
   --at-muted: #99aec9;
@@ -1368,163 +1368,38 @@ html.dark[data-design="4"] .atelier-root,
 
 html[data-design="5"] .atelier-root,
 .atelier-root[data-atelier-theme="5"] {
-  --at-bg: rgba(238, 240, 242, 0.34);
-  --at-paper: rgba(250, 250, 251, 0.85);
-  --at-ink: #171b21;
-  --at-muted: #535d69;
-  --at-line: #ccd2da;
-  --at-brass: #a84732;
-  --at-sage: #364454;
-  --at-sage-soft: rgba(54, 68, 84, 0.14);
-  --at-brass-soft: rgba(168, 71, 50, 0.14);
+  --at-bg: rgba(245, 248, 238, 0.18);
+  --at-paper: rgba(248, 251, 242, 0.76);
+  --at-ink: #1e2b18;
+  --at-muted: #566b4c;
+  --at-line: #d7e3c5;
+  --at-brass: #578440;
+  --at-sage: #67944d;
+  --at-sage-soft: rgba(87, 132, 64, 0.14);
+  --at-brass-soft: rgba(103, 148, 77, 0.14);
 }
 html.dark[data-design="5"] .atelier-root,
 .dark .atelier-root[data-atelier-theme="5"] {
-  --at-bg: rgba(13, 16, 21, 0.36);
-  --at-paper: rgba(19, 24, 31, 0.85);
-  --at-ink: #eef1f5;
-  --at-muted: #9aa5b5;
-  --at-line: #2e3847;
-  --at-brass: #df7860;
-  --at-sage: #8da2bd;
-  --at-sage-soft: rgba(141, 162, 189, 0.16);
-  --at-brass-soft: rgba(223, 120, 96, 0.16);
+  --at-bg: rgba(4, 4, 5, 0.24);
+  --at-paper: rgba(11, 11, 13, 0.88);
+  --at-ink: #eef4ea;
+  --at-muted: #9aa498;
+  --at-line: #27282e;
+  --at-brass: #e5eed6;
+  --at-sage: #d7e4c4;
+  --at-sage-soft: rgba(229, 238, 214, 0.14);
+  --at-brass-soft: rgba(229, 238, 214, 0.14);
 }
 
-html[data-design="6"] .atelier-root,
-.atelier-root[data-atelier-theme="6"] {
-  --at-bg: rgba(234, 243, 239, 0.34);
-  --at-paper: rgba(247, 252, 250, 0.84);
-  --at-ink: #132824;
-  --at-muted: #42665e;
-  --at-line: #c0d8cf;
-  --at-brass: #8c6b3f;
-  --at-sage: #1f6f62;
-  --at-sage-soft: rgba(31, 111, 98, 0.14);
-  --at-brass-soft: rgba(140, 107, 63, 0.14);
-}
-html.dark[data-design="6"] .atelier-root,
-.dark .atelier-root[data-atelier-theme="6"] {
-  --at-bg: rgba(7, 20, 18, 0.36);
-  --at-paper: rgba(11, 28, 25, 0.84);
-  --at-ink: #e3f3ef;
-  --at-muted: #92c2b7;
-  --at-line: #204840;
-  --at-brass: #c9a268;
-  --at-sage: #48b8a4;
-  --at-sage-soft: rgba(72, 184, 164, 0.18);
-  --at-brass-soft: rgba(201, 162, 104, 0.16);
-}
-
-html[data-design="7"] .atelier-root,
-.atelier-root[data-atelier-theme="7"] {
-  --at-bg: rgba(239, 238, 243, 0.34);
-  --at-paper: rgba(249, 248, 252, 0.84);
-  --at-ink: #1b1a2e;
-  --at-muted: #535170;
-  --at-line: #ccc8da;
-  --at-brass: #9e7b38;
-  --at-sage: #4b4a8a;
-  --at-sage-soft: rgba(75, 74, 138, 0.14);
-  --at-brass-soft: rgba(158, 123, 56, 0.14);
-}
-html.dark[data-design="7"] .atelier-root,
-.dark .atelier-root[data-atelier-theme="7"] {
-  --at-bg: rgba(8, 11, 22, 0.36);
-  --at-paper: rgba(14, 18, 34, 0.85);
-  --at-ink: #eaeaf6;
-  --at-muted: #a2a7cb;
-  --at-line: #2a3357;
-  --at-brass: #c9a65b;
-  --at-sage: #8d8ce0;
-  --at-sage-soft: rgba(141, 140, 224, 0.18);
-  --at-brass-soft: rgba(201, 166, 91, 0.17);
-}
-
-html[data-design="8"] .atelier-root,
-.atelier-root[data-atelier-theme="8"] {
-  --at-bg: rgba(245, 236, 238, 0.34);
-  --at-paper: rgba(253, 248, 249, 0.85);
-  --at-ink: #2b131b;
-  --at-muted: #6d4451;
-  --at-line: #dcc2c9;
-  --at-brass: #8c6638;
-  --at-sage: #7d2f45;
-  --at-sage-soft: rgba(125, 47, 69, 0.14);
-  --at-brass-soft: rgba(140, 102, 56, 0.14);
-}
-html.dark[data-design="8"] .atelier-root,
-.dark .atelier-root[data-atelier-theme="8"] {
-  --at-bg: rgba(20, 8, 12, 0.36);
-  --at-paper: rgba(28, 12, 18, 0.85);
-  --at-ink: #f4e6ea;
-  --at-muted: #c79aa7;
-  --at-line: #4c2231;
-  --at-brass: #d4a66a;
-  --at-sage: #d67e96;
-  --at-sage-soft: rgba(214, 126, 150, 0.18);
-  --at-brass-soft: rgba(212, 166, 106, 0.16);
-}
-
-html[data-design="9"] .atelier-root,
-.atelier-root[data-atelier-theme="9"] {
-  --at-bg: rgba(243, 237, 224, 0.34);
-  --at-paper: rgba(251, 248, 240, 0.86);
-  --at-ink: #1b1915;
-  --at-muted: #5e5648;
-  --at-line: #d4cab4;
-  --at-brass: #75532a;
-  --at-sage: #4b453a;
-  --at-sage-soft: rgba(75, 69, 58, 0.14);
-  --at-brass-soft: rgba(117, 83, 42, 0.14);
-}
-html.dark[data-design="9"] .atelier-root,
-.dark .atelier-root[data-atelier-theme="9"] {
-  --at-bg: rgba(16, 15, 11, 0.36);
-  --at-paper: rgba(23, 21, 16, 0.85);
-  --at-ink: #efeae0;
-  --at-muted: #b0a792;
-  --at-line: #3d372a;
-  --at-brass: #cfa86b;
-  --at-sage: #b3a78f;
-  --at-sage-soft: rgba(179, 167, 143, 0.16);
-  --at-brass-soft: rgba(207, 168, 107, 0.16);
-}
-
-html[data-design="10"] .atelier-root,
-.atelier-root[data-atelier-theme="10"] {
-  --at-bg: rgba(234, 241, 248, 0.34);
-  --at-paper: rgba(246, 250, 255, 0.82);
-  --at-ink: #132236;
-  --at-muted: #465f7e;
-  --at-line: #bed0e4;
-  --at-brass: #3e6b9c;
-  --at-sage: #2563a8;
-  --at-sage-soft: rgba(37, 99, 168, 0.14);
-  --at-brass-soft: rgba(62, 107, 156, 0.14);
-}
-html.dark[data-design="10"] .atelier-root,
-.dark .atelier-root[data-atelier-theme="10"] {
-  --at-bg: rgba(7, 15, 25, 0.36);
-  --at-paper: rgba(12, 23, 38, 0.84);
-  --at-ink: #e4eef9;
-  --at-muted: #92b0d4;
-  --at-line: #233f63;
-  --at-brass: #7cb6ed;
-  --at-sage: #5ea1e6;
-  --at-sage-soft: rgba(94, 161, 230, 0.18);
-  --at-brass-soft: rgba(124, 182, 237, 0.16);
-}
-
-/* Backdrop blur on cards in Themes 2..10 so blurred wallpaper & watermark glow subtly behind */
-html[data-design]:not([data-design="1"]) .atelier-root {
+/* Backdrop blur on cards across Themes 1..5 so marble & abstract wallpaper glow subtly behind */
+html[data-design] .atelier-root {
   background: var(--at-bg);
 }
-html[data-design]:not([data-design="1"]) .atelier-root .atelier-card {
+html[data-design] .atelier-root .atelier-card {
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
 }
-html[data-design]:not([data-design="1"]) .atelier-root .atelier-top {
+html[data-design] .atelier-root .atelier-top {
   background: transparent;
   backdrop-filter: none;
 }
@@ -1553,30 +1428,14 @@ html[data-design]:not([data-design="1"]) .atelier-root .atelier-top {
   backdrop-filter: blur(8px);
 }
 .atelier-root[data-atelier-theme="5"] :is(.atelier-btn, .atelier-day, .atelier-seg button, .atelier-chip) {
-  border-radius: 3px !important;
-}
-.atelier-root[data-atelier-theme="6"] :is(.atelier-btn, .atelier-day, .atelier-seg button, .atelier-chip) {
-  border-radius: 14px 14px 4px 4px !important;
-}
-.atelier-root[data-atelier-theme="7"] :is(.atelier-btn, .atelier-day, .atelier-seg button, .atelier-chip) {
-  border-radius: 4px 15px 4px 15px !important;
-}
-.atelier-root[data-atelier-theme="8"] :is(.atelier-btn, .atelier-day, .atelier-seg button, .atelier-chip) {
-  border-radius: 4px 15px 15px 4px !important;
-}
-.atelier-root[data-atelier-theme="9"] :is(.atelier-btn, .atelier-day, .atelier-seg button, .atelier-chip) {
-  border-radius: 6px !important;
-}
-.atelier-root[data-atelier-theme="10"] :is(.atelier-btn, .atelier-day, .atelier-seg button, .atelier-chip) {
-  border-radius: 10px !important;
-  backdrop-filter: blur(10px);
+  border-radius: 8px 14px 8px 14px !important;
 }
 
 .atelier-root:not([data-atelier-theme="1"]) :is(.atelier-btn, .atelier-day, .atelier-seg button):active {
   animation: atelierSoftFadePress 0.34s ease;
 }
 
-/* Dark Mode Ink Buttons: Theme 1 uses Crisp Cream Gradient; Themes 2-10 use Sidebar-Matched Coloured Gradient */
+/* Dark Mode Ink Buttons: Theme 1 uses Crisp Cream Gradient; Themes 2-5 use Sidebar-Matched Coloured Gradient */
 html.dark[data-design="1"] .atelier-root .atelier-btn-ink,
 html.dark[data-design="1"] .atelier-root .atelier-day[aria-pressed="true"] {
   background: linear-gradient(180deg, #faf3e6 0%, #eadbc3 100%) !important;
@@ -1595,15 +1454,19 @@ html[data-design]:not([data-design="1"]) .atelier-root .atelier-btn-ink,
 html[data-design]:not([data-design="1"]) .atelier-root .atelier-day[aria-pressed="true"],
 html[data-design]:not([data-design="1"]) .atelier-root .atelier-seg button[aria-pressed="true"]:not(:where(.atelier-sticky .atelier-seg button)) {
   background: var(--th-btn-active-bg) !important;
-  color: #ffffff !important;
-  border-color: var(--th-btn-active-border, transparent) !important;
+  color: var(--th-btn-active-ink, #ffffff) !important;
+  border-color: var(--th-btn-active-border, rgba(255, 255, 255, 0.32)) !important;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.16),
+    0 6px 16px -3px rgba(0, 0, 0, 0.72),
+    inset 0 1px 0 rgba(255, 255, 255, 0.34) !important;
   text-shadow: none !important;
 }
 
 html[data-design]:not([data-design="1"]) .atelier-root .atelier-btn-ink *,
 html[data-design]:not([data-design="1"]) .atelier-root .atelier-day[aria-pressed="true"] *,
 html[data-design]:not([data-design="1"]) .atelier-root .atelier-seg button[aria-pressed="true"]:not(:where(.atelier-sticky .atelier-seg button)) * {
-  color: #ffffff !important;
+  color: var(--th-btn-active-ink, #ffffff) !important;
   text-shadow: none !important;
 }
 

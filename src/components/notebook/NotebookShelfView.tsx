@@ -221,7 +221,7 @@ export const NotebookShelfView: React.FC<NotebookShelfViewProps> = ({
                 className="bg-transparent text-xs font-mono font-bold outline-none cursor-pointer px-1 py-0.5"
                 style={{ color: theme.accentHex }}
               >
-                {(['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'] as DesignId[]).map((dId) => {
+                {(['1', '2', '3', '4', '5'] as DesignId[]).map((dId) => {
                   const t = MAKE_NOTE_THEMES[dId];
                   return (
                     <option key={dId} value={dId} className="bg-[#1a120d] text-[#efe4d4]">
@@ -254,7 +254,7 @@ export const NotebookShelfView: React.FC<NotebookShelfViewProps> = ({
             className="px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 shadow-md transition-all active:scale-95 hover:opacity-95 text-slate-950"
             style={{
               backgroundColor: theme.accentHex,
-              color: theme.id === '3' || theme.id === '7' ? '#040507' : '#ffffff',
+              color: theme.id === '3' ? '#040507' : '#ffffff',
             }}
           >
             <Plus className="w-4 h-4" />
@@ -367,7 +367,7 @@ export const NotebookShelfView: React.FC<NotebookShelfViewProps> = ({
                         color: isSelected
                           ? resolvedDark && theme.id === '1'
                             ? '#140e0a'
-                            : theme.id === '3' || theme.id === '7'
+                            : theme.id === '3'
                             ? '#040507'
                             : '#ffffff'
                           : isLightTheme1

@@ -29,7 +29,6 @@ import { Sidebar } from './components/common/Sidebar';
 import { WindowsHeader } from './components/common/WindowsHeader';
 import { MyDenHome } from './components/home/MyDenHome';
 import { NotebookShelfView } from './components/notebook/NotebookShelfView';
-import { ExploreBodyView } from './components/explore/ExploreBodyView';
 import { RosterCalendarModal } from './components/roster/RosterCalendarModal';
 import { EyeBreakModal } from './components/common/EyeBreakModal';
 import { SettingsModal, SettingsTabId } from './components/settings/SettingsModal';
@@ -45,7 +44,7 @@ import { TalkToDeveloperModal } from './components/developer/TalkToDeveloperModa
 import { SubscriptionModal } from './components/subscription/SubscriptionModal';
 import { ShareToAIStudioModal } from './components/common/ShareToAIStudioModal';
 import { AuthPortal } from './components/auth/AuthPortal';
-import { AchievBrand } from './components/common/AchievBrand';
+import { ACHIEV_LEATHER_HERO_URL } from './components/common/AchievBrand';
 import { getThemeMeta } from './data/themeMeta';
 import { useAuth } from './contexts/AuthContext';
 import {
@@ -86,7 +85,7 @@ export default function App() {
 
   // Navigation & Subject State
   const [activeView, setActiveView] = useState<
-    'home' | 'read' | 'notebooks' | 'explore-body' | 'library' | 'roster' | 'recycle-bin' | 'mnemonics' | 'leisure' | 'community' | 'make-note' | 'talk-to-dev' | 'settings'
+    'home' | 'read' | 'notebooks' | 'library' | 'roster' | 'recycle-bin' | 'mnemonics' | 'leisure' | 'community' | 'make-note' | 'talk-to-dev' | 'settings'
   >('home');
   const [settingsInitialTab, setSettingsInitialTab] = useState<SettingsTabId>('designs');
   const [currentSubject, setCurrentSubject] = useState<SubjectCourse>('Pharmacology');
@@ -273,11 +272,12 @@ export default function App() {
   });
   const [secondsUntilBreak, setSecondsUntilBreak] = useState<number>(breakConfig.intervalMinutes * 60);
 
-  // 10 Layout Designs (Safely verified fallback to '1')
+  // 5 Curated Non-Repetitive Layout Designs (Safely verified fallback to '1')
   const [activeDesign, setActiveDesign] = useState<DesignId>(() => {
     try {
       const saved = localStorage.getItem('medden_active_design');
-      if (saved && ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'].includes(saved)) {
+      if (saved === '8') return '5';
+      if (saved && ['1', '2', '3', '4', '5'].includes(saved)) {
         return saved as DesignId;
       }
     } catch {}
@@ -957,10 +957,25 @@ export default function App() {
   if (authLoading) {
     return (
       <div
-        className="min-h-screen w-screen flex flex-col items-center justify-center gap-4"
-        style={{ backgroundColor: '#0c0402', color: '#efe4d4' }}
+        className="min-h-screen w-screen flex flex-col items-center justify-center gap-4 px-4"
+        style={{
+          background:
+            'radial-gradient(ellipse 85% 78% at 50% 50%, #1c0c05 0%, #100502 50%, #090301 100%)',
+          color: '#efe4d4',
+        }}
       >
-        <AchievBrand variant="lockup" isDarkMode={true} imgClassName="h-14 w-auto animate-pulse" />
+        <img
+          src={ACHIEV_LEATHER_HERO_URL}
+          alt="Ach1ev — Settle Ideas"
+          draggable={false}
+          className="w-[min(86vw,520px)] h-auto object-contain select-none pointer-events-none animate-pulse"
+          style={{
+            WebkitMaskImage:
+              'radial-gradient(ellipse 48% 46% at 50% 50%, #000 44%, rgba(0,0,0,0.88) 62%, rgba(0,0,0,0.38) 80%, transparent 98%)',
+            maskImage:
+              'radial-gradient(ellipse 48% 46% at 50% 50%, #000 44%, rgba(0,0,0,0.88) 62%, rgba(0,0,0,0.38) 80%, transparent 98%)',
+          }}
+        />
         <p className="text-xs font-mono opacity-75">Initializing Ach1ev Cloud Workspace...</p>
       </div>
     );
@@ -986,12 +1001,15 @@ export default function App() {
         <div className="dark-ambient-mesh-1" />
         <div className="dark-ambient-mesh-2" />
       </div>
-      {/* Non-Repetitive Organic Abstract Theme Backdrop (Themes 2-10 in Light & Dark Modes; Leisure renders its own artwork) */}
+      {/* Crisp Theme Marble (Theme 1 Light) & Sober Abstract Backdrops (Themes 1–5 Light & Dark) */}
       {appWallpaperUri && activeView !== 'leisure' && (
         <div
           className="app-theme-wallpaper"
           aria-hidden="true"
-          style={{ backgroundImage: appWallpaperUri, opacity: isDarkMode ? 0.78 : 0.72 }}
+          style={{
+            backgroundImage: appWallpaperUri,
+            opacity: activeDesign === '1' && !isDarkMode ? 0.96 : isDarkMode ? 0.92 : 0.9,
+          }}
         />
       )}
 
@@ -1182,14 +1200,6 @@ export default function App() {
             />
           )}
 
-          {activeView === 'explore-body' && (
-            <ExploreBodyView
-              currentSubject={currentSubject}
-              onSnipToNote={handleSnipToActiveNote}
-              onOpenNotebookWithTopic={() => handleCreateBlankNote()}
-            />
-          )}
-
           {activeView === 'community' && (
             <CommunityView
               currentSubject={currentSubject}
@@ -1325,7 +1335,7 @@ export default function App() {
               setActiveView('library');
             }}
             className={`flex flex-col items-center gap-0.5 py-1 px-2.5 rounded-xl transition-all cursor-pointer ${
-              activeView === 'library' || activeView === 'explore-body'
+              activeView === 'library'
                 ? 'text-[var(--th-accent)] font-bold'
                 : 'text-[var(--th-muted)] hover:text-[var(--th-ink)]'
             }`}

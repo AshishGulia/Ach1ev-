@@ -15,8 +15,6 @@ import {
   MessageSquareCode,
   Brain,
   Coffee,
-  Activity,
-  SlidersHorizontal,
 } from 'lucide-react';
 
 // Authentic Bookshelf / Almirah SVG Icon
@@ -51,7 +49,6 @@ export type AppViewType =
   | 'home'
   | 'read'
   | 'notebooks'
-  | 'explore-body'
   | 'library'
   | 'roster'
   | 'recycle-bin'
@@ -105,7 +102,6 @@ export const DEFAULT_SIDEBAR_SETTINGS: SidebarSettings = {
   showMnemonics: false,
   showCommunity: true,
   showLeisure: false,
-  showExploreBody: false,
   showTalkToDev: true,
 };
 
@@ -118,7 +114,6 @@ export const DEFAULT_SIDEBAR_ORDER: string[] = [
   'mnemonics',
   'community',
   'leisure',
-  'explore-body',
   'talk-to-dev',
 ];
 
@@ -220,7 +215,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           backdropFilter: 'blur(14px) saturate(1.25)',
           WebkitBackdropFilter: 'blur(14px) saturate(1.25)',
           boxShadow: isNightMode
-            ? '0 8px 20px -4px rgba(0, 0, 0, 0.88), 0 2px 6px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 245, 228, 0.36), inset 0 -1px 0 rgba(96, 62, 34, 0.24)'
+            ? '0 0 0 1px rgba(255, 255, 255, 0.2), 0 8px 20px -4px rgba(0, 0, 0, 0.9), 0 2px 6px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.42), inset 0 -1px 0 rgba(0, 0, 0, 0.25)'
             : '0 4px 12px -2px rgba(36, 22, 10, 0.34), 0 2px 4px rgba(36, 22, 10, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.22)',
         }
       : {
@@ -228,6 +223,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
           border: '1px solid transparent',
           color: sb.idleBtnText,
           borderRadius: resolvedDesign === '1' ? '9px' : themeMeta.buttonRadius,
+          boxShadow: isNightMode
+            ? '0 3px 8px -2px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.05)'
+            : undefined,
         };
 
   const toggleBtnStyle: React.CSSProperties = {
@@ -235,6 +233,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
     border: `1px solid ${sb.toggleBtnBorder}`,
     color: sb.toggleBtnText,
     borderRadius: resolvedDesign === '1' ? '9px' : themeMeta.buttonRadius,
+    boxShadow: isNightMode
+      ? '0 4px 10px -2px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.14)'
+      : undefined,
   };
 
   // Language state
@@ -248,7 +249,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     return () => window.removeEventListener('medden_language_changed', handleLangChange);
   }, []);
 
-  // Sidebar Visibility Settings (defaults keep mnemonics, leisure, explore-body toggled OFF until enabled)
+  // Sidebar Visibility Settings (defaults keep mnemonics and leisure toggled OFF until enabled in Settings)
   const [sidebarSettings, setSidebarSettings] = useState<SidebarSettings>(() => {
     try {
       const saved = localStorage.getItem('medden_sidebar_settings');
@@ -274,8 +275,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
     return DEFAULT_SIDEBAR_ORDER;
   });
 
-  const [showQuickCustomize, setShowQuickCustomize] = useState(false);
-
   useEffect(() => {
     const handleSettingsChange = () => {
       try {
@@ -298,14 +297,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     return () => window.removeEventListener('medden_sidebar_settings_changed', handleSettingsChange);
   }, []);
 
-  const toggleQuickSidebarButton = (key: keyof SidebarSettings) => {
-    const updated = { ...sidebarSettings, [key]: sidebarSettings[key] === false };
-    setSidebarSettings(updated);
-    localStorage.setItem('medden_sidebar_settings', JSON.stringify(updated));
-    window.dispatchEvent(new CustomEvent('medden_sidebar_settings_changed'));
-  };
-
-  // Workspaces Nav (full layout including Mnemonics, Leisure & Explore Body)
+  // Workspaces Nav (sidebar toggle controls managed exclusively inside Settings)
   const allNavItems = [
     {
       id: 'home' as const,
@@ -356,12 +348,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
       icon: Coffee,
     },
     {
-      id: 'explore-body' as const,
-      settingKey: 'showExploreBody' as keyof SidebarSettings,
-      label: getTranslation('nav.exploreBody', currentLang),
-      icon: Activity,
-    },
-    {
       id: 'talk-to-dev' as const,
       settingKey: 'showTalkToDev' as keyof SidebarSettings,
       label: getTranslation('nav.talkToDev', currentLang),
@@ -397,9 +383,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat',
-            filter: 'blur(4px) saturate(1.1)',
-            transform: 'scale(1.06)',
-            opacity: isNightMode ? 0.62 : 0.54,
+            filter: resolvedDesign === '1' && !isNightMode ? 'none' : 'blur(2px) saturate(1.08)',
+            transform: resolvedDesign === '1' && !isNightMode ? 'scale(1.01)' : 'scale(1.05)',
+            opacity: isNightMode ? 0.68 : 0.66,
           }}
         />
       )}
@@ -520,55 +506,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     </button>
                   );
                 })}
-
-                {/* Quick Button Toggle Drawer Trigger */}
-                <button
-                  type="button"
-                  onClick={() => setShowQuickCustomize((v) => !v)}
-                  title="Show or hide optional sidebar buttons (Mnemonics, Leisure, Explore Body...)"
-                  style={{
-                    background: 'transparent',
-                    color: sb.mutedLabelColor,
-                    borderTop: `1px dashed ${sb.sectionBorder}`,
-                  }}
-                  className="w-full mt-1 pt-1.5 pb-1 px-1.5 flex items-center justify-between text-[9.5px] font-mono hover:brightness-125 cursor-pointer"
-                >
-                  <span className="flex items-center gap-1 truncate">
-                    <SlidersHorizontal className="w-3 h-3 shrink-0" />
-                    <span>Buttons ({navItems.length}/{allNavItems.length})</span>
-                  </span>
-                  <span>{showQuickCustomize ? '−' : '+'}</span>
-                </button>
-
-                {showQuickCustomize && (
-                  <div
-                    className="p-1.5 rounded-lg space-y-1 text-[10px]"
-                    style={{
-                      background: sb.footerSectionBg,
-                      border: `1px solid ${sb.sectionBorder}`,
-                    }}
-                  >
-                    {allNavItems.map((item) => {
-                      const isOn = sidebarSettings[item.settingKey] !== false;
-                      return (
-                        <label
-                          key={item.id}
-                          className="flex items-center justify-between gap-1.5 cursor-pointer py-0.5 px-1 rounded hover:bg-black/5 dark:hover:bg-white/5"
-                        >
-                          <span className="truncate" style={{ color: sb.railText }}>
-                            {item.label}
-                          </span>
-                          <input
-                            type="checkbox"
-                            checked={isOn}
-                            onChange={() => toggleQuickSidebarButton(item.settingKey)}
-                            className="w-3.5 h-3.5 accent-amber-600 cursor-pointer shrink-0"
-                          />
-                        </label>
-                      );
-                    })}
-                  </div>
-                )}
               </div>
             </div>
 
@@ -660,7 +597,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         fontWeight: 600,
                       }
                 }
-                className={`w-full min-h-[30px] h-auto flex items-center px-1.5 py-1.5 text-[11px] transition-all hover:brightness-110 cursor-pointer text-left ${leatherBtnCls}`}
+                className={`sidebar-trash-btn w-full min-h-[30px] h-auto flex items-center px-1.5 py-1.5 text-[11px] transition-all hover:brightness-110 cursor-pointer text-left ${leatherBtnCls}`}
               >
                 <div className="flex items-center gap-1.5 min-w-0 w-full">
                   <div className="w-4 h-4 flex items-center justify-center shrink-0">
@@ -771,7 +708,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         borderRadius: resolvedDesign === '1' ? '9px' : themeMeta.buttonRadius,
                       }
                 }
-                className={`w-6 h-6 flex items-center justify-center transition-all hover:brightness-110 cursor-pointer ${leatherBtnCls}`}
+                className={`sidebar-trash-btn w-6 h-6 flex items-center justify-center transition-all hover:brightness-110 cursor-pointer ${leatherBtnCls}`}
               >
                 <Trash2
                   className="w-3.5 h-3.5"
