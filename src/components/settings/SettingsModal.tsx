@@ -55,19 +55,19 @@ import {
   Keyboard,
   Target,
   Type,
+  ArrowLeft,
 } from 'lucide-react';
 
 export type SettingsTabId =
   | 'designs'
-  | 'cloud-sync'
   | 'typography'
-  | 'languages'
+  | 'cloud-sync'
   | 'import-notes'
   | 'sidebar-buttons'
-  | 'subscription'
-  | 'profile'
   | 'customizer'
-  | 'break'
+  | 'profile'
+  | 'languages'
+  | 'subscription'
   | 'defaults';
 
 interface SettingsModalProps {
@@ -133,15 +133,15 @@ export const MASTER_EDITIONS: MasterEdition[] = [
   {
     id: '3',
     title: 'Coastal Beach Balcony',
-    badge: 'Theme 3 · Sea & Dolphins',
+    badge: 'Theme 3 · Ocean Balcony',
     category: 'Exact Atelier Replica · Coastal Sand',
-    tagline: 'Blurred surf wallpaper, wave watermarks, Coastal Pebble buttons & interactive dolphins',
-    description: 'Exact structural replica of Theme 1 overlooking serene coastal horizons. Worn Coastal Pebble buttons (13px 19px 11px 17px), 5 ocean cove vistas, scalloped sea-shell rug & clickable leaping dolphins.',
+    tagline: 'Blurred surf wallpaper, wave watermarks, Coastal Pebble buttons & ocean horizon balcony',
+    description: 'Exact structural replica of Theme 1 overlooking serene coastal horizons. Worn Coastal Pebble buttons (13px 19px 11px 17px), panoramic ocean seascape vistas, scalloped sea-shell rug & coastal almirahs.',
     paletteColors: ['#f4efe6', '#1c637a', '#4fb0cc', '#1f415d', '#07121d'],
     keyHighlights: [
       'Blurred surf & sand dune wallpaper + sea-shell watermarks',
       'Coastal Pebble asymmetrical button silhouettes',
-      '5 coastal horizons & 3 clickable leaping dolphins in Shelf',
+      'Day & Night coastal seascape horizons in Shelf',
       'Scalloped Beach Flatweave rug & coastal almirahs',
     ],
   },
@@ -269,7 +269,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const [customDriveAccount, setCustomDriveAccount] = useState('');
 
   const [profileForm, setProfileForm] = useState<UserProfile>(userProfile);
-  const [breakForm, setBreakForm] = useState<BreakTimerConfig>(breakTimerConfig);
   const [savedFeedback, setSavedFeedback] = useState<boolean>(false);
 
   useEffect(() => {
@@ -651,13 +650,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     setTimeout(() => setSavedFeedback(false), 2000);
   };
 
-  const handleSaveBreak = (e: React.FormEvent) => {
-    e.preventDefault();
-    onUpdateBreakConfig(breakForm);
-    setSavedFeedback(true);
-    setTimeout(() => setSavedFeedback(false), 2000);
-  };
-
   const handleSelectEdition = (editionId: DesignId) => {
     if (onSelectDesign) {
       onSelectDesign(editionId);
@@ -747,9 +739,26 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
         {/* Master-Detail Layout */}
         <div className="flex-1 flex flex-col sm:flex-row overflow-hidden">
-          {/* Left Navigation Sidebar (Horizontal scrolling tabs on mobile, vertical column on sm+) */}
+          {/* Left Navigation Sidebar (Top Back button + tabs ordered most-to-least usable) */}
           <div className="themed-glass-bar w-full sm:w-44 border-b sm:border-b-0 sm:border-r border-stone-200/80 dark:border-[#382518] bg-stone-50/70 dark:bg-[#140e0a] p-1.5 flex sm:flex-col justify-between gap-2 shrink-0">
+            {/* Top Back Button styled like Dashboard Sidebar top back button */}
+            {onClose && (
+              <div className="sm:pb-1.5 sm:border-b sm:border-stone-200/80 dark:sm:border-[#382518] shrink-0 flex items-center">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  title="Back to Dashboard"
+                  aria-label="Back to Dashboard"
+                  className="w-full group flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold transition-all shadow-xs hover:brightness-110 active:scale-[0.97] cursor-pointer bg-stone-200/75 hover:bg-stone-300/80 dark:bg-[#241911] dark:hover:bg-[#312116] text-stone-800 dark:text-[#efe4d4] border border-stone-300/80 dark:border-[#3e291b]"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5 stroke-[2.2] transition-transform duration-200 group-hover:-translate-x-1" />
+                  <span className="hidden sm:inline">Back</span>
+                </button>
+              </div>
+            )}
+
             <div className="flex sm:flex-col overflow-x-auto sm:overflow-y-auto gap-1 flex-1 custom-scrollbar">
+            {/* 1. Themes (Most Used) */}
             <button
               type="button"
               onClick={() => setActiveTab('designs')}
@@ -763,19 +772,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <span>Themes</span>
             </button>
 
-            <button
-              type="button"
-              onClick={() => setActiveTab('cloud-sync')}
-              className={`flex items-center gap-2 px-2.5 py-2 rounded-xl text-xs font-medium transition-all cursor-pointer shrink-0 whitespace-nowrap sm:whitespace-normal sm:w-full ${
-                activeTab === 'cloud-sync'
-                  ? 'themed-tab-active bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 shadow-xs font-semibold'
-                  : 'text-stone-600 dark:text-stone-400 hover:bg-stone-200/60 dark:hover:bg-[#251a12] hover:text-stone-900 dark:hover:text-stone-100'
-              }`}
-            >
-              <Cloud className="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400" />
-              <span>Cloud &amp; Drive</span>
-            </button>
-
+            {/* 2. Fonts */}
             <button
               type="button"
               onClick={() => setActiveTab('typography')}
@@ -789,19 +786,21 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <span>Fonts</span>
             </button>
 
+            {/* 3. Cloud & Drive */}
             <button
               type="button"
-              onClick={() => setActiveTab('languages')}
+              onClick={() => setActiveTab('cloud-sync')}
               className={`flex items-center gap-2 px-2.5 py-2 rounded-xl text-xs font-medium transition-all cursor-pointer shrink-0 whitespace-nowrap sm:whitespace-normal sm:w-full ${
-                activeTab === 'languages'
+                activeTab === 'cloud-sync'
                   ? 'themed-tab-active bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 shadow-xs font-semibold'
                   : 'text-stone-600 dark:text-stone-400 hover:bg-stone-200/60 dark:hover:bg-[#251a12] hover:text-stone-900 dark:hover:text-stone-100'
               }`}
             >
-              <Globe className="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400" />
-              <span>Languages</span>
+              <Cloud className="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400" />
+              <span>Cloud &amp; Drive</span>
             </button>
 
+            {/* 4. Import Notes */}
             <button
               type="button"
               onClick={() => setActiveTab('import-notes')}
@@ -815,6 +814,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <span>Import Notes</span>
             </button>
 
+            {/* 5. Sidebar Customizer */}
             <button
               type="button"
               onClick={() => setActiveTab('sidebar-buttons')}
@@ -828,19 +828,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <span>Sidebar Customizer</span>
             </button>
 
-            <button
-              type="button"
-              onClick={() => setActiveTab('subscription')}
-              className={`flex items-center gap-2 px-2.5 py-2 rounded-xl text-xs font-medium transition-all cursor-pointer shrink-0 whitespace-nowrap sm:whitespace-normal sm:w-full ${
-                activeTab === 'subscription'
-                  ? 'themed-tab-active bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 shadow-xs font-semibold'
-                  : 'text-stone-600 dark:text-stone-400 hover:bg-stone-200/60 dark:hover:bg-[#251a12] hover:text-stone-900 dark:hover:text-stone-100'
-              }`}
-            >
-              <Crown className="w-4 h-4 shrink-0 text-amber-500" />
-              <span>Plans &amp; Pricing</span>
-            </button>
-
+            {/* 6. Student Customizer */}
             <button
               type="button"
               onClick={() => setActiveTab('customizer')}
@@ -854,6 +842,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <span>Student Customizer</span>
             </button>
 
+            {/* 7. Student Profile */}
             <button
               type="button"
               onClick={() => setActiveTab('profile')}
@@ -867,19 +856,35 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <span>Student Profile</span>
             </button>
 
+            {/* 8. Languages */}
             <button
               type="button"
-              onClick={() => setActiveTab('break')}
+              onClick={() => setActiveTab('languages')}
               className={`flex items-center gap-2 px-2.5 py-2 rounded-xl text-xs font-medium transition-all cursor-pointer shrink-0 whitespace-nowrap sm:whitespace-normal sm:w-full ${
-                activeTab === 'break'
+                activeTab === 'languages'
                   ? 'themed-tab-active bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 shadow-xs font-semibold'
                   : 'text-stone-600 dark:text-stone-400 hover:bg-stone-200/60 dark:hover:bg-[#251a12] hover:text-stone-900 dark:hover:text-stone-100'
               }`}
             >
-              <Eye className="w-4 h-4 shrink-0" />
-              <span>Eye Rest Timers</span>
+              <Globe className="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400" />
+              <span>Languages</span>
             </button>
 
+            {/* 9. Plans & Pricing */}
+            <button
+              type="button"
+              onClick={() => setActiveTab('subscription')}
+              className={`flex items-center gap-2 px-2.5 py-2 rounded-xl text-xs font-medium transition-all cursor-pointer shrink-0 whitespace-nowrap sm:whitespace-normal sm:w-full ${
+                activeTab === 'subscription'
+                  ? 'themed-tab-active bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 shadow-xs font-semibold'
+                  : 'text-stone-600 dark:text-stone-400 hover:bg-stone-200/60 dark:hover:bg-[#251a12] hover:text-stone-900 dark:hover:text-stone-100'
+              }`}
+            >
+              <Crown className="w-4 h-4 shrink-0 text-amber-500" />
+              <span>Plans &amp; Pricing</span>
+            </button>
+
+            {/* 10. Backup & Reset (Least Used) */}
             <button
               type="button"
               onClick={() => setActiveTab('defaults')}
@@ -890,7 +895,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               }`}
             >
               <RotateCcw className="w-4 h-4 shrink-0" />
-              <span>Backup & Reset</span>
+              <span>Backup &amp; Reset</span>
             </button>
             </div>
 
@@ -2397,78 +2402,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 >
                   {savedFeedback && <Check className="w-3.5 h-3.5" />}
                   <span>{savedFeedback ? 'Saved!' : 'Save Profile'}</span>
-                </button>
-              </div>
-            </form>
-          )}
-
-          {/* ========================================================================= */}
-          {/* TAB 3: BREAK TIMERS                                                       */}
-          {/* ========================================================================= */}
-          {activeTab === 'break' && (
-            <form onSubmit={handleSaveBreak} className="space-y-4">
-              <div className="pb-2 border-b border-stone-200 dark:border-[#382518]">
-                <h4 className="text-lg font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
-                  <Eye className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-                  <span>Eye Rest Timers</span>
-                </h4>
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-stone-700 dark:text-stone-300 mb-1">
-                  Study Interval Before Eye Rest:
-                </label>
-                <select
-                  value={breakForm.intervalMinutes}
-                  onChange={(e) => setBreakForm({ ...breakForm, intervalMinutes: Number(e.target.value) })}
-                  className="w-full bg-stone-50 dark:bg-[#18110c] px-3 py-2 rounded-xl border border-stone-200 dark:border-[#382518] text-xs text-stone-800 dark:text-stone-200 outline-none focus:border-amber-500"
-                >
-                  <option value={15}>Every 15 Minutes (High Screen Sensitivity)</option>
-                  <option value={20}>Every 20 Minutes (Standard 20-20-20 Rule)</option>
-                  <option value={30}>Every 30 Minutes</option>
-                  <option value={45}>Every 45 Minutes (Extended Deep Work)</option>
-                  <option value={60}>Every 60 Minutes</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-stone-700 dark:text-stone-300 mb-1">
-                  Break Duration:
-                </label>
-                <select
-                  value={breakForm.breakDurationSeconds}
-                  onChange={(e) => setBreakForm({ ...breakForm, breakDurationSeconds: Number(e.target.value) })}
-                  className="w-full bg-stone-50 dark:bg-[#18110c] px-3 py-2 rounded-xl border border-stone-200 dark:border-[#382518] text-xs text-stone-800 dark:text-stone-200 outline-none focus:border-amber-500"
-                >
-                  <option value={20}>20 Seconds (20ft distant focus)</option>
-                  <option value={30}>30 Seconds</option>
-                  <option value={60}>1 Minute</option>
-                  <option value={120}>2 Minutes (Eye stretch + hydration)</option>
-                  <option value={300}>5 Minutes</option>
-                </select>
-              </div>
-
-              <div className="flex items-center justify-between p-3.5 rounded-xl bg-stone-50 dark:bg-[#18110c] border border-stone-200 dark:border-[#382518]">
-                <div className="flex items-center gap-2">
-                  <Volume2 className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-                  <span className="text-xs font-medium text-stone-800 dark:text-stone-200">
-                    Tibetan Bowl Chime Sound Alert
-                  </span>
-                </div>
-                <input
-                  type="checkbox"
-                  checked={breakForm.soundEnabled}
-                  onChange={(e) => setBreakForm({ ...breakForm, soundEnabled: e.target.checked })}
-                  className="rounded text-amber-600 focus:ring-amber-500 w-4 h-4 cursor-pointer"
-                />
-              </div>
-
-              <div className="flex justify-end pt-3">
-                <button
-                  type="submit"
-                  className="themed-accent-btn px-4 py-2 rounded-xl bg-amber-700 hover:bg-amber-800 text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer"
-                >
-                  {savedFeedback && <Check className="w-3.5 h-3.5" />}
-                  <span>{savedFeedback ? 'Saved!' : 'Save Timer Config'}</span>
                 </button>
               </div>
             </form>

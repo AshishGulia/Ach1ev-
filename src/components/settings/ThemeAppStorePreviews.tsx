@@ -134,14 +134,14 @@ const SHELF_WORLD_PREVIEW: Record<
     accentBadge: 'Leaf-Contour Buttons',
   },
   '3': {
-    emoji: '🌊🐬',
+    emoji: '🌊🐚',
     worldLabel: 'Beach Balcony',
     rugLabel: 'Scalloped Wave',
     skyBg: 'linear-gradient(180deg, #7ec4d8 0%, #3a8fa8 56%, #cfc1ab 100%)',
     cabinetBg: '#465864',
     cabinetBorder: '#c9b18e',
     rugColor: '#e8dec9',
-    accentBadge: 'Clickable Leaping Dolphins',
+    accentBadge: 'Coastal Ocean Balcony',
   },
   '4': {
     emoji: '🌧️☕',

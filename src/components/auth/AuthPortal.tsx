@@ -539,8 +539,8 @@ export const AuthPortal: React.FC<AuthPortalProps> = ({
                           : 'text-[#bfa78a] hover:text-[#efe4d4]'
                       }`}
                     >
-                      <Phone className="w-3.5 h-3.5" />
-                      <span>Phone + OTP</span>
+                      <Phone className="w-3.5 h-3.5 shrink-0" />
+                      <span>Contact No. + OTP</span>
                     </button>
                   </div>
                 </div>
@@ -678,30 +678,38 @@ export const AuthPortal: React.FC<AuthPortalProps> = ({
                 <button
                   type="submit"
                   disabled={!!submitting}
-                  className="w-full py-2.5 px-4 rounded-xl text-white font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50"
+                  className="group relative overflow-hidden w-full py-2.5 px-4 rounded-xl text-[#1b1007] font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer hover:-translate-y-0.5 hover:brightness-105 active:translate-y-0 disabled:opacity-50"
                   style={{
-                    background: 'linear-gradient(180deg, rgba(168, 108, 62, 0.92) 0%, rgba(126, 74, 38, 0.95) 100%)',
-                    backdropFilter: 'blur(10px)',
+                    background:
+                      'linear-gradient(135deg, #f6dea3 0%, #dca952 44%, #ecc774 72%, #b67d29 100%)',
                     boxShadow:
-                      'inset 0 1.5px 1px rgba(255, 236, 202, 0.5), inset 0 -2px 2px rgba(48, 20, 6, 0.35), 0 10px 24px rgba(132, 84, 42, 0.32)',
-                    border: 'none',
+                      'inset 0 1.5px 0 rgba(255, 250, 232, 0.85), inset 0 -2px 2px rgba(105, 62, 12, 0.35), 0 10px 26px -4px rgba(218, 165, 76, 0.45)',
+                    border: '1px solid rgba(255, 235, 185, 0.65)',
                   }}
                 >
+                  <span
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700"
+                    style={{
+                      background:
+                        'linear-gradient(110deg, transparent 25%, rgba(255,255,255,0.48) 50%, transparent 75%)',
+                    }}
+                  />
                   {mode === 'forgot' ? (
                     <>
-                      <KeyRound className="w-4 h-4" />
-                      <span>{submitting === 'email' ? 'Sending Reset Link...' : 'Send Reset Link'}</span>
+                      <KeyRound className="w-4 h-4 relative z-10" />
+                      <span className="relative z-10">{submitting === 'email' ? 'Sending Reset Link...' : 'Send Reset Link'}</span>
                     </>
                   ) : (
                     <>
-                      <span>
+                      <span className="relative z-10">
                         {submitting === 'email'
                           ? 'Authenticating...'
                           : mode === 'signin'
                           ? 'Sign In'
                           : 'Create Account'}
                       </span>
-                      <ArrowRight className="w-4 h-4" />
+                      <ArrowRight className="w-4 h-4 relative z-10" />
                     </>
                   )}
                 </button>
@@ -724,6 +732,9 @@ export const AuthPortal: React.FC<AuthPortalProps> = ({
                 onSubmit={otpSent ? handleVerifyPhoneOtp : handleSendPhoneOtp}
                 className="space-y-3"
               >
+                <div className="flex items-center justify-between text-[11px] text-[#c9b08a]">
+                  <span>Sign in / Register with Contact Number &amp; SMS OTP</span>
+                </div>
                 <div>
                   <label className="text-xs font-semibold block mb-1 opacity-85">
                     Contact Number
@@ -816,25 +827,33 @@ export const AuthPortal: React.FC<AuthPortalProps> = ({
                 <button
                   type="submit"
                   disabled={!!submitting}
-                  className="w-full py-2.5 px-4 rounded-xl text-white font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50"
+                  className="group relative overflow-hidden w-full py-2.5 px-4 rounded-xl text-[#1b1007] font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer hover:-translate-y-0.5 hover:brightness-105 active:translate-y-0 disabled:opacity-50"
                   style={{
-                    background: 'linear-gradient(180deg, rgba(168, 108, 62, 0.92) 0%, rgba(126, 74, 38, 0.95) 100%)',
-                    backdropFilter: 'blur(10px)',
+                    background:
+                      'linear-gradient(135deg, #f6dea3 0%, #dca952 44%, #ecc774 72%, #b67d29 100%)',
                     boxShadow:
-                      'inset 0 1.5px 1px rgba(255, 236, 202, 0.5), inset 0 -2px 2px rgba(48, 20, 6, 0.35), 0 10px 24px rgba(132, 84, 42, 0.32)',
-                    border: 'none',
+                      'inset 0 1.5px 0 rgba(255, 250, 232, 0.85), inset 0 -2px 2px rgba(105, 62, 12, 0.35), 0 10px 26px -4px rgba(218, 165, 76, 0.45)',
+                    border: '1px solid rgba(255, 235, 185, 0.65)',
                   }}
                 >
-                  <span>
+                  <span
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700"
+                    style={{
+                      background:
+                        'linear-gradient(110deg, transparent 25%, rgba(255,255,255,0.48) 50%, transparent 75%)',
+                    }}
+                  />
+                  <span className="relative z-10">
                     {submitting === 'phone-send'
                       ? 'Sending SMS OTP...'
                       : submitting === 'phone-verify'
                       ? 'Verifying OTP...'
                       : otpSent
-                      ? 'Verify & Enter Ach1ev'
+                      ? 'Verify OTP & Enter Ach1ev'
                       : 'Send OTP'}
                   </span>
-                  <ArrowRight className="w-4 h-4" />
+                  <ArrowRight className="w-4 h-4 relative z-10" />
                 </button>
               </form>
             )}

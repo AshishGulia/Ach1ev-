@@ -976,19 +976,34 @@ button[class*="border"]:not([data-swatch]):not([role="switch"]):not(.raw-icon-bt
     inset 0 -3px 6px rgba(0, 0, 0, 0.7);
 }
 
-/* Fireflies / Jugnoos gentle hovering animation */
+/* Fireflies / Jugnoos gentle hovering animation (randomized trajectory per firefly) */
 @keyframes jugnooFloat {
   0% {
-    transform: translate(0, 0) scale(1);
+    transform: translate(0, 0) scale(0.95);
   }
   33% {
-    transform: translate(14px, -18px) scale(1.15);
+    transform: translate(var(--jf-x1, 14px), var(--jf-y1, -18px)) scale(1.18);
   }
   66% {
-    transform: translate(-12px, -8px) scale(0.9);
+    transform: translate(var(--jf-x2, -12px), var(--jf-y2, -8px)) scale(0.88);
   }
   100% {
-    transform: translate(18px, 12px) scale(1.05);
+    transform: translate(var(--jf-x3, 18px), var(--jf-y3, 12px)) scale(1.06);
+  }
+}
+
+@keyframes kittyHeartFloat {
+  0% {
+    opacity: 0;
+    transform: translateY(6px) scale(0.75);
+  }
+  20% {
+    opacity: 1;
+    transform: translateY(0px) scale(1.05);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-22px) scale(0.9);
   }
 }
 
@@ -1038,40 +1053,40 @@ button[class*="border"]:not([data-swatch]):not([role="switch"]):not(.raw-icon-bt
 
 /* Shared button exclusions for custom shapes */
 /* Theme 2 — Forest Sanctuary: Botanical Leaf Contour */
-html[data-design="2"] button[class*="bg-"]:not([data-swatch]):not([role="switch"]):not(.raw-icon-btn):not(.joystick-btn):not(.atelier-tr-del):not(.beach-dolphin-btn):not(.rounded-full),
-html[data-design="2"] button[class*="border"]:not([data-swatch]):not([role="switch"]):not(.raw-icon-btn):not(.joystick-btn):not(.atelier-tr-del):not(.beach-dolphin-btn):not(.rounded-full),
+html[data-design="2"] button[class*="bg-"]:not([data-swatch]):not([role="switch"]):not(.raw-icon-btn):not(.joystick-btn):not(.atelier-tr-del):not(.rounded-full),
+html[data-design="2"] button[class*="border"]:not([data-swatch]):not([role="switch"]):not(.raw-icon-btn):not(.joystick-btn):not(.atelier-tr-del):not(.rounded-full),
 html[data-design="2"] :is(.atelier-btn, .atelier-log, .an-btn, .an-btn-primary, .read-attach-btn, .read-icon-btn, .read-tab, .shelfwise-btn, .shelfwise-seg-btn, .rs-btn, .rs-tab) {
   border-radius: 15px 4px 15px 4px !important;
 }
 
 /* Theme 3 — Coastal Beach Balcony: Worn Stone Pebbles */
-html[data-design="3"] button[class*="bg-"]:not([data-swatch]):not([role="switch"]):not(.raw-icon-btn):not(.joystick-btn):not(.atelier-tr-del):not(.beach-dolphin-btn):not(.rounded-full):nth-of-type(3n+1),
-html[data-design="3"] button[class*="border"]:not([data-swatch]):not([role="switch"]):not(.raw-icon-btn):not(.joystick-btn):not(.atelier-tr-del):not(.beach-dolphin-btn):not(.rounded-full):nth-of-type(3n+1),
+html[data-design="3"] button[class*="bg-"]:not([data-swatch]):not([role="switch"]):not(.raw-icon-btn):not(.joystick-btn):not(.atelier-tr-del):not(.rounded-full):nth-of-type(3n+1),
+html[data-design="3"] button[class*="border"]:not([data-swatch]):not([role="switch"]):not(.raw-icon-btn):not(.joystick-btn):not(.atelier-tr-del):not(.rounded-full):nth-of-type(3n+1),
 html[data-design="3"] :is(.atelier-btn, .atelier-log, .an-btn, .an-btn-primary, .read-attach-btn, .read-tab, .shelfwise-btn, .shelfwise-seg-btn, .rs-btn, .rs-tab):nth-of-type(3n+1) {
   border-radius: 13px 19px 11px 17px !important;
 }
-html[data-design="3"] button[class*="bg-"]:not([data-swatch]):not([role="switch"]):not(.raw-icon-btn):not(.joystick-btn):not(.atelier-tr-del):not(.beach-dolphin-btn):not(.rounded-full):nth-of-type(3n+2),
-html[data-design="3"] button[class*="border"]:not([data-swatch]):not([role="switch"]):not(.raw-icon-btn):not(.joystick-btn):not(.atelier-tr-del):not(.beach-dolphin-btn):not(.rounded-full):nth-of-type(3n+2),
+html[data-design="3"] button[class*="bg-"]:not([data-swatch]):not([role="switch"]):not(.raw-icon-btn):not(.joystick-btn):not(.atelier-tr-del):not(.rounded-full):nth-of-type(3n+2),
+html[data-design="3"] button[class*="border"]:not([data-swatch]):not([role="switch"]):not(.raw-icon-btn):not(.joystick-btn):not(.atelier-tr-del):not(.rounded-full):nth-of-type(3n+2),
 html[data-design="3"] :is(.atelier-btn, .atelier-log, .an-btn, .an-btn-primary, .read-attach-btn, .read-tab, .shelfwise-btn, .shelfwise-seg-btn, .rs-btn, .rs-tab):nth-of-type(3n+2) {
   border-radius: 18px 11px 20px 12px !important;
 }
-html[data-design="3"] button[class*="bg-"]:not([data-swatch]):not([role="switch"]):not(.raw-icon-btn):not(.joystick-btn):not(.atelier-tr-del):not(.beach-dolphin-btn):not(.rounded-full):nth-of-type(3n+3),
-html[data-design="3"] button[class*="border"]:not([data-swatch]):not([role="switch"]):not(.raw-icon-btn):not(.joystick-btn):not(.atelier-tr-del):not(.beach-dolphin-btn):not(.rounded-full):nth-of-type(3n+3),
+html[data-design="3"] button[class*="bg-"]:not([data-swatch]):not([role="switch"]):not(.raw-icon-btn):not(.joystick-btn):not(.atelier-tr-del):not(.rounded-full):nth-of-type(3n+3),
+html[data-design="3"] button[class*="border"]:not([data-swatch]):not([role="switch"]):not(.raw-icon-btn):not(.joystick-btn):not(.atelier-tr-del):not(.rounded-full):nth-of-type(3n+3),
 html[data-design="3"] :is(.atelier-btn, .atelier-log, .an-btn, .an-btn-primary, .read-attach-btn, .read-tab, .shelfwise-btn, .shelfwise-seg-btn, .rs-btn, .rs-tab):nth-of-type(3n+3) {
   border-radius: 11px 16px 14px 21px !important;
 }
 
 /* Theme 4 — Cozy Rainy Monsoon: Teardrop Frosted Glass */
-html[data-design="4"] button[class*="bg-"]:not([data-swatch]):not([role="switch"]):not(.raw-icon-btn):not(.joystick-btn):not(.atelier-tr-del):not(.beach-dolphin-btn):not(.rounded-full),
-html[data-design="4"] button[class*="border"]:not([data-swatch]):not([role="switch"]):not(.raw-icon-btn):not(.joystick-btn):not(.atelier-tr-del):not(.beach-dolphin-btn):not(.rounded-full),
+html[data-design="4"] button[class*="bg-"]:not([data-swatch]):not([role="switch"]):not(.raw-icon-btn):not(.joystick-btn):not(.atelier-tr-del):not(.rounded-full),
+html[data-design="4"] button[class*="border"]:not([data-swatch]):not([role="switch"]):not(.raw-icon-btn):not(.joystick-btn):not(.atelier-tr-del):not(.rounded-full),
 html[data-design="4"] :is(.atelier-btn, .atelier-log, .an-btn, .an-btn-primary, .read-attach-btn, .read-icon-btn, .read-tab, .shelfwise-btn, .shelfwise-seg-btn, .rs-btn, .rs-tab) {
   border-radius: 15px 15px 15px 4px !important;
   backdrop-filter: blur(8px);
 }
 
 /* Theme 5 — Pistachio & Obsidian: Crisp Pistachio Tab (8px 14px 8px 14px) */
-html[data-design="5"] button[class*="bg-"]:not([data-swatch]):not([role="switch"]):not(.raw-icon-btn):not(.joystick-btn):not(.atelier-tr-del):not(.beach-dolphin-btn):not(.rounded-full),
-html[data-design="5"] button[class*="border"]:not([data-swatch]):not([role="switch"]):not(.raw-icon-btn):not(.joystick-btn):not(.atelier-tr-del):not(.beach-dolphin-btn):not(.rounded-full),
+html[data-design="5"] button[class*="bg-"]:not([data-swatch]):not([role="switch"]):not(.raw-icon-btn):not(.joystick-btn):not(.atelier-tr-del):not(.rounded-full),
+html[data-design="5"] button[class*="border"]:not([data-swatch]):not([role="switch"]):not(.raw-icon-btn):not(.joystick-btn):not(.atelier-tr-del):not(.rounded-full),
 html[data-design="5"] :is(.atelier-btn, .atelier-log, .an-btn, .an-btn-primary, .read-attach-btn, .read-icon-btn, .read-tab, .shelfwise-btn, .shelfwise-seg-btn, .rs-btn, .rs-tab) {
   border-radius: 8px 14px 8px 14px !important;
 }
@@ -1080,7 +1095,7 @@ html[data-design]:not([data-design="1"]) button:not([data-swatch]):not([role="sw
   animation: themeSoftFadePress 0.32s ease;
 }
 
-/* Shelf World Living Animations (Butterflies, Dolphins, Heavy Monsoon Rain, Ripples, Chai Steam, Sneaky Cat) */
+/* Shelf World Living Animations (Butterflies, Heavy Monsoon Rain, Ripples, Chai Steam, Sneaky Cat) */
 @keyframes butterflyFlight {
   0%   { transform: translate(0px, 0px) rotate(-4deg); }
   25%  { transform: translate(22px, -16px) rotate(6deg); }
@@ -1092,18 +1107,6 @@ html[data-design]:not([data-design="1"]) button:not([data-swatch]):not([role="sw
 @keyframes butterflyWing {
   0%   { transform: scaleX(1) scaleY(1); }
   100% { transform: scaleX(0.45) scaleY(0.96); }
-}
-
-@keyframes dolphinIdleSwim {
-  0%, 100% { transform: translateY(0px) rotate(-2deg); }
-  50%      { transform: translateY(-10px) rotate(5deg); }
-}
-
-@keyframes dolphinActiveDive {
-  0%   { transform: translate(0px, 0px) rotate(-8deg) scale(1); }
-  38%  { transform: translate(26px, -68px) rotate(-22deg) scale(1.16); }
-  72%  { transform: translate(52px, -18px) rotate(28deg) scale(1.04); }
-  100% { transform: translate(0px, 0px) rotate(-2deg) scale(1); }
 }
 
 @keyframes monsoonRainFall {
@@ -1739,7 +1742,6 @@ html.dark :is(
   .an-ribbon-feat,
   .an-pill,
   .an-seg button,
-  .an-speed button,
   .an-atabs button,
   .an-paper-mini-pills button,
   .read-attach-btn,
@@ -1752,7 +1754,7 @@ html.dark :is(
   .rs-chip,
   .rs-tab,
   .rs-btn
-):not([aria-pressed="true"]):not([aria-selected="true"]):not(.active):not(.primary):not(.themed-accent-btn):not(.themed-tab-active):not(.shelfwise-btn-primary):not(.an-btn-primary):not(.atelier-btn-ink):not([data-swatch]):not([role="switch"]):not(.raw-icon-btn):not(.joystick-btn):not(.atelier-tr-del):not(.atelier-bell):not(.beach-dolphin-btn):not(.sidebar-trash-btn):not(.atelier-sticky button):not(.shelf-world-root):not(.shelf-world-root *) {
+):not([aria-pressed="true"]):not([aria-selected="true"]):not(.active):not(.primary):not(.themed-accent-btn):not(.themed-tab-active):not(.shelfwise-btn-primary):not(.an-btn-primary):not(.atelier-btn-ink):not([data-swatch]):not([role="switch"]):not(.raw-icon-btn):not(.joystick-btn):not(.atelier-tr-del):not(.atelier-bell):not(.sidebar-trash-btn):not(.atelier-sticky button):not(.shelf-world-root):not(.shelf-world-root *) {
   background-color: transparent !important;
   background-image: var(--th-btn-idle-bg) !important;
   border-color: var(--th-btn-idle-border, var(--th-border)) !important;
@@ -1777,7 +1779,6 @@ html.dark :is(
   .an-ribbon-feat,
   .an-pill,
   .an-seg button,
-  .an-speed button,
   .an-atabs button,
   .an-paper-mini-pills button,
   .read-attach-btn,
@@ -1790,7 +1791,7 @@ html.dark :is(
   .rs-chip,
   .rs-tab,
   .rs-btn
-):not([aria-pressed="true"]):not([aria-selected="true"]):not([data-selected="true"]):not([aria-current="page"]):not([aria-current="true"]):not(.active):not(.primary):not(.themed-accent-btn):not(.themed-tab-active):not(.shelfwise-btn-primary):not(.an-btn-primary):not(.atelier-btn-ink):not([data-swatch]):not([role="switch"]):not(.raw-icon-btn):not(.joystick-btn):not(.atelier-tr-del):not(.atelier-bell):not(.beach-dolphin-btn):not(.sidebar-trash-btn):not(.atelier-sticky button):not(.shelf-world-root):not(.shelf-world-root *) * {
+):not([aria-pressed="true"]):not([aria-selected="true"]):not([data-selected="true"]):not([aria-current="page"]):not([aria-current="true"]):not(.active):not(.primary):not(.themed-accent-btn):not(.themed-tab-active):not(.shelfwise-btn-primary):not(.an-btn-primary):not(.atelier-btn-ink):not([data-swatch]):not([role="switch"]):not(.raw-icon-btn):not(.joystick-btn):not(.atelier-tr-del):not(.atelier-bell):not(.sidebar-trash-btn):not(.atelier-sticky button):not(.shelf-world-root):not(.shelf-world-root *) * {
   color: var(--th-btn-idle-ink) !important;
   text-shadow: none !important;
 }
@@ -1825,7 +1826,6 @@ html.dark :is(
   .an-ribbon-feat.active,
   .an-seg button[aria-pressed="true"],
   .an-seg button.active,
-  .an-speed button[aria-pressed="true"],
   .an-atabs button.active,
   .an-paper-mini-pills button.active,
   .read-icon-btn.active,
@@ -1862,7 +1862,7 @@ html.dark :is(
   button[class*="dark:bg-\[\#f0e5d5\]"],
   button[class*="dark:bg-\[\#f5ead9\]"],
   button[class*="dark:bg-\[\#e8be82\]"]
-):not([data-swatch]):not([role="switch"]):not(.raw-icon-btn):not(.joystick-btn):not(.atelier-tr-del):not(.atelier-bell):not(.beach-dolphin-btn):not([class*="bg-red-"]):not(.atelier-sticky button):not(.shelf-world-root):not(.shelf-world-root *) {
+):not([data-swatch]):not([role="switch"]):not(.raw-icon-btn):not(.joystick-btn):not(.atelier-tr-del):not(.atelier-bell):not([class*="bg-red-"]):not(.atelier-sticky button):not(.shelf-world-root):not(.shelf-world-root *) {
   background-color: transparent !important;
   background-image: var(--th-btn-active-bg) !important;
   border-color: var(--th-btn-active-border, rgba(255, 255, 255, 0.35)) !important;
@@ -1891,7 +1891,6 @@ html.dark :is(
   .an-icon-btn.active,
   .an-ribbon-feat.active,
   .an-seg button[aria-pressed="true"],
-  .an-speed button[aria-pressed="true"],
   .an-atabs button.active,
   .an-paper-mini-pills button.active,
   .read-icon-btn.active,
@@ -1928,7 +1927,7 @@ html.dark :is(
   button[class*="dark:bg-\[\#f0e5d5\]"],
   button[class*="dark:bg-\[\#f5ead9\]"],
   button[class*="dark:bg-\[\#e8be82\]"]
-):not([data-swatch]):not([role="switch"]):not(.raw-icon-btn):not(.joystick-btn):not(.atelier-tr-del):not(.atelier-bell):not(.beach-dolphin-btn):not([class*="bg-red-"]):not(.atelier-sticky button):not(.shelf-world-root):not(.shelf-world-root *) * {
+):not([data-swatch]):not([role="switch"]):not(.raw-icon-btn):not(.joystick-btn):not(.atelier-tr-del):not(.atelier-bell):not([class*="bg-red-"]):not(.atelier-sticky button):not(.shelf-world-root):not(.shelf-world-root *) * {
   color: var(--th-btn-active-ink) !important;
   text-shadow: none !important;
 }

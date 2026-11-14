@@ -34,15 +34,18 @@ import { BookThumbnailEditorModal } from './BookThumbnailEditorModal';
 import { getDefaultThumbnail } from '../../data/thumbnailMeta';
 import {
   resolveShelfThemeId,
+  resolveShelfAssetCssUrl,
   getThemeAdaptedLook,
   getThemeAlmirahTrim,
   DayButterflies,
   ShelfTheme1BayWall,
   ForestSanctuaryBackdrop,
-  BeachBalconyWithDolphins,
+  BeachBalconyBackdrop,
   MonsoonRainBackdrop,
   PistachioObsidianBackdrop,
   ShelfThemeCarpet,
+  ShelfThemeLamp,
+  ShelfThemePlant,
   type ShelfThemeId,
 } from './ShelfRoomWorlds';
 
@@ -235,21 +238,21 @@ const LOOK_MOCHA_ESPRESSO: Look = {
 
 const LOOK_VAULT: Look = {
   name: 'Vault',
-  frame: '#141414',
-  dark: '#070707',
-  back: '#040404',
-  plank: '#1c1c1c',
+  frame: '#262b33',
+  dark: '#101318',
+  back: '#0b0e13',
+  plank: '#2e343e',
   door: 'vault',
   upperDoorType: 'vault-dial',
   lowerDoorType: 'bunker-slide',
-  face: '#111111',
+  face: '#1c2026',
   handle: '#d4af37',
   knob: true,
   light: false,
   grain: 0.0,
   wallType: 'classic-oak',
   legs: 'block-base',
-  accentDesc: 'Coal-black opaque steel vault · Rotary dial security door (upper) & dual coal-black bunker panels (lower)',
+  accentDesc: 'Brushed gunmetal steel bank vault · Spoked combination dial vault door (upper) & riveted armor bunker panels (lower)',
   hasUpperDoor: true,
   isVault: true,
   opaque: true,
@@ -439,12 +442,161 @@ const NON_WOOD_STONE_SVG = encodeURIComponent(
   `<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60"><g fill="none" stroke="rgba(255,255,255,0.055)" stroke-width="0.7"><path d="M0 15 H60 M0 30 H60 M0 45 H60 M15 0 V60 M30 0 V60 M45 0 V60"/><circle cx="20" cy="20" r="1.1" fill="rgba(255,255,255,0.06)"/><circle cx="48" cy="40" r="0.9" fill="rgba(0,0,0,0.22)"/></g></svg>`
 );
 
+function hexAlpha(hex: string, alpha: number): string {
+  const clean = hex.trim().replace('#', '');
+  if (clean.length === 3) {
+    const r = parseInt(clean[0]! + clean[0]!, 16);
+    const g = parseInt(clean[1]! + clean[1]!, 16);
+    const b = parseInt(clean[2]! + clean[2]!, 16);
+    return `rgba(${r},${g},${b},${alpha})`;
+  }
+  if (clean.length >= 6) {
+    const r = parseInt(clean.slice(0, 2), 16);
+    const g = parseInt(clean.slice(2, 4), 16);
+    const b = parseInt(clean.slice(4, 6), 16);
+    return `rgba(${r},${g},${b},${alpha})`;
+  }
+  return hex;
+}
+
 export function grain(alpha: number, isBasalt = false): string {
   if (isBasalt) {
     return `url("data:image/svg+xml,${NON_WOOD_STONE_SVG}"), radial-gradient(circle at 25% 30%, rgba(255,255,255,0.07), transparent 55%), `;
   }
   if (alpha <= 0) return '';
   return `url("data:image/svg+xml,${WOOD_SWIRL_SVG}"), repeating-linear-gradient(92deg, rgba(0,0,0,${(alpha * 0.55).toFixed(2)}) 0 1px, transparent 1px 11px, rgba(255,235,205,${(alpha * 0.22).toFixed(2)}) 11px 12px, transparent 12px 24px), `;
+}
+
+export function getWoodSurfaceStyle(
+  look: Pick<Look, 'name' | 'grain' | 'frame' | 'dark' | 'plank' | 'back' | 'isVault'>,
+  orientation: 'h' | 'v' | 'panel' = 'h',
+  variant: 'frame' | 'plank' | 'back' | 'door' | 'plinth' = 'frame',
+  gradDir = '180deg',
+): CSSProperties {
+  if (look.isVault) {
+    const steelFile =
+      orientation === 'v'
+        ? 'vault-steel-v.jpg'
+        : orientation === 'panel'
+          ? 'vault-steel-panel.jpg'
+          : 'vault-steel-h.jpg';
+    const steelUrl = resolveShelfAssetCssUrl(steelFile);
+
+    if (variant === 'back') {
+      return {
+        backgroundColor: look.back,
+        backgroundImage: `linear-gradient(180deg, rgba(6,8,12,0.72) 0%, rgba(18,22,30,0.44) 40%, rgba(4,6,9,0.78) 100%), ${steelUrl}`,
+        backgroundSize: '100% 100%, 420px auto',
+        backgroundRepeat: 'no-repeat, repeat',
+        backgroundPosition: 'center, center top',
+      };
+    }
+
+    if (variant === 'plank') {
+      return {
+        backgroundColor: look.plank,
+        backgroundImage: `linear-gradient(180deg, rgba(226,232,240,0.24) 0%, rgba(48,54,66,0.34) 26%, rgba(10,12,16,0.62) 100%), ${steelUrl}`,
+        backgroundSize: '100% 100%, 420px 100%',
+        backgroundRepeat: 'no-repeat, repeat-x',
+        backgroundPosition: 'center, left center',
+      };
+    }
+
+    const metalSheen =
+      orientation === 'v'
+        ? `linear-gradient(${gradDir}, rgba(226,232,240,0.14) 0%, rgba(30,36,46,0.28) 46%, rgba(8,10,14,0.62) 100%)`
+        : `linear-gradient(${gradDir}, rgba(226,232,240,0.16) 0%, rgba(32,38,48,0.28) 48%, rgba(8,10,14,0.62) 100%)`;
+
+    return {
+      backgroundColor: look.frame,
+      backgroundImage: `${metalSheen}, ${steelUrl}`,
+      backgroundSize:
+        orientation === 'v'
+          ? '100% 100%, 100% 340px'
+          : variant === 'door'
+            ? '100% 100%, 360px 260px'
+            : '100% 100%, 480px 100%',
+      backgroundRepeat:
+        orientation === 'v'
+          ? 'no-repeat, repeat-y'
+          : variant === 'door'
+            ? 'no-repeat, repeat'
+            : 'no-repeat, repeat-x',
+      backgroundPosition: 'center, center center',
+    };
+  }
+
+  if (look.grain <= 0) {
+    const baseA = variant === 'plank' ? look.plank : look.frame;
+    return {
+      backgroundImage: `${grain(look.grain, look.name === 'Mocha Espresso')}linear-gradient(${gradDir}, ${baseA}, ${look.dark})`,
+    };
+  }
+
+  const isCaramelOak = look.name === 'Creamy Caramel' || look.grain <= 0.34;
+  const imgFile = isCaramelOak
+    ? orientation === 'v'
+      ? 'wood-oak-v.jpg'
+      : orientation === 'panel'
+        ? 'wood-oak-panel.jpg'
+        : 'wood-oak-h.jpg'
+    : orientation === 'v'
+      ? 'wood-walnut-v.jpg'
+      : orientation === 'panel'
+        ? 'wood-walnut-panel.jpg'
+        : 'wood-walnut-h.jpg';
+
+  const photoUrl = resolveShelfAssetCssUrl(imgFile);
+
+  if (variant === 'back') {
+    const topShade = hexAlpha(look.back, isCaramelOak ? 0.56 : 0.62);
+    const edgeShade = hexAlpha(look.dark, isCaramelOak ? 0.68 : 0.78);
+    return {
+      backgroundColor: look.back,
+      backgroundImage: `linear-gradient(180deg, ${edgeShade} 0%, ${topShade} 35%, ${edgeShade} 100%), ${photoUrl}`,
+      backgroundSize: '100% 100%, 420px auto',
+      backgroundRepeat: 'no-repeat, repeat',
+      backgroundPosition: 'center, center top',
+    };
+  }
+
+  if (variant === 'plank') {
+    const topHighlight = 'rgba(255, 240, 214, 0.16)';
+    const tintTop = hexAlpha(look.plank, isCaramelOak ? 0.24 : 0.28);
+    const tintBot = hexAlpha(look.dark, isCaramelOak ? 0.42 : 0.48);
+    return {
+      backgroundColor: look.plank,
+      backgroundImage: `linear-gradient(180deg, ${topHighlight} 0%, ${tintTop} 28%, ${tintBot} 100%), ${photoUrl}`,
+      backgroundSize: '100% 100%, 420px 100%',
+      backgroundRepeat: 'no-repeat, repeat-x',
+      backgroundPosition: 'center, left center',
+    };
+  }
+
+  const tintA = hexAlpha(look.frame, isCaramelOak ? 0.28 : 0.34);
+  const tintB = hexAlpha(look.dark, isCaramelOak ? 0.42 : 0.52);
+  const sheen =
+    orientation === 'v'
+      ? `linear-gradient(${gradDir}, rgba(255,240,214,0.12) 0%, ${tintA} 45%, ${tintB} 100%)`
+      : `linear-gradient(${gradDir}, rgba(255,240,214,0.14) 0%, ${tintA} 48%, ${tintB} 100%)`;
+
+  return {
+    backgroundColor: look.frame,
+    backgroundImage: `${sheen}, ${photoUrl}`,
+    backgroundSize:
+      orientation === 'v'
+        ? '100% 100%, 100% 340px'
+        : variant === 'door'
+          ? '100% 100%, 340px 220px'
+          : '100% 100%, 480px 100%',
+    backgroundRepeat:
+      orientation === 'v'
+        ? 'no-repeat, repeat-y'
+        : variant === 'door'
+          ? 'no-repeat, repeat'
+          : 'no-repeat, repeat-x',
+    backgroundPosition: 'center, center center',
+  };
 }
 
 export const CSS = `
@@ -482,16 +634,16 @@ export const CSS = `
 
 .sh-cat {
   position: absolute;
-  bottom: 24px;
-  width: 104px;
-  height: 58px;
+  bottom: 20px;
+  width: 118px;
+  height: 70px;
   z-index: 24;
   cursor: pointer;
   user-select: none;
-  transition: left 12s cubic-bezier(0.28, 0.08, 0.25, 1), transform 0.5s ease;
+  transition: left 4.8s cubic-bezier(0.25, 0.08, 0.25, 1), transform 0.45s ease;
 }
 .sh-cat:hover {
-  filter: drop-shadow(0 4px 8px rgba(217, 119, 6, 0.45));
+  filter: drop-shadow(0 6px 12px rgba(217, 119, 6, 0.42));
 }
 .sh-leg {
   transform-box: fill-box;
@@ -560,14 +712,19 @@ export const CSS = `
 }
 
 .sh-world-shell {
-  min-height: 740px;
-  padding-top: 36px;
+  min-height: 750px;
+  padding-top: 56px;
 }
 
 @media (max-width: 768px) {
   .sh-world-shell {
-    min-height: 560px !important;
-    padding-top: 44px !important;
+    min-height: 580px !important;
+    padding-top: 68px !important;
+  }
+  .sh-celestial-orb {
+    top: 18px !important;
+    transform: scale(0.72);
+    transform-origin: top center;
   }
   .sh-almirah-wrap {
     width: 97% !important;
@@ -686,7 +843,7 @@ export function Room({
       ) : themeId === '2' ? (
         <ForestSanctuaryBackdrop night={night} variantIdx={bayIdx} />
       ) : themeId === '3' ? (
-        <BeachBalconyWithDolphins night={night} variantIdx={bayIdx} />
+        <BeachBalconyBackdrop night={night} variantIdx={bayIdx} />
       ) : themeId === '4' ? (
         <MonsoonRainBackdrop night={night} variantIdx={bayIdx} />
       ) : (
@@ -750,66 +907,7 @@ export function Room({
       {/* 3. PLUSH CARPET */}
       <BeigeFurCarpet night={night} lit={lit} themeId={themeId} />
 
-      {/* 4. BALCONY GLASS DOOR (Theme 1 classic side terrace) */}
-      {themeId === '1' && (
-      <div
-        style={abs({
-          top: 0,
-          bottom: FLOOR,
-          left: 0,
-          width: '9%',
-          minWidth: 64,
-          maxWidth: 96,
-          zIndex: -15,
-          borderRight: '6px solid #1a1a1a',
-          boxShadow: '8px 0 22px rgba(0,0,0,0.28)',
-          background: night
-            ? 'linear-gradient(180deg, #0b1220 0%, #152238 60%, #1f314f 100%)'
-            : 'linear-gradient(180deg, #60a5fa 0%, #93c5fd 42%, #fde68a 66%, #92400e 67%, #451a03 100%)',
-          overflow: 'hidden',
-        })}
-      >
-        {/* Balcony Railing Bars */}
-        <div
-          style={{
-            position: 'absolute',
-            bottom: 12,
-            left: 0,
-            right: 0,
-            height: 48,
-            borderTop: '3px solid rgba(255,255,255,0.4)',
-            backgroundImage: 'repeating-linear-gradient(90deg, rgba(255,255,255,0.35) 0 3px, transparent 3px 14px)',
-          }}
-        />
-        {/* Outdoor Sunshine Sun / Moonlight Sheen */}
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            background: night
-              ? 'radial-gradient(circle at 40% 30%, rgba(255,255,255,0.2), transparent 70%)'
-              : 'radial-gradient(circle at 30% 20%, rgba(255,255,255,0.95), transparent 75%)',
-          }}
-        />
-        {/* Radiant Morning Sun Disk in Light Mode */}
-        {!night && (
-          <div
-            style={{
-              position: 'absolute',
-              top: 14,
-              left: 14,
-              width: 28,
-              height: 28,
-              borderRadius: '50%',
-              background: 'radial-gradient(circle, #fffbeb 20%, #fde047 65%, rgba(253,224,71,0) 100%)',
-              boxShadow: '0 0 28px rgba(254,240,138,0.95)',
-            }}
-          />
-        )}
-      </div>
-      )}
-
-      {/* 4b. SUNLIGHT ROOM BEAMS (Suppressed on rainy monsoon veranda '4') */}
+      {/* 4. SOFT DAYTIME SUNLIGHT BEAMS (Suppressed on rainy monsoon veranda '4') */}
       {!night && themeId !== '4' && (
         <div
           style={{
@@ -820,45 +918,20 @@ export function Room({
             overflow: 'hidden',
           }}
         >
-          {/* Broad warm ambient morning daylight wash */}
-          <div
-            style={{
-              position: 'absolute',
-              inset: 0,
-              background:
-                'linear-gradient(125deg, rgba(255,248,220,0.45) 0%, rgba(254,240,138,0.22) 30%, rgba(253,224,71,0.06) 65%, transparent 85%)',
-            }}
-          />
-          {/* Angular morning sunbeam 1 */}
+          {/* Angular morning sunbeam */}
           <div
             style={{
               position: 'absolute',
               top: -60,
               left: 0,
-              width: '130%',
-              height: 420,
+              width: '125%',
+              height: 400,
               transformOrigin: 'top left',
               transform: 'rotate(22deg)',
               background:
-                'linear-gradient(180deg, rgba(255,255,255,0.42) 0%, rgba(254,240,138,0.25) 45%, transparent 100%)',
-              filter: 'blur(18px)',
-              opacity: 0.85,
-            }}
-          />
-          {/* Angular morning sunbeam 2 */}
-          <div
-            style={{
-              position: 'absolute',
-              top: 80,
-              left: 0,
-              width: '120%',
-              height: 280,
-              transformOrigin: 'top left',
-              transform: 'rotate(25deg)',
-              background:
-                'linear-gradient(180deg, rgba(255,255,255,0.3) 0%, rgba(254,243,199,0.18) 50%, transparent 100%)',
-              filter: 'blur(16px)',
-              opacity: 0.75,
+                'linear-gradient(180deg, rgba(255,253,240,0.22) 0%, rgba(254,240,138,0.12) 45%, transparent 100%)',
+              filter: 'blur(20px)',
+              opacity: 0.65,
             }}
           />
           {/* Floor golden sunlight patch */}
@@ -870,14 +943,14 @@ export function Room({
               width: '65%',
               height: FLOOR,
               background:
-                'radial-gradient(ellipse at 40% 50%, rgba(254,240,138,0.38) 0%, rgba(253,224,71,0.12) 55%, transparent 80%)',
+                'radial-gradient(ellipse at 40% 50%, rgba(254,240,138,0.26) 0%, rgba(253,224,71,0.08) 55%, transparent 80%)',
               filter: 'blur(14px)',
             }}
           />
         </div>
       )}
 
-      {/* 5. BRITISH STUDY STANDARD LAMP (Positioned on the Left Side across all Themes) */}
+      {/* 5. THEME-DISTINCT ARCHITECTURAL FLOOR LAMP (Positioned on the Left Side) */}
       <div
         className="sh-room-lamp"
         style={abs({
@@ -890,105 +963,10 @@ export function Room({
           alignItems: 'center',
         })}
       >
-        {/* Warm Downward & Upward Tungsten Wash Cone in Night Mode */}
-        {night && (
-          <div
-            style={{
-              position: 'absolute',
-              top: 28,
-              width: 240,
-              height: 290,
-              background:
-                'radial-gradient(ellipse 55% 60% at 50% 18%, rgba(254,240,138,0.28) 0%, rgba(251,191,36,0.12) 45%, transparent 78%)',
-              pointerEvents: 'none',
-              filter: 'blur(8px)',
-            }}
-          />
-        )}
-
-        {/* Turned Brass Finial Ball */}
-        <div
-          style={{
-            width: 8,
-            height: 8,
-            borderRadius: '50%',
-            background: 'radial-gradient(circle at 35% 30%, #fef08a, #b45309 80%)',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.45)',
-            marginBottom: -2,
-            zIndex: 2,
-          }}
-        />
-
-        {/* Classic Flared Pleated Empire Linen Shade */}
-        <svg viewBox="0 0 110 74" width="96" height="65" style={{ zIndex: 2, filter: night ? 'drop-shadow(0 0 18px rgba(253,230,138,0.42))' : 'drop-shadow(6px 10px 12px rgba(0,0,0,0.38))' }}>
-          <defs>
-            <linearGradient id="britishShadeGrad" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor={night ? '#f59e0b' : '#b8a996'} />
-              <stop offset="28%" stopColor={night ? '#fef3c7' : '#ebe2d3'} />
-              <stop offset="68%" stopColor={night ? '#fde68a' : '#d6cab8'} />
-              <stop offset="100%" stopColor={night ? '#d97706' : '#8c7e6c'} />
-            </linearGradient>
-            <linearGradient id="shadeInner" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={night ? '#ffffff' : '#574c3f'} />
-              <stop offset="100%" stopColor={night ? '#fbbf24' : '#3d342a'} />
-            </linearGradient>
-          </defs>
-          {/* Main Empire Shade Trapezoid */}
-          <path d="M24 6 Q55 2 86 6 L104 64 Q55 72 6 64 Z" fill="url(#britishShadeGrad)" stroke={night ? '#f59e0b' : '#9c8c76'} strokeWidth="1.5" />
-          {/* Pleat ribs */}
-          {[22, 34, 46, 58, 70, 82, 92].map((x, idx) => (
-            <line
-              key={idx}
-              x1={24 + idx * 9.5}
-              y1={6}
-              x2={x}
-              y2={65}
-              stroke="rgba(60,38,16,0.22)"
-              strokeWidth="1"
-            />
-          ))}
-          {/* Scalloped Brass Braid Trim */}
-          <path d="M6 62 Q55 70 104 62" fill="none" stroke="#d4af37" strokeWidth="2.4" />
-          <path d="M24 7 Q55 3 86 7" fill="none" stroke="#d4af37" strokeWidth="1.8" />
-          {/* Warm glowing underside */}
-          <ellipse cx="55" cy="64" rx="45" ry="5" fill="url(#shadeInner)" opacity={night ? 0.95 : 0.45} />
-        </svg>
-
-        {/* Turned Walnut & Burnished Brass Floor Column */}
-        <svg viewBox="0 0 60 220" width="54" height="196" style={{ marginTop: -8 }}>
-          <defs>
-            <linearGradient id="brassCol" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="#854d0e" />
-              <stop offset="35%" stopColor="#fef08a" />
-              <stop offset="70%" stopColor="#d4af37" />
-              <stop offset="100%" stopColor="#713f12" />
-            </linearGradient>
-            <linearGradient id="walnutCol" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="#261409" />
-              <stop offset="40%" stopColor="#6b3e1f" />
-              <stop offset="100%" stopColor="#1e0f06" />
-            </linearGradient>
-          </defs>
-          {/* Twin Pull Chain Tassels */}
-          <line x1="20" y1="0" x2="20" y2="26" stroke="#d4af37" strokeWidth="1" />
-          <circle cx="20" cy="28" r="2.2" fill="#d4af37" />
-          <line x1="40" y1="0" x2="40" y2="20" stroke="#d4af37" strokeWidth="1" />
-          <circle cx="40" cy="22" r="2.2" fill="#d4af37" />
-          {/* Harp / Brass Neck */}
-          <rect x="27" y="4" width="6" height="22" rx="2" fill="url(#brassCol)" />
-          <ellipse cx="30" cy="28" rx="8" ry="4" fill="url(#brassCol)" />
-          {/* Turned Walnut Fluted Shaft */}
-          <rect x="27" y="30" width="6" height="110" fill="url(#walnutCol)" />
-          <ellipse cx="30" cy="142" rx="7" ry="3.5" fill="url(#brassCol)" />
-          <rect x="26" y="144" width="8" height="48" fill="url(#walnutCol)" />
-          {/* Classical Stepped Brass & Mahogany Base */}
-          <ellipse cx="30" cy="196" rx="16" ry="5" fill="url(#brassCol)" />
-          <ellipse cx="30" cy="203" rx="24" ry="7" fill="url(#walnutCol)" />
-          <ellipse cx="30" cy="207" rx="26" ry="7" fill="rgba(0,0,0,0.45)" style={{ mixBlendMode: 'multiply' }} />
-        </svg>
+        <ShelfThemeLamp night={night} themeId={themeId} />
       </div>
 
-      {/* 6. ORGANIC FIDDLE-LEAF FIG PLANT IN MATTE CERAMIC PLANTER */}
+      {/* 6. THEME-DISTINCT REALISTIC BOTANICAL PLANT (Positioned on the Right Side) */}
       <div
         className="sh-room-plant"
         style={abs({
@@ -998,140 +976,10 @@ export function Room({
           pointerEvents: 'none',
         })}
       >
-        <svg viewBox="0 0 160 220" width="136" height="188" style={{ filter: 'drop-shadow(-6px 10px 14px rgba(0,0,0,0.38))' }}>
-          <defs>
-            <linearGradient id="figLeafDark" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stopColor="#3b6e44" />
-              <stop offset="55%" stopColor="#254c2c" />
-              <stop offset="100%" stopColor="#16301b" />
-            </linearGradient>
-            <linearGradient id="figLeafMid" x1="0" y1="0" x2="0.8" y2="1">
-              <stop offset="0%" stopColor="#588e5b" />
-              <stop offset="55%" stopColor="#35663b" />
-              <stop offset="100%" stopColor="#1f4124" />
-            </linearGradient>
-            <linearGradient id="figLeafLight" x1="0.1" y1="0" x2="0.9" y2="1">
-              <stop offset="0%" stopColor="#72a76f" />
-              <stop offset="60%" stopColor="#467a48" />
-              <stop offset="100%" stopColor="#284e2b" />
-            </linearGradient>
-            <linearGradient id="ceramicPotGrad" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="#a89882" />
-              <stop offset="28%" stopColor="#ede3d4" />
-              <stop offset="62%" stopColor="#d8cab4" />
-              <stop offset="100%" stopColor="#85745f" />
-            </linearGradient>
-            <linearGradient id="woodStandGrad" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="#472b19" />
-              <stop offset="45%" stopColor="#7a4c2d" />
-              <stop offset="100%" stopColor="#331d10" />
-            </linearGradient>
-          </defs>
-
-          {/* Soft floor shadow */}
-          <ellipse cx="80" cy="212" rx="42" ry="7" fill="rgba(0,0,0,0.45)" />
-
-          {/* Wooden Cross Stand Legs */}
-          <path d="M54 176 L46 210 L53 210 L62 178 Z" fill="url(#woodStandGrad)" />
-          <path d="M106 176 L114 210 L107 210 L98 178 Z" fill="url(#woodStandGrad)" />
-          <rect x="46" y="185" width="68" height="5" rx="2.5" fill="url(#woodStandGrad)" />
-
-          {/* Organic Natural Branches / Woody Stems */}
-          <path d="M78 140 Q74 102 62 72" fill="none" stroke="#5a432e" strokeWidth="3.8" strokeLinecap="round" />
-          <path d="M80 140 Q88 100 98 66" fill="none" stroke="#4f3926" strokeWidth="3.5" strokeLinecap="round" />
-          <path d="M79 140 Q79 88 80 44" fill="none" stroke="#634b35" strokeWidth="4" strokeLinecap="round" />
-
-          {/* Back Shaded Broad Ficus Leaves */}
-          <path d="M62 78 C36 74 18 54 24 34 C30 16 56 26 66 56 C69 66 66 76 62 78 Z" fill="url(#figLeafDark)" />
-          <path d="M98 72 C126 68 142 46 134 28 C126 12 100 22 92 50 C90 62 94 70 98 72 Z" fill="url(#figLeafDark)" />
-
-          {/* Mid Canopy Sculpted Rounded Leaves with Slight Wave */}
-          <path d="M78 52 C56 44 48 18 66 8 C84 -2 100 20 88 46 C85 52 80 54 78 52 Z" fill="url(#figLeafMid)" />
-          <path d="M76 92 C44 96 20 82 22 64 C24 46 54 50 74 74 C79 82 80 90 76 92 Z" fill="url(#figLeafMid)" />
-          <path d="M84 94 C116 96 140 80 136 62 C132 46 102 52 86 76 C81 84 80 92 84 94 Z" fill="url(#figLeafMid)" />
-
-          {/* Foreground Lit Organic Leaves & Delicate Veining */}
-          <path d="M78 112 C48 118 30 104 34 88 C38 74 64 78 78 100 C81 106 81 111 78 112 Z" fill="url(#figLeafLight)" />
-          <path d="M82 114 C110 122 128 108 124 92 C120 76 94 82 82 102 C79 107 79 112 82 114 Z" fill="url(#figLeafLight)" />
-          <path d="M79 84 C64 74 62 52 78 44 C94 38 100 62 84 82 C81 85 80 86 79 84 Z" fill="url(#figLeafLight)" />
-
-          {/* Delicate Botanical Midrib & Lateral Leaf Veins */}
-          <g fill="none" stroke="rgba(228, 245, 218, 0.34)" strokeWidth="1.1" strokeLinecap="round">
-            <path d="M78 50 Q76 30 70 15" />
-            <path d="M62 74 Q42 54 30 39" />
-            <path d="M97 68 Q116 48 128 33" />
-            <path d="M75 89 Q50 78 29 67" />
-            <path d="M85 90 Q112 78 129 66" />
-            <path d="M76 109 Q56 100 40 91" />
-            <path d="M83 111 Q104 102 118 94" />
-            <path d="M80 82 Q82 62 82 48" />
-          </g>
-
-          {/* Soil Bed */}
-          <ellipse cx="80" cy="136" rx="34" ry="7" fill="#2c1d13" />
-
-          {/* Matte Off-White Stoneware Cylindrical Planter */}
-          <path d="M44 136 L49 182 Q80 192 111 182 L116 136 Q80 144 44 136 Z" fill="url(#ceramicPotGrad)" />
-          <ellipse cx="80" cy="136" rx="36" ry="7.5" fill="none" stroke="#efe6d8" strokeWidth="2.4" />
-          {/* Subtle Artisan Glaze Horizontal Groove */}
-          <path d="M47 166 Q80 175 113 166" fill="none" stroke="rgba(110,92,70,0.28)" strokeWidth="1.2" />
-        </svg>
+        <ShelfThemePlant night={night} themeId={themeId} />
       </div>
 
-      {/* 7. WALL ART CANVAS (Theme 1 classic study accent, balanced on right wall) */}
-      {themeId === '1' && (
-      <div
-        style={abs({
-          top: '9%',
-          right: '14.5%',
-          width: 84,
-          height: 104,
-          zIndex: -10,
-          border: '4px solid #d4af37',
-          background: '#fafaf9',
-          boxShadow: '4px 8px 18px rgba(0,0,0,0.4)',
-          borderRadius: 2,
-          padding: 6,
-          boxSizing: 'border-box',
-        })}
-      >
-        <div
-          style={{
-            width: '100%',
-            height: '100%',
-            background: 'linear-gradient(135deg, #fef3c7 0%, #fed7aa 50%, #fecaca 100%)',
-            position: 'relative',
-            overflow: 'hidden',
-          }}
-        >
-          {/* Abstract Sun Arches (Like Photo 2 canvas) */}
-          <div
-            style={{
-              position: 'absolute',
-              bottom: -15,
-              left: '50%',
-              transform: 'translateX(-50%)',
-              width: 52,
-              height: 52,
-              borderRadius: '50%',
-              border: '6px solid #b45309',
-            }}
-          />
-          <div
-            style={{
-              position: 'absolute',
-              bottom: -5,
-              left: '50%',
-              transform: 'translateX(-50%)',
-              width: 32,
-              height: 32,
-              borderRadius: '50%',
-              background: '#d97706',
-            }}
-          />
-        </div>
-      </div>
-      )}
+      {/* Scenic panoramic backdrop stays open behind left & right lamp/plant wings */}
 
       {/* 8. INTERACTIVE PULL CORD (Daylight shows helpful sunlight dialog; Night toggles almirah spotlight) */}
       <div
@@ -1196,14 +1044,14 @@ export function Room({
         </span>
       </div>
 
-      {/* 9. NIGHT TIME SUBTLE AMBIENCE (Lamp gently illuminates room; pull-cord lights interior of almirah) */}
+      {/* 9. NIGHT TIME SUBTLE AMBIENCE (Lightly blends lamp glow with real night vistas) */}
       <div
         style={abs({
           inset: 0,
           zIndex: 0,
           pointerEvents: 'none',
           transition: 'background-color 0.7s',
-          backgroundColor: `rgba(6, 7, 24, ${night ? 0.34 : 0})`,
+          backgroundColor: `rgba(6, 7, 24, ${night ? 0.14 : 0})`,
           mixBlendMode: 'multiply',
         })}
       />
@@ -1220,77 +1068,130 @@ export function Room({
         />
       )}
 
-      {/* Floating Glowing Jugnoos (Fireflies) hovering gently in the room during night */}
-      {night && (
-        <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 12 }}>
-          <div
-            style={{
-              position: 'absolute',
-              top: '30%',
-              left: '22%',
-              width: 8,
-              height: 8,
-              borderRadius: '50%',
-              background: '#fef08a',
-              boxShadow: '0 0 14px 6px rgba(250, 204, 21, 0.95), 0 0 28px 12px rgba(234, 179, 8, 0.5)',
-              animation: 'jugnooFloat 6s ease-in-out infinite alternate, jugnooGlow 2.4s ease-in-out infinite alternate',
-            }}
-          />
-          <div
-            style={{
-              position: 'absolute',
-              top: '52%',
-              left: '38%',
-              width: 9,
-              height: 9,
-              borderRadius: '50%',
-              background: '#fef08a',
-              boxShadow: '0 0 16px 7px rgba(250, 204, 21, 0.95), 0 0 30px 14px rgba(234, 179, 8, 0.5)',
-              animation: 'jugnooFloat 7.8s ease-in-out infinite alternate, jugnooGlow 2.1s ease-in-out infinite alternate',
-              animationDelay: '1.4s',
-            }}
-          />
-          <div
-            style={{
-              position: 'absolute',
-              top: '26%',
-              left: '74%',
-              width: 8,
-              height: 8,
-              borderRadius: '50%',
-              background: '#fef08a',
-              boxShadow: '0 0 14px 6px rgba(250, 204, 21, 0.95), 0 0 26px 10px rgba(234, 179, 8, 0.45)',
-              animation: 'jugnooFloat 6.5s ease-in-out infinite alternate, jugnooGlow 2.7s ease-in-out infinite alternate',
-              animationDelay: '0.8s',
-            }}
-          />
-          <div
-            style={{
-              position: 'absolute',
-              top: '64%',
-              left: '84%',
-              width: 7,
-              height: 7,
-              borderRadius: '50%',
-              background: '#fef08a',
-              boxShadow: '0 0 12px 5px rgba(250, 204, 21, 0.9), 0 0 22px 9px rgba(234, 179, 8, 0.4)',
-              animation: 'jugnooFloat 8.2s ease-in-out infinite alternate, jugnooGlow 2.3s ease-in-out infinite alternate',
-              animationDelay: '2.2s',
-            }}
-          />
-        </div>
-      )}
+      {/* Randomized Floating Glowing Jugnoos (Fireflies) at fresh positions each time */}
+      {night && <NightJugnoos bayIdx={bayIdx} themeId={themeId} />}
 
       {/* Daytime Fluttering Butterflies (Themes 1 & 2 Day Mode) */}
       {!night && (themeId === '1' || themeId === '2') && (
         <DayButterflies forestTone={themeId === '2'} />
       )}
 
-      {/* Almirah Children Container (pointerEvents none so side balcony elements like dolphins remain clickable) */}
+      {/* Almirah Children Container (pointerEvents none so side elements remain unobstructed) */}
       <div style={{ position: 'relative', zIndex: 10, pointerEvents: 'none' }}>{children}</div>
 
       {/* Charming Animated Cat on Floor */}
       <Cat dim={night && !lit} />
+    </div>
+  );
+}
+
+/* ───────────── RANDOMIZED FLOATING NIGHT JUGNOOS (FIREFLIES) ───────────── */
+
+interface JugnooSpec {
+  id: number;
+  topPct: number;
+  leftPct: number;
+  size: number;
+  floatDur: number;
+  glowDur: number;
+  delay: number;
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+  x3: number;
+  y3: number;
+}
+
+function createRandomJugnooSpot(id: number): JugnooSpec {
+  // Spread across left sky/lamp wing, upper sky, and right foliage wing cleanly
+  const zoneRoll = Math.random();
+  const leftPct =
+    zoneRoll < 0.42
+      ? 5 + Math.random() * 24
+      : zoneRoll < 0.84
+        ? 71 + Math.random() * 23
+        : 28 + Math.random() * 44;
+  const topPct =
+    zoneRoll >= 0.84 ? 9 + Math.random() * 14 : 14 + Math.random() * 58;
+  const rndSigned = (min: number, max: number) =>
+    (Math.random() < 0.5 ? -1 : 1) * Math.round(min + Math.random() * (max - min));
+
+  return {
+    id,
+    topPct: Math.round(topPct * 10) / 10,
+    leftPct: Math.round(leftPct * 10) / 10,
+    size: 6 + Math.floor(Math.random() * 4),
+    floatDur: Math.round((5.2 + Math.random() * 4.4) * 10) / 10,
+    glowDur: Math.round((1.7 + Math.random() * 1.6) * 10) / 10,
+    delay: Math.round(Math.random() * 2.6 * 10) / 10,
+    x1: rndSigned(10, 26),
+    y1: rndSigned(10, 24),
+    x2: rndSigned(10, 24),
+    y2: rndSigned(8, 22),
+    x3: rndSigned(12, 28),
+    y3: rndSigned(8, 22),
+  };
+}
+
+function generateJugnooBatch(): JugnooSpec[] {
+  return Array.from({ length: 8 }, (_, idx) => createRandomJugnooSpot(idx));
+}
+
+function NightJugnoos({ bayIdx, themeId }: { bayIdx: number; themeId: ShelfThemeId }) {
+  const [fireflies, setFireflies] = useState<JugnooSpec[]>(() => generateJugnooBatch());
+
+  useEffect(() => {
+    setFireflies(generateJugnooBatch());
+    const timer = window.setInterval(() => {
+      setFireflies((prev) =>
+        prev.map((f) => {
+          const next = createRandomJugnooSpot(f.id);
+          return {
+            ...f,
+            topPct: next.topPct,
+            leftPct: next.leftPct,
+            x1: next.x1,
+            y1: next.y1,
+            x2: next.x2,
+            y2: next.y2,
+            x3: next.x3,
+            y3: next.y3,
+          };
+        })
+      );
+    }, 9500);
+    return () => window.clearInterval(timer);
+  }, [bayIdx, themeId]);
+
+  return (
+    <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 12 }}>
+      {fireflies.map((j) => (
+        <div
+          key={j.id}
+          style={
+            {
+              position: 'absolute',
+              top: `${j.topPct}%`,
+              left: `${j.leftPct}%`,
+              width: j.size,
+              height: j.size,
+              borderRadius: '50%',
+              background: '#fef08a',
+              boxShadow: `0 0 ${j.size * 1.8}px ${Math.round(j.size * 0.75)}px rgba(250, 204, 21, 0.92), 0 0 ${j.size * 3.4}px ${j.size + 4}px rgba(234, 179, 8, 0.45)`,
+              transition: 'top 5.5s ease-in-out, left 5.5s ease-in-out',
+              animation: `jugnooFloat ${j.floatDur}s ease-in-out infinite alternate, jugnooGlow ${j.glowDur}s ease-in-out infinite alternate`,
+              animationDelay: `${j.delay}s`,
+              '--jf-x1': `${j.x1}px`,
+              '--jf-y1': `${j.y1}px`,
+              '--jf-x2': `${j.x2}px`,
+              '--jf-y2': `${j.y2}px`,
+              '--jf-x3': `${j.x3}px`,
+              '--jf-y3': `${j.y3}px`,
+            } as CSSProperties
+          }
+        />
+      ))}
     </div>
   );
 }
@@ -1336,18 +1237,21 @@ function playCuteMeowSound() {
 }
 
 export function Cat({ dim }: { dim: boolean }) {
+  const catRef = useRef<HTMLDivElement>(null);
   const [isRoaming, setIsRoaming] = useState(false);
   const [isAlertPaused, setIsAlertPaused] = useState(false);
+  const [isPetted, setIsPetted] = useState(false);
   const [posX, setPosX] = useState(48);
   const [direction, setDirection] = useState<1 | -1>(1);
   const [bubble, setBubble] = useState<string | null>('meow meow');
   const [stalkTrigger, setStalkTrigger] = useState(0);
   const posXRef = useRef(posX);
   posXRef.current = posX;
+  const petTimerRef = useRef<number | undefined>(undefined);
 
   const pickRandomNextTarget = (currX: number): { nextX: number; nextDir: 1 | -1 } => {
-    const canGoLeft = currX - 14 >= 14;
-    const canGoRight = 76 - currX >= 14;
+    const canGoLeft = currX - 16 >= 10;
+    const canGoRight = 80 - currX >= 16;
     let chosenDir: 1 | -1;
     if (canGoLeft && canGoRight) {
       chosenDir = Math.random() < 0.5 ? -1 : 1;
@@ -1357,17 +1261,36 @@ export function Cat({ dim }: { dim: boolean }) {
       chosenDir = 1;
     }
 
-    const span = chosenDir === -1 ? currX - 14 : 76 - currX;
-    const stepDist = 14 + Math.random() * Math.max(4, span - 14);
+    const span = chosenDir === -1 ? currX - 10 : 80 - currX;
+    const stepDist = 16 + Math.random() * Math.max(6, span - 16);
     const rawTarget = currX + chosenDir * stepDist;
-    const nextX = Math.round(Math.max(14, Math.min(76, rawTarget)));
+    const nextX = Math.round(Math.max(10, Math.min(80, rawTarget)));
     return { nextX, nextDir: nextX >= currX ? 1 : -1 };
   };
+
+  const captureCurrentPctX = (): number => {
+    const catEl = catRef.current;
+    const roomEl = catEl?.parentElement;
+    if (catEl && roomEl) {
+      const catRect = catEl.getBoundingClientRect();
+      const roomRect = roomEl.getBoundingClientRect();
+      if (roomRect.width > 0) {
+        const pct = ((catRect.left - roomRect.left) / roomRect.width) * 100;
+        return Math.max(8, Math.min(82, Math.round(pct * 10) / 10));
+      }
+    }
+    return posXRef.current;
+  };
+
+  useEffect(() => {
+    return () => {
+      if (petTimerRef.current !== undefined) window.clearTimeout(petTimerRef.current);
+    };
+  }, []);
 
   useEffect(() => {
     if (!isRoaming) {
       setIsAlertPaused(false);
-      setBubble('meow meow');
       return;
     }
 
@@ -1387,11 +1310,11 @@ export function Cat({ dim }: { dim: boolean }) {
         setPosX(nextX);
         setBubble('meow meow');
 
-        timerId = window.setTimeout(runCadenceLoop, 10800);
-      }, 3200);
+        timerId = window.setTimeout(runCadenceLoop, 5200);
+      }, 2400);
     };
 
-    timerId = window.setTimeout(runCadenceLoop, 11200);
+    timerId = window.setTimeout(runCadenceLoop, 5000);
 
     return () => {
       cancelled = true;
@@ -1399,29 +1322,47 @@ export function Cat({ dim }: { dim: boolean }) {
     };
   }, [isRoaming, stalkTrigger]);
 
+  const settleHereWithPet = () => {
+    const exactHereX = captureCurrentPctX();
+    setPosX(exactHereX);
+    setIsRoaming(false);
+    setIsAlertPaused(false);
+    setIsPetted(true);
+    setBubble('purr~ ♥');
+    if (petTimerRef.current !== undefined) window.clearTimeout(petTimerRef.current);
+    petTimerRef.current = window.setTimeout(() => {
+      setIsPetted(false);
+      setBubble('meow meow');
+    }, 2800);
+  };
+
   const handleCatClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     playCuteMeowSound();
-    const { nextX, nextDir } = pickRandomNextTarget(posXRef.current);
-    setIsRoaming(true);
-    setIsAlertPaused(false);
-    setDirection(nextDir);
-    setPosX(nextX);
-    setStalkTrigger((c) => c + 1);
-    setBubble('meow meow');
+    if (!isRoaming) {
+      if (petTimerRef.current !== undefined) window.clearTimeout(petTimerRef.current);
+      setIsPetted(false);
+      const { nextX, nextDir } = pickRandomNextTarget(posXRef.current);
+      setIsRoaming(true);
+      setIsAlertPaused(false);
+      setDirection(nextDir);
+      setPosX(nextX);
+      setStalkTrigger((c) => c + 1);
+      setBubble('meow meow');
+    } else {
+      settleHereWithPet();
+    }
   };
 
   const handleRestClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setIsRoaming(false);
-    setIsAlertPaused(false);
-    setDirection(1);
-    setPosX(48);
-    setBubble('meow meow');
+    playCuteMeowSound();
+    settleHereWithPet();
   };
 
   return (
     <div
+      ref={catRef}
       role="button"
       tabIndex={0}
       onClick={handleCatClick}
@@ -1431,46 +1372,84 @@ export function Cat({ dim }: { dim: boolean }) {
           handleCatClick(e as unknown as React.MouseEvent);
         }
       }}
-      title="meow meow"
+      title={isRoaming ? 'Pet kitty again to stay & purr right here ♥' : 'Click kitty to make her move'}
       className={`sh-cat group ${isRoaming ? 'is-roaming' : ''}`}
       style={{
         left: `${posX}%`,
         transform: `scaleX(${direction})`,
         filter: dim ? 'brightness(0.55)' : 'none',
-        transition: 'left 12s cubic-bezier(0.28, 0.08, 0.25, 1), transform 0.5s ease',
+        transition: isRoaming
+          ? 'left 4.8s cubic-bezier(0.25, 0.08, 0.25, 1), transform 0.45s ease'
+          : 'transform 0.45s ease',
       }}
     >
-      {/* Quiet rest button visible on hover while walking */}
+      {/* Floating Affectionate Hearts when Petted Right Here */}
+      {isPetted && (
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            pointerEvents: 'none',
+            transform: `scaleX(${direction})`,
+            zIndex: 40,
+          }}
+        >
+          {[
+            { left: '24%', top: -10, delay: '0s', size: 13 },
+            { left: '54%', top: -18, delay: '0.28s', size: 15 },
+            { left: '72%', top: -8, delay: '0.55s', size: 12 },
+          ].map((h, idx) => (
+            <span
+              key={idx}
+              style={{
+                position: 'absolute',
+                left: h.left,
+                top: h.top,
+                fontSize: h.size,
+                color: '#fb7185',
+                textShadow: '0 2px 6px rgba(244, 63, 94, 0.55)',
+                animation: 'kittyHeartFloat 1.5s ease-out infinite',
+                animationDelay: h.delay,
+              }}
+            >
+              ♥
+            </span>
+          ))}
+        </div>
+      )}
+
+      {/* Quiet Pet / Stay-Here Heart Button visible on hover while moving */}
       {isRoaming && (
         <button
           type="button"
           onClick={handleRestClick}
-          title="Rest"
+          title="Pet & rest right here"
           className="opacity-0 group-hover:opacity-95 transition-opacity"
           style={{
             position: 'absolute',
             top: -10,
             right: -6,
             transform: `scaleX(${direction})`,
-            width: 20,
-            height: 20,
+            width: 22,
+            height: 22,
             borderRadius: '50%',
-            background: 'rgba(28, 25, 23, 0.85)',
-            border: '1px solid rgba(251, 191, 36, 0.65)',
-            color: '#fef3c7',
-            fontSize: 10,
+            background: 'rgba(28, 25, 23, 0.88)',
+            border: '1px solid rgba(251, 113, 133, 0.75)',
+            color: '#fda4af',
+            fontSize: 10.5,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             cursor: 'pointer',
+            boxShadow: '0 2px 6px rgba(0,0,0,0.45)',
             zIndex: 38,
           }}
         >
-          ×
+          ♥
         </button>
       )}
 
-      {/* Meow / Alert Stealth Thought Bubble */}
+      {/* Meow / Purr Stealth Thought Bubble */}
       {bubble && (
         <div
           style={{
@@ -1481,9 +1460,9 @@ export function Cat({ dim }: { dim: boolean }) {
             marginBottom: 8,
             padding: '3px 9px',
             borderRadius: 14,
-            background: 'rgba(255, 255, 255, 0.96)',
-            border: '1.5px solid #d97706',
-            color: '#78350f',
+            background: isPetted ? 'rgba(255, 241, 242, 0.97)' : 'rgba(255, 255, 255, 0.96)',
+            border: `1.5px solid ${isPetted ? '#f43f5e' : '#d97706'}`,
+            color: isPetted ? '#be123c' : '#78350f',
             fontSize: 10.5,
             fontWeight: 700,
             whiteSpace: 'nowrap',
@@ -1504,7 +1483,7 @@ export function Cat({ dim }: { dim: boolean }) {
               height: 5,
               borderRadius: '50%',
               background: '#ffffff',
-              border: '1px solid #d97706',
+              border: `1px solid ${isPetted ? '#f43f5e' : '#d97706'}`,
             }}
           />
           <div
@@ -1517,93 +1496,340 @@ export function Cat({ dim }: { dim: boolean }) {
               height: 3,
               borderRadius: '50%',
               background: '#ffffff',
-              border: '1px solid #d97706',
+              border: `1px solid ${isPetted ? '#f43f5e' : '#d97706'}`,
             }}
           />
         </div>
       )}
 
-      {/* Realistic Cat SVG Illustration (Resting vs Low-Slung Sneaky Alert Hunter) */}
+      {/* Hyper-Realistic & Super Cute Cat SVG Illustration (Plush Resting Kitten vs Sleek Prowling Tabby) */}
       {!isRoaming ? (
-        /* REALISTIC SITTING CAT (Curled comfortably on carpet) */
-        <svg viewBox="0 0 100 70" width="88" height="52" className="transition-transform group-hover:scale-105 active:scale-95">
+        /* HYPER-REALISTIC SUPER CUTE RESTING KITTEN (Big Glossy Soulful Eyes, Fluffy Chest, Soft Tabby Coat) */
+        <svg
+          viewBox="0 0 156 96"
+          width="116"
+          height="70"
+          className="transition-transform group-hover:scale-105 active:scale-95"
+          style={{ filter: 'drop-shadow(0 6px 10px rgba(0,0,0,0.34))', overflow: 'visible' }}
+        >
+          <defs>
+            <radialGradient id="catRestBody" cx="42%" cy="34%" r="68%">
+              <stop offset="0%" stopColor="#ffc875" />
+              <stop offset="48%" stopColor="#e88c34" />
+              <stop offset="85%" stopColor="#b85914" />
+              <stop offset="100%" stopColor="#803809" />
+            </radialGradient>
+            <radialGradient id="catRestHead" cx="45%" cy="38%" r="64%">
+              <stop offset="0%" stopColor="#ffd48a" />
+              <stop offset="55%" stopColor="#ea9138" />
+              <stop offset="100%" stopColor="#a84e10" />
+            </radialGradient>
+            <radialGradient id="catRestCream" cx="50%" cy="35%" r="68%">
+              <stop offset="0%" stopColor="#fffdf7" />
+              <stop offset="65%" stopColor="#fef0d5" />
+              <stop offset="100%" stopColor="#ebd0a7" />
+            </radialGradient>
+            <radialGradient id="catRestEye" cx="45%" cy="40%" r="60%">
+              <stop offset="0%" stopColor="#a3e635" />
+              <stop offset="55%" stopColor="#3f8f3d" />
+              <stop offset="100%" stopColor="#1b4322" />
+            </radialGradient>
+            <linearGradient id="catRestEarPink" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#fda4af" />
+              <stop offset="100%" stopColor="#fb7185" />
+            </linearGradient>
+          </defs>
+
+          {/* Soft Ground Contact Shadow */}
+          <ellipse cx="78" cy="86" rx="54" ry="7.5" fill="rgba(0,0,0,0.36)" />
+
           <g className="sh-bob">
-            <path d="M72 58 C85 58 92 48 88 38 C85 30 76 34 78 42" fill="none" stroke="#b45309" strokeWidth="5.5" strokeLinecap="round" />
-            <ellipse cx="48" cy="45" rx="26" ry="17" fill="#d97706" />
-            <ellipse cx="44" cy="46" rx="19" ry="12" fill="#f59e0b" />
-            <path d="M32 40 C36 48 42 56 46 56 C50 56 48 44 40 38 Z" fill="#fef3c7" opacity="0.9" />
-            <ellipse cx="36" cy="58" rx="7" ry="4.5" fill="#fef3c7" stroke="#b45309" strokeWidth="1" />
-            <ellipse cx="47" cy="58" rx="6.5" ry="4.5" fill="#fef3c7" stroke="#b45309" strokeWidth="1" />
-            <circle cx="30" cy="29" r="14" fill="#d97706" />
-            <ellipse cx="30" cy="33" rx="10" ry="7" fill="#fef3c7" />
-            <polygon points="21,21 21,7 28,18" fill="#d97706" />
-            <polygon points="23,19 23,10 27,17" fill="#f43f5e" opacity="0.6" />
-            <polygon points="32,18 39,7 40,21" fill="#d97706" />
-            <polygon points="34,17 38,10 39,19" fill="#f43f5e" opacity="0.6" />
-            <path d="M22 28 Q25 32 28 28" fill="none" stroke="#78350f" strokeWidth="1.5" strokeLinecap="round" />
-            <path d="M32 28 Q35 32 38 28" fill="none" stroke="#78350f" strokeWidth="1.5" strokeLinecap="round" />
-            <polygon points="29,33 31,33 30,35" fill="#f43f5e" />
-            <path d="M27 36 Q30 38 33 36" fill="none" stroke="#78350f" strokeWidth="1" strokeLinecap="round" />
-            <path d="M19 33 L11 31 M19 35 L12 36 M41 33 L49 31 M41 35 L48 36" stroke="#fde68a" strokeWidth="1" opacity="0.85" />
+            {/* Fluffy Ringed Tail Curled Cozily Around Haunch */}
+            <path
+              d="M108 77 C132 78 144 64 139 48 C135 37 121 41 124 51 C126 57 121 63 113 64"
+              fill="none"
+              stroke="#b85914"
+              strokeWidth="11"
+              strokeLinecap="round"
+            />
+            <path
+              d="M108 77 C132 78 144 64 139 48 C135 37 121 41 124 51"
+              fill="none"
+              stroke="#f5a54b"
+              strokeWidth="7.2"
+              strokeLinecap="round"
+            />
+            {/* Tail Ring Stripes & Fluffy Cream Tip */}
+            <path d="M126 73 L130 66 M135 64 L141 59" stroke="#7c3208" strokeWidth="2.4" strokeLinecap="round" opacity="0.7" />
+            <circle cx="124" cy="48" r="4.8" fill="#fff7ea" />
+
+            {/* Lush Rounded Resting Loaf Body with Soft Back Fur Contours */}
+            <path
+              d="M36 78 C30 56 46 38 78 38 C108 38 122 55 117 75 C114 84 96 86 74 86 C52 86 39 84 36 78 Z"
+              fill="url(#catRestBody)"
+            />
+            {/* Soft Ginger Tabby Coat Markings Along Back */}
+            <path
+              d="M68 41 C72 47 71 55 66 60 M82 40 C86 48 85 57 80 63 M96 42 C100 49 98 58 93 63"
+              fill="none"
+              stroke="#8c3b0a"
+              strokeWidth="3.2"
+              strokeLinecap="round"
+              opacity="0.48"
+            />
+
+            {/* Fluffy Cream Chest Bib with Tufted Fur Silhouette */}
+            <path
+              d="M37 52 C33 65 39 81 51 82 C61 83 66 71 62 56 C58 48 42 46 37 52 Z"
+              fill="url(#catRestCream)"
+            />
+            <path
+              d="M42 74 L44 79 M50 75 L51 81 M57 73 L59 78"
+              stroke="#ebd0a7"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+            />
+
+            {/* Chubby Tucked White Mitten Front Paws + Tiny Toe Separation Lines */}
+            <g>
+              <ellipse cx="44" cy="82" rx="10" ry="5.5" fill="url(#catRestCream)" stroke="#c27a3e" strokeWidth="0.9" />
+              <path d="M40 83 V86 M44 83.5 V86.5 M48 83 V86" stroke="#c7a57d" strokeWidth="0.85" strokeLinecap="round" />
+              <ellipse cx="62" cy="83" rx="9.5" ry="5.2" fill="url(#catRestCream)" stroke="#c27a3e" strokeWidth="0.9" />
+              <path d="M58 84 V87 M62 84.5 V87.5 M66 84 V87" stroke="#c7a57d" strokeWidth="0.85" strokeLinecap="round" />
+            </g>
+
+            {/* Sculpted Kitten Head with Soft Fluffy Cheek Tufts */}
+            <g transform="translate(0, 1)">
+              {/* Outer Plush Ears */}
+              <path d="M31 28 L25 6 C25 4 28 3 31 5 L45 19 Z" fill="#c9681c" />
+              <path d="M32 25 L28 9 L42 19 Z" fill="url(#catRestEarPink)" opacity="0.82" />
+              <path d="M31 22 C33 17 36 15 39 18" fill="none" stroke="#fff7ea" strokeWidth="1.4" strokeLinecap="round" />
+
+              <path d="M54 19 L68 5 C71 3 74 4 74 6 L68 28 Z" fill="#c9681c" />
+              <path d="M57 19 L71 9 L67 25 Z" fill="url(#catRestEarPink)" opacity="0.82" />
+              <path d="M60 18 C63 15 66 17 68 22" fill="none" stroke="#fff7ea" strokeWidth="1.4" strokeLinecap="round" />
+
+              {/* Chubby Cheeked Feline Head */}
+              <path
+                d="M27 36 C25 22 36 15 50 15 C64 15 74 22 72 36 C73 45 64 53 50 53 C35 53 26 45 27 36 Z"
+                fill="url(#catRestHead)"
+              />
+
+              {/* Classic Cute Tabby "M" Forehead Stripes + Cheek Whisker Stripes */}
+              <path
+                d="M44 18 L46 25 M50 17 L50 26 M56 18 L54 25"
+                fill="none"
+                stroke="#8c3b0a"
+                strokeWidth="1.9"
+                strokeLinecap="round"
+                opacity="0.62"
+              />
+              <path
+                d="M29 33 Q33 34 36 35 M70 33 Q66 34 63 35"
+                fill="none"
+                stroke="#9a440d"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+                opacity="0.52"
+              />
+
+              {/* Fluffy Cream Muzzle Blaze & Rounded Whisker Pads */}
+              <path
+                d="M50 26 C46 31 44 35 37 38 C32 41 33 49 42 51 C47 52 53 52 58 51 C66 49 67 41 62 38 C55 35 54 31 50 26 Z"
+                fill="url(#catRestCream)"
+              />
+
+              {/* Soft Warm Rosy Cheek Blush */}
+              <ellipse cx="34" cy="40" rx="4.2" ry="2.2" fill="#fb7185" opacity="0.28" />
+              <ellipse cx="66" cy="40" rx="4.2" ry="2.2" fill="#fb7185" opacity="0.28" />
+
+              {/* BIG SOULFUL GLOSSY KITTEN EYES WITH TWIN CATCHLIGHTS */}
+              <g>
+                {/* Left Eye */}
+                <ellipse cx="39.5" cy="33" rx="5.2" ry="5.6" fill="#2c1810" />
+                <ellipse cx="39.5" cy="33.2" rx="4.5" ry="4.9" fill="url(#catRestEye)" />
+                <ellipse cx="39.8" cy="33.4" rx="2.7" ry="3.4" fill="#14110f" />
+                <circle cx="38.2" cy="31.3" r="1.65" fill="#ffffff" />
+                <circle cx="41.4" cy="35.0" r="0.7" fill="#ffffff" opacity="0.9" />
+
+                {/* Right Eye */}
+                <ellipse cx="60.5" cy="33" rx="5.2" ry="5.6" fill="#2c1810" />
+                <ellipse cx="60.5" cy="33.2" rx="4.5" ry="4.9" fill="url(#catRestEye)" />
+                <ellipse cx="60.2" cy="33.4" rx="2.7" ry="3.4" fill="#14110f" />
+                <circle cx="58.8" cy="31.3" r="1.65" fill="#ffffff" />
+                <circle cx="62.0" cy="35.0" r="0.7" fill="#ffffff" opacity="0.9" />
+              </g>
+
+              {/* Velvety Pink Heart-Triangle Nose with Gloss Specular */}
+              <path d="M47.6 39.2 Q50 38.2 52.4 39.2 Q51.5 41.8 50 42.3 Q48.5 41.8 47.6 39.2 Z" fill="#f43f5e" />
+              <ellipse cx="49.2" cy="39.6" rx="0.9" ry="0.45" fill="#ffe4e6" opacity="0.85" />
+
+              {/* Cute Soft ":3" Kitten Smile & Tiny Chin */}
+              <path
+                d="M50 42.3 V44 M45 43.8 Q47.5 46.2 50 44 Q52.5 46.2 55 43.8"
+                fill="none"
+                stroke="#6e3619"
+                strokeWidth="1.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+
+              {/* Delicate Curved Tapered Whiskers */}
+              <g fill="none" stroke="#fffbeb" strokeWidth="0.9" strokeLinecap="round" opacity="0.92">
+                <path d="M36 40 Q24 38 15 40" />
+                <path d="M36 42.5 Q24 43 16 47" />
+                <path d="M37 44.5 Q27 47 20 51" />
+                <path d="M64 40 Q76 38 85 40" />
+                <path d="M64 42.5 Q76 43 84 47" />
+                <path d="M63 44.5 Q73 47 80 51" />
+              </g>
+            </g>
           </g>
         </svg>
       ) : (
-        /* LOW-SLUNG SNEAKY & ALERT PROWLING CAT (crouched posture, twitching ears, scanning pupils) */
-        <svg viewBox="0 0 132 70" width="104" height="58" className="transition-transform group-hover:scale-105 active:scale-95">
-          {/* Low sinuous trailing tail */}
+        /* HYPER-REALISTIC SUPER CUTE PROWLING & ALERT TABBY KITTEN */
+        <svg
+          viewBox="0 0 182 96"
+          width="132"
+          height="70"
+          className="transition-transform group-hover:scale-105 active:scale-95"
+          style={{ filter: 'drop-shadow(0 6px 10px rgba(0,0,0,0.36))', overflow: 'visible' }}
+        >
+          <defs>
+            <linearGradient id="catProwlCoat" x1="0" y1="0" x2="0.2" y2="1">
+              <stop offset="0%" stopColor="#ffc875" />
+              <stop offset="52%" stopColor="#e88c34" />
+              <stop offset="100%" stopColor="#a84e10" />
+            </linearGradient>
+            <linearGradient id="catProwlShade" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#c96c1d" />
+              <stop offset="100%" stopColor="#7a3209" />
+            </linearGradient>
+            <radialGradient id="catProwlCream" cx="50%" cy="45%" r="65%">
+              <stop offset="0%" stopColor="#fffdf7" />
+              <stop offset="70%" stopColor="#fef0d5" />
+              <stop offset="100%" stopColor="#e6c89e" />
+            </radialGradient>
+            <radialGradient id="catProwlEye" cx="40%" cy="40%" r="60%">
+              <stop offset="0%" stopColor="#bef264" />
+              <stop offset="60%" stopColor="#3f8f3d" />
+              <stop offset="100%" stopColor="#1b4322" />
+            </radialGradient>
+          </defs>
+
+          {/* Ground Contact Shadow */}
+          <ellipse cx="94" cy="86" rx="64" ry="6.5" fill="rgba(0,0,0,0.35)" />
+
+          {/* Plush Ringed Sinuous Tail */}
           <g className="sh-cat-tail">
-            <path d="M24 44 C10 47 4 40 2 33" fill="none" stroke="#b45309" strokeWidth="5.2" strokeLinecap="round" />
-            <circle cx="2" cy="33" r="2.6" fill="#fef3c7" />
+            <path
+              d="M36 56 C16 58 9 47 7 34 C6 28 11 26 14 31"
+              fill="none"
+              stroke="#b85914"
+              strokeWidth="9.5"
+              strokeLinecap="round"
+            />
+            <path
+              d="M36 56 C16 58 9 47 7 34"
+              fill="none"
+              stroke="#f5a54b"
+              strokeWidth="6"
+              strokeLinecap="round"
+            />
+            <path d="M22 52 L24 58 M13 46 L17 50" stroke="#7c3208" strokeWidth="2" strokeLinecap="round" opacity="0.65" />
+            <circle cx="7.5" cy="32" r="4.2" fill="#fff7ea" />
           </g>
 
-          {/* Back crouched stealth legs (pause smoothly during alert scan) */}
+          {/* Far-Side Articulated Haunch & Front Stepping Leg */}
           <g className={isAlertPaused ? undefined : 'sh-cat-sneak-a'}>
-            <rect x="28" y="45" width="6.5" height="17" rx="3.2" fill="#92400e" />
-            <ellipse cx="32" cy="62" rx="4.5" ry="2.2" fill="#fef3c7" />
+            <path d="M44 58 C41 68 42 78 44 83 L52 83 C52 75 54 66 56 58 Z" fill="url(#catProwlShade)" />
+            <ellipse cx="48.5" cy="83.5" rx="6" ry="3.2" fill="url(#catProwlCream)" />
           </g>
           <g className={isAlertPaused ? undefined : 'sh-cat-sneak-b'}>
-            <rect x="88" y="46" width="6.5" height="16" rx="3.2" fill="#92400e" />
-            <ellipse cx="92" cy="62" rx="4.5" ry="2.2" fill="#fef3c7" />
+            <path d="M112 58 C113 68 114 78 116 83 L123 83 C122 75 121 66 121 58 Z" fill="url(#catProwlShade)" />
+            <ellipse cx="120.5" cy="83.5" rx="6" ry="3.2" fill="url(#catProwlCream)" />
           </g>
 
-          {/* Low crouched body close to floor */}
-          <ellipse cx="62" cy="43" rx="35" ry="11.5" fill="#d97706" />
-          <ellipse cx="64" cy="48" rx="26" ry="5.5" fill="#fef3c7" opacity="0.86" />
-          {/* Subtle tiger/tabby shoulder stealth stripes */}
-          <path d="M46 34 Q48 41 44 45 M58 33 Q60 40 56 44 M70 33 Q72 40 68 44" fill="none" stroke="#92400e" strokeWidth="2.2" strokeLinecap="round" opacity="0.55" />
+          {/* Sleek Contoured Low-Slung Torso & Haunch Curve */}
+          <path
+            d="M36 56 C38 41 64 38 92 41 C114 43 128 48 130 57 C131 66 112 69 86 68 C58 68 35 67 36 56 Z"
+            fill="url(#catProwlCoat)"
+          />
+          {/* Fluffy Cream Belly & Bib */}
+          <path
+            d="M52 64 C66 69 102 70 120 63 C122 57 108 56 90 58 C72 59 56 58 52 64 Z"
+            fill="url(#catProwlCream)"
+          />
+          {/* Realistic Soft Tiger Tabby Shoulder Stripes */}
+          <path
+            d="M62 43 Q65 51 60 56 M76 42 Q79 50 74 56 M90 42 Q93 50 88 56 M104 44 Q106 52 102 56"
+            fill="none"
+            stroke="#8c3b0a"
+            strokeWidth="2.6"
+            strokeLinecap="round"
+            opacity="0.52"
+          />
 
-          {/* Lowered attentive head pushed forward in stealth pose */}
-          <g transform="translate(0, 4)">
-            <circle cx="102" cy="34" r="11.5" fill="#d97706" />
-            <ellipse cx="105" cy="37" rx="7.5" ry="5" fill="#fef3c7" opacity="0.92" />
-            {/* Radar-twitching attentive ears */}
+          {/* Foreground Sculpted Legs with White Sock Paws */}
+          <g className={isAlertPaused ? undefined : 'sh-cat-sneak-b'}>
+            <path d="M53 56 C48 66 51 77 53 84 L62 84 C61 75 63 65 65 56 Z" fill="url(#catProwlCoat)" />
+            <ellipse cx="58" cy="84" rx="6.5" ry="3.4" fill="url(#catProwlCream)" stroke="#c27a3e" strokeWidth="0.7" />
+            <path d="M56 84.5 V87 M60 84.5 V87" stroke="#c7a57d" strokeWidth="0.8" strokeLinecap="round" />
+          </g>
+          <g className={isAlertPaused ? undefined : 'sh-cat-sneak-a'}>
+            <path d="M120 56 C121 66 123 77 125 84 L133 84 C132 75 131 65 130 56 Z" fill="url(#catProwlCoat)" />
+            <ellipse cx="130" cy="84" rx="6.5" ry="3.4" fill="url(#catProwlCream)" stroke="#c27a3e" strokeWidth="0.7" />
+            <path d="M128 84.5 V87 M132 84.5 V87" stroke="#c7a57d" strokeWidth="0.8" strokeLinecap="round" />
+          </g>
+
+          {/* Expressive Forward-Alert Kitten Head */}
+          <g transform="translate(8, 3)">
+            {/* Back Radar Ear */}
             <g className="sh-cat-ear">
-              <polygon points="94,25 95,11 103,22" fill="#d97706" />
-              <polygon points="96,24 96,14 101,22" fill="#f43f5e" opacity="0.55" />
+              <path d="M122 30 L121 12 C121 10 124 9 126 11 L136 25 Z" fill="#b85914" />
+              <path d="M123 27 L123 14 L133 24 Z" fill="#fda4af" opacity="0.78" />
             </g>
-            <g className="sh-cat-ear" style={{ animationDelay: '-0.8s' }}>
-              <polygon points="103,22 112,11 113,26" fill="#d97706" />
-              <polygon points="105,21 110,14 111,24" fill="#f43f5e" opacity="0.55" />
-            </g>
-            {/* Wide alert luminous green eyes with scanning pupils */}
-            <ellipse cx="106" cy="33" rx="3.4" ry="2.6" fill="#bef264" stroke="#78350f" strokeWidth="0.6" />
-            <g className="sh-cat-pupil">
-              <ellipse cx="106.4" cy="33" rx="1.15" ry="2.2" fill="#1c1917" />
-              <circle cx="105.7" cy="32.2" r="0.6" fill="#ffffff" />
-            </g>
-            {/* Alert pink nose & whiskers */}
-            <circle cx="113" cy="36.5" r="1.4" fill="#f43f5e" />
-            <path d="M108 38 L119 36.5 M108 40 L118 40.5" stroke="#fde68a" strokeWidth="1" opacity="0.85" />
-          </g>
 
-          {/* Foreground sneaking padded paws */}
-          <g className={isAlertPaused ? undefined : 'sh-cat-sneak-b'}>
-            <rect x="38" y="45" width="6.5" height="17" rx="3.2" fill="#d97706" />
-            <ellipse cx="42" cy="62" rx="4.5" ry="2.2" fill="#fef3c7" />
-          </g>
-          <g className={isAlertPaused ? undefined : 'sh-cat-sneak-a'}>
-            <rect x="97" y="46" width="6.5" height="16" rx="3.2" fill="#d97706" />
-            <ellipse cx="101" cy="62" rx="4.5" ry="2.2" fill="#fef3c7" />
+            {/* Head Contour with Cute Cheek Fluff */}
+            <path
+              d="M116 39 C114 25 126 20 137 21 C148 22 155 30 154 41 C153 49 144 54 133 54 C122 54 116 47 116 39 Z"
+              fill="url(#catProwlCoat)"
+            />
+
+            {/* Front Radar Ear */}
+            <g className="sh-cat-ear" style={{ animationDelay: '-0.8s' }}>
+              <path d="M132 25 L143 10 C145 8 148 9 148 12 L145 31 Z" fill="#d97524" />
+              <path d="M135 24 L144 13 L143 28 Z" fill="#fda4af" opacity="0.82" />
+            </g>
+
+            {/* Forehead Tabby Stripes */}
+            <path d="M131 23 L133 28 M137 23 L137 29" fill="none" stroke="#8c3b0a" strokeWidth="1.6" strokeLinecap="round" opacity="0.6" />
+
+            {/* Soft Cream Muzzle Pad */}
+            <ellipse cx="144" cy="44.5" rx="9.5" ry="6.8" fill="url(#catProwlCream)" />
+
+            {/* Big Glistening Scanning Eye with Twin Specular Catchlights */}
+            <ellipse cx="141.5" cy="36.5" rx="4.8" ry="4.5" fill="#2c1810" />
+            <ellipse cx="141.5" cy="36.5" rx="4.2" ry="3.9" fill="url(#catProwlEye)" />
+            <g className="sh-cat-pupil">
+              <ellipse cx="141.9" cy="36.6" rx="1.9" ry="2.9" fill="#14110f" />
+              <circle cx="140.6" cy="35.1" r="1.25" fill="#ffffff" />
+              <circle cx="142.8" cy="37.8" r="0.55" fill="#ffffff" opacity="0.9" />
+            </g>
+
+            {/* Subtle Rosy Cheek Tint */}
+            <ellipse cx="133" cy="43" rx="3.4" ry="1.9" fill="#fb7185" opacity="0.26" />
+
+            {/* Glossy Pink Nose & Cute Mouth */}
+            <path d="M151.2 40.5 Q153.5 39.8 154.6 41.2 Q153.6 43.2 152 43.2 Z" fill="#f43f5e" />
+            <path d="M148 45.5 Q151 47.4 153 45.5" fill="none" stroke="#6e3619" strokeWidth="1.1" strokeLinecap="round" />
+
+            {/* Delicate Fine Whiskers */}
+            <g fill="none" stroke="#fffbeb" strokeWidth="0.9" strokeLinecap="round" opacity="0.92">
+              <path d="M145 43.5 Q158 41 167 42" />
+              <path d="M145 45.5 Q158 45 166 48" />
+              <path d="M144 47 Q155 49 162 52.5" />
+            </g>
           </g>
         </svg>
       )}
@@ -2179,6 +2405,7 @@ export function DukaanRollingShutter({
 /* ───────────── COAL-BLACK TIJORI / BANK VAULT DOOR (UPPER) ───────────── */
 
 export function BankVaultDoor({
+  look,
   open,
   onToggle,
 }: {
@@ -2200,6 +2427,8 @@ export function BankVaultDoor({
       onToggle();
     }
   };
+
+  const steelSurface = getWoodSurfaceStyle(look, 'panel', 'door', '135deg');
 
   return (
     <div
@@ -2234,9 +2463,10 @@ export function BankVaultDoor({
           style={{
             position: 'absolute',
             inset: 0,
-            background: 'linear-gradient(135deg, #171717 0%, #0b0b0b 60%, #040404 100%)',
-            border: '6px solid #242424',
-            boxShadow: 'inset 0 0 38px rgba(0,0,0,0.92), inset 0 1px 3px rgba(255,255,255,0.12)',
+            ...steelSurface,
+            border: '7px solid #2c313a',
+            boxShadow:
+              'inset 0 0 34px rgba(0,0,0,0.82), inset 2px 2px 0 rgba(226,232,240,0.22), inset -2px -2px 0 rgba(0,0,0,0.72), 0 6px 18px rgba(0,0,0,0.6)',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
@@ -2244,37 +2474,162 @@ export function BankVaultDoor({
             overflow: 'hidden',
           }}
         >
+          {/* Inner Armored Bevel Seam Frame */}
           <div
             style={{
               position: 'absolute',
-              inset: 10,
-              border: '1.5px solid rgba(255, 255, 255, 0.08)',
+              inset: 12,
+              border: '2px solid rgba(203, 213, 225, 0.2)',
+              boxShadow: 'inset 0 0 0 2px rgba(0,0,0,0.65), 0 1px 0 rgba(255,255,255,0.12)',
               borderRadius: 4,
               pointerEvents: 'none',
             }}
           />
 
-          {/* Heavy Combination Dial Center Knob (Clean, zero text) */}
+          {/* Heavy Forged Steel Hinges Along Left Edge */}
+          {[20, 50, 80].map((topPct) => (
+            <div
+              key={topPct}
+              style={{
+                position: 'absolute',
+                left: 3,
+                top: `${topPct}%`,
+                transform: 'translateY(-50%)',
+                width: 10,
+                height: 28,
+                borderRadius: 3,
+                background: 'linear-gradient(90deg, #94a3b8 0%, #475569 50%, #1e293b 100%)',
+                border: '1px solid #0f172a',
+                boxShadow: '0 2px 6px rgba(0,0,0,0.75)',
+                pointerEvents: 'none',
+              }}
+            />
+          ))}
+
+          {/* Solid Stainless Steel Locking Bolts Along Right Edge */}
+          {[24, 42, 58, 76].map((topPct) => (
+            <div
+              key={topPct}
+              style={{
+                position: 'absolute',
+                right: 3,
+                top: `${topPct}%`,
+                transform: 'translateY(-50%)',
+                width: 10,
+                height: 16,
+                borderRadius: '3px 0 0 3px',
+                background: 'linear-gradient(180deg, #e2e8f0 0%, #94a3b8 55%, #475569 100%)',
+                boxShadow: 'inset 0 1px 1px #ffffff, -2px 2px 5px rgba(0,0,0,0.75)',
+                pointerEvents: 'none',
+              }}
+            />
+          ))}
+
+          {/* Machined Armor Perimeter Hex Rivets */}
+          {[
+            { top: 18, left: 18 },
+            { top: 18, right: 18 },
+            { bottom: 18, left: 18 },
+            { bottom: 18, right: 18 },
+            { top: '50%', left: 18 },
+            { top: '50%', right: 18 },
+          ].map((pos, idx) => (
+            <span
+              key={idx}
+              style={{
+                position: 'absolute',
+                ...pos,
+                width: 7,
+                height: 7,
+                borderRadius: '50%',
+                background: 'radial-gradient(circle at 30% 30%, #e2e8f0 0%, #64748b 65%, #1e293b 100%)',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.85)',
+                pointerEvents: 'none',
+              }}
+            />
+          ))}
+
+          {/* Authentic Circular Vault Handwheel & Graduated Combination Dial */}
           <div
             style={{
               position: 'relative',
-              width: 78,
-              height: 78,
+              width: 112,
+              height: 112,
               borderRadius: '50%',
-              background: 'radial-gradient(circle at 35% 30%, #3a3a3a 0%, #181818 70%, #0a0a0a 100%)',
-              border: '4px solid #525252',
-              boxShadow: '0 8px 24px rgba(0,0,0,0.9), inset 0 2px 4px rgba(255,255,255,0.22)',
+              background:
+                'radial-gradient(circle at 35% 30%, #475569 0%, #1e293b 58%, #0f172a 100%)',
+              border: '4px solid #64748b',
+              boxShadow:
+                '0 12px 28px rgba(0,0,0,0.85), inset 0 2px 5px rgba(255,255,255,0.28), inset 0 -4px 8px rgba(0,0,0,0.8)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               transform: dialSpinning ? 'rotate(240deg)' : 'rotate(0deg)',
-              transition: 'transform 0.7s ease-in-out',
+              transition: 'transform 0.7s cubic-bezier(0.22, 1, 0.36, 1)',
             }}
           >
-            <div style={{ position: 'absolute', inset: 4, borderRadius: '50%', border: '1.5px dotted rgba(212,175,55,0.5)' }} />
-            <div style={{ width: 44, height: 4, background: '#d4af37', borderRadius: 2 }} />
-            <div style={{ position: 'absolute', width: 4, height: 44, background: '#d4af37', borderRadius: 2 }} />
-            <div style={{ position: 'absolute', width: 22, height: 22, borderRadius: '50%', background: 'radial-gradient(circle at 35% 30%, #e5e5e5, #737373)' }} />
+            {/* Outer Precision Graduated Dial Ring */}
+            <div
+              style={{
+                position: 'absolute',
+                inset: 5,
+                borderRadius: '50%',
+                background:
+                  'repeating-conic-gradient(from 0deg, rgba(226,232,240,0.55) 0deg 2deg, transparent 2deg 15deg)',
+                WebkitMaskImage: 'radial-gradient(circle, transparent 66%, black 67%)',
+                maskImage: 'radial-gradient(circle, transparent 66%, black 67%)',
+              }}
+            />
+            <div
+              style={{
+                position: 'absolute',
+                inset: 14,
+                borderRadius: '50%',
+                border: '1.5px solid rgba(212, 175, 55, 0.45)',
+                boxShadow: 'inset 0 4px 12px rgba(0,0,0,0.85)',
+                background: 'radial-gradient(circle at 40% 35%, #272d37, #0b0e13)',
+              }}
+            />
+            {/* Three-Spoke Bank Vault Capstan Handwheel */}
+            {[0, 120, 240].map((deg) => (
+              <div
+                key={deg}
+                style={{
+                  position: 'absolute',
+                  width: 7,
+                  height: 82,
+                  borderRadius: 4,
+                  background: 'linear-gradient(90deg, #94a3b8 0%, #f1f5f9 45%, #475569 100%)',
+                  boxShadow: '0 2px 5px rgba(0,0,0,0.75)',
+                  transform: `rotate(${deg}deg)`,
+                }}
+              />
+            ))}
+            {/* Central Brass & Polished Steel Combination Tumbler Hub */}
+            <div
+              style={{
+                position: 'relative',
+                width: 34,
+                height: 34,
+                borderRadius: '50%',
+                background: 'radial-gradient(circle at 35% 30%, #fef08a 0%, #d4af37 55%, #78350f 100%)',
+                border: '2px solid #cbd5e1',
+                boxShadow: '0 4px 10px rgba(0,0,0,0.85), inset 0 1px 2px rgba(255,255,255,0.6)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <div
+                style={{
+                  width: 14,
+                  height: 14,
+                  borderRadius: '50%',
+                  background: 'radial-gradient(circle at 30% 30%, #f8fafc, #64748b)',
+                  boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.7)',
+                }}
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -2333,6 +2688,8 @@ export function CabinetDoors({
 
   const glassSheen =
     'linear-gradient(125deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.03) 36%, rgba(255,255,255,0.14) 55%, rgba(255,255,255,0.02) 78%, rgba(255,255,255,0.12) 100%)';
+  const clearTransparentGlassSheen =
+    'linear-gradient(128deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0) 14%, rgba(255,255,255,0) 47%, rgba(255,255,255,0.07) 50%, rgba(255,255,255,0) 53%, rgba(255,255,255,0) 88%, rgba(255,255,255,0.08) 100%)';
   const bevel = `inset 0 0 0 1.5px ${look.dark}, inset 2px 2px 0 2px rgba(255,255,255,0.16), inset -2px -2px 0 2px rgba(0,0,0,0.22)`;
 
   // Unified Lock / Unlock pill at exact bottom-center across ALL 5 Almirahs
@@ -2367,8 +2724,11 @@ export function CabinetDoors({
     </button>
   );
 
-  // 1. FRENCH CLEAR-GLASS SWING (Dark Chocolate Upper) & FULL CLEAR DOUBLE GLASS (Dark Chocolate Lower, zero crosshatch)
+  // 1. FRENCH CLEAR-GLASS SWING (Dark Chocolate Upper) & FULL CLEAR DOUBLE GLASS (Dark Chocolate Lower)
   if (doorKind === 'french-swing' || doorKind === 'diamond-swing') {
+    const isWoodDoor = look.grain > 0;
+    const isUpperClearWood = isWoodDoor && doorKind === 'french-swing';
+    const doorWoodStyle = isWoodDoor ? getWoodSurfaceStyle(look, 'v', 'door', '135deg') : undefined;
     return (
       <div
         style={{
@@ -2404,12 +2764,34 @@ export function CabinetDoors({
                 transformOrigin: left ? 'left center' : 'right center',
                 transform: `translateX(${open ? (left ? -26 : 26) : 0}px) rotateY(${open ? (left ? -148 : 148) : 0}deg)`,
                 transition: 'transform 0.9s cubic-bezier(0.28, 0.75, 0.25, 1)',
-                border: `8px solid ${look.frame}`,
-                backgroundImage: glassSheen,
-                backgroundColor: 'rgba(255, 255, 255, 0.04)',
-                boxShadow: bevel,
+                ...(isWoodDoor
+                  ? {
+                      padding: 7,
+                      ...doorWoodStyle,
+                      boxShadow: `${bevel}, 0 6px 14px rgba(0,0,0,0.42)`,
+                    }
+                  : {
+                      border: `8px solid ${look.frame}`,
+                      backgroundImage: glassSheen,
+                      backgroundColor: 'rgba(255, 255, 255, 0.04)',
+                      boxShadow: bevel,
+                    }),
               }}
             >
+              {isWoodDoor && (
+                <div
+                  style={{
+                    position: 'relative',
+                    width: '100%',
+                    height: '100%',
+                    backgroundImage: isUpperClearWood ? clearTransparentGlassSheen : glassSheen,
+                    backgroundColor: isUpperClearWood ? 'rgba(255, 255, 255, 0.005)' : 'rgba(255, 255, 255, 0.04)',
+                    boxShadow: isUpperClearWood
+                      ? 'inset 0 0 0 1px rgba(255,255,255,0.22), inset 1px 1px 0 rgba(255,255,255,0.16), inset 0 0 0 2px rgba(0,0,0,0.22)'
+                      : 'inset 0 0 0 1px rgba(0,0,0,0.52), inset 0 2px 8px rgba(0,0,0,0.32)',
+                  }}
+                />
+              )}
               {/* Curved brass pull */}
               <span
                 style={{
@@ -2434,6 +2816,9 @@ export function CabinetDoors({
   // 2. BYPASS SLIDING GLASS (Creamy Caramel Upper) & POCKET FLUTED SLIDING GLASS (Creamy Caramel Lower)
   if (doorKind === 'bypass-slide' || doorKind === 'pocket-fluted') {
     const isFluted = doorKind === 'pocket-fluted';
+    const isWoodDoor = look.grain > 0;
+    const isUpperClearWood = isWoodDoor && !isFluted;
+    const doorWoodStyle = isWoodDoor ? getWoodSurfaceStyle(look, 'v', 'door', '135deg') : undefined;
     return (
       <div
         style={{
@@ -2460,6 +2845,11 @@ export function CabinetDoors({
         {(['left', 'right'] as const).map((side) => {
           const left = side === 'left';
           const shift = left ? '-100%' : '100%';
+          const glassBg = isFluted
+            ? `repeating-linear-gradient(90deg, rgba(255,255,255,0.28) 0 2px, rgba(255,255,255,0.04) 2px 7px), ${glassSheen}`
+            : isUpperClearWood
+              ? clearTransparentGlassSheen
+              : glassSheen;
           return (
             <div
               key={side}
@@ -2481,15 +2871,40 @@ export function CabinetDoors({
                 pointerEvents: 'auto',
                 transform: open ? `translateX(${shift})` : 'translateX(0%)',
                 transition: 'transform 0.85s cubic-bezier(0.22, 1, 0.36, 1)',
-                border: `7px solid ${look.frame}`,
-                backgroundImage: isFluted
-                  ? `repeating-linear-gradient(90deg, rgba(255,255,255,0.28) 0 2px, rgba(255,255,255,0.04) 2px 7px), ${glassSheen}`
-                  : glassSheen,
-                backgroundColor: isFluted ? 'rgba(255, 248, 235, 0.18)' : 'rgba(255, 255, 255, 0.05)',
-                backdropFilter: isFluted ? 'blur(1.5px)' : 'none',
-                boxShadow: `${bevel}, 0 4px 12px rgba(0,0,0,0.35)`,
+                ...(isWoodDoor
+                  ? {
+                      padding: 7,
+                      ...doorWoodStyle,
+                      boxShadow: `${bevel}, 0 4px 12px rgba(0,0,0,0.35)`,
+                    }
+                  : {
+                      border: `7px solid ${look.frame}`,
+                      backgroundImage: glassBg,
+                      backgroundColor: isFluted ? 'rgba(255, 248, 235, 0.18)' : 'rgba(255, 255, 255, 0.05)',
+                      backdropFilter: isFluted ? 'blur(1.5px)' : 'none',
+                      boxShadow: `${bevel}, 0 4px 12px rgba(0,0,0,0.35)`,
+                    }),
               }}
             >
+              {isWoodDoor && (
+                <div
+                  style={{
+                    position: 'relative',
+                    width: '100%',
+                    height: '100%',
+                    backgroundImage: glassBg,
+                    backgroundColor: isFluted
+                      ? 'rgba(255, 248, 235, 0.18)'
+                      : isUpperClearWood
+                        ? 'rgba(255, 255, 255, 0.005)'
+                        : 'rgba(255, 255, 255, 0.05)',
+                    backdropFilter: isFluted ? 'blur(1.5px)' : 'none',
+                    boxShadow: isUpperClearWood
+                      ? 'inset 0 0 0 1px rgba(255,255,255,0.24), inset 1px 1px 0 rgba(255,255,255,0.16), inset 0 0 0 2px rgba(92,52,18,0.25)'
+                      : 'inset 0 0 0 1px rgba(92,52,18,0.45), inset 0 2px 6px rgba(0,0,0,0.22)',
+                  }}
+                />
+              )}
               {/* Recessed brass finger pull */}
               <div
                 style={{
@@ -2499,8 +2914,9 @@ export function CabinetDoors({
                   width: 9,
                   height: 28,
                   borderRadius: 4,
-                  background: 'rgba(120, 53, 15, 0.55)',
+                  background: 'rgba(120, 53, 15, 0.65)',
                   border: '1.5px solid #fef3c7',
+                  boxShadow: '0 2px 5px rgba(0,0,0,0.5)',
                 }}
               />
             </div>
@@ -2647,7 +3063,8 @@ export function CabinetDoors({
     );
   }
 
-  // 5. COAL-BLACK BUNKER OPAQUE SLIDING PANELS (Vault Lower — Strictly Opaque, zero label text)
+  // 5. ARMORED STEEL BUNKER SLIDING PANELS (Vault Lower — Real Forged Steel Plate + Corner Rivets + Bar Handles)
+  const bunkerSteel = getWoodSurfaceStyle(look, 'panel', 'door', '155deg');
   return (
     <div
       style={{
@@ -2670,7 +3087,7 @@ export function CabinetDoors({
               onToggle();
             }}
             onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), onToggle())}
-            title={open ? 'Click panel edge to close & lock' : 'Click to open coal-black vault panels'}
+            title={open ? 'Click panel edge to close & lock' : 'Click to slide armored steel vault panels open'}
             style={{
               position: 'absolute',
               top: 0,
@@ -2681,20 +3098,60 @@ export function CabinetDoors({
               pointerEvents: 'auto',
               transform: open ? `translateX(${left ? '-100%' : '100%'})` : 'translateX(0%)',
               transition: 'transform 0.9s cubic-bezier(0.22, 1, 0.36, 1)',
-              border: '5px solid #242424',
-              background: 'linear-gradient(155deg, #181818 0%, #0b0b0b 60%, #040404 100%)',
-              boxShadow: 'inset 0 0 24px rgba(0,0,0,0.9)',
+              border: '5px solid #2b303a',
+              ...bunkerSteel,
+              boxShadow:
+                'inset 0 0 24px rgba(0,0,0,0.82), inset 1px 1px 0 rgba(226,232,240,0.22), inset -1px -1px 0 rgba(0,0,0,0.7)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
             }}
           >
+            {/* Armored Inner Plate Frame */}
             <div
               style={{
-                width: '74%',
-                height: '62%',
-                border: '1px solid rgba(255, 255, 255, 0.08)',
+                position: 'relative',
+                width: '78%',
+                height: '66%',
+                border: '1.5px solid rgba(203, 213, 225, 0.2)',
+                boxShadow: 'inset 0 0 0 1px rgba(0,0,0,0.65), 0 1px 0 rgba(255,255,255,0.1)',
                 borderRadius: 3,
+              }}
+            >
+              {/* 4 Corner Armor Rivets */}
+              {[
+                { top: 5, left: 5 },
+                { top: 5, right: 5 },
+                { bottom: 5, left: 5 },
+                { bottom: 5, right: 5 },
+              ].map((pos, rIdx) => (
+                <span
+                  key={rIdx}
+                  style={{
+                    position: 'absolute',
+                    ...pos,
+                    width: 5,
+                    height: 5,
+                    borderRadius: '50%',
+                    background: 'radial-gradient(circle at 30% 30%, #e2e8f0, #64748b 65%, #1e293b)',
+                    boxShadow: '0 1px 2px rgba(0,0,0,0.85)',
+                  }}
+                />
+              ))}
+            </div>
+            {/* Heavy Brushed Steel & Brass Bar Handle */}
+            <span
+              style={{
+                position: 'absolute',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                [left ? 'right' : 'left']: 9,
+                width: 6,
+                height: 38,
+                borderRadius: 3,
+                background: 'linear-gradient(180deg, #e2e8f0 0%, #94a3b8 55%, #475569 100%)',
+                border: '1px solid #0f172a',
+                boxShadow: '0 2px 6px rgba(0,0,0,0.8), inset 0 1px 1px rgba(255,255,255,0.65)',
               }}
             />
           </div>
@@ -2724,6 +3181,9 @@ function ShelfRow({
   onRemoveBook,
   onEditBookThumbnail,
   onSelectBook,
+  pickedBook,
+  onPickBook,
+  onDropBook,
   onRemoveKeepsake,
   onMoveKeepsake,
   onAddKeepsake,
@@ -2744,6 +3204,9 @@ function ShelfRow({
   onRemoveBook: (shelfId: string, bookId: string) => void;
   onEditBookThumbnail?: (shelfId: string, book: Book) => void;
   onSelectBook?: (book: Book) => void;
+  pickedBook?: { fromShelfId: string; book: Book } | null;
+  onPickBook?: (shelfId: string, book: Book) => void;
+  onDropBook?: (targetShelfId: string, explicitSource?: { fromShelfId: string; bookId: string }) => void;
   onRemoveKeepsake: (shelfId: string, keepsakeId: string) => void;
   onMoveKeepsake: (fromShelfId: string, keepsakeId: string, targetShelfIndex: number) => void;
   onAddKeepsake: (shelfId: string) => void;
@@ -2752,6 +3215,7 @@ function ShelfRow({
   const [slidePct, setSlidePct] = useState(0);
   const [isEditingName, setIsEditingName] = useState(false);
   const [draftName, setDraftName] = useState(shelf.name);
+  const [isDragOver, setIsDragOver] = useState(false);
 
   useEffect(() => {
     setDraftName(shelf.name);
@@ -2792,9 +3256,46 @@ function ShelfRow({
 
   const accessible = open || !renderDoors;
   const mutedInk = look.light ? 'rgba(65,50,38,0.65)' : 'rgba(235,222,205,0.58)';
+  const canDropPickedHere = Boolean(accessible && pickedBook && pickedBook.fromShelfId !== shelf.id);
 
   return (
-    <div style={{ position: 'relative', padding: '8px 12px 0', minWidth: 0 }}>
+    <div
+      style={{
+        position: 'relative',
+        padding: '8px 12px 0',
+        minWidth: 0,
+        outline: isDragOver ? '2px dashed rgba(245, 158, 11, 0.9)' : 'none',
+        outlineOffset: -3,
+        backgroundColor: isDragOver ? 'rgba(245, 158, 11, 0.12)' : undefined,
+        borderRadius: isDragOver ? 8 : undefined,
+        transition: 'background-color 150ms ease, outline 150ms ease',
+      }}
+      onDragOver={(e) => {
+        if (!accessible) return;
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        if (!isDragOver) setIsDragOver(true);
+      }}
+      onDragLeave={() => {
+        if (isDragOver) setIsDragOver(false);
+      }}
+      onDrop={(e) => {
+        if (!accessible) return;
+        e.preventDefault();
+        setIsDragOver(false);
+        try {
+          const raw = e.dataTransfer.getData('application/json');
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (parsed?.fromShelfId && parsed?.bookId) {
+              onDropBook?.(shelf.id, parsed);
+              return;
+            }
+          }
+        } catch {}
+        onDropBook?.(shelf.id);
+      }}
+    >
       {/* Interior Cove Spotlight Glow */}
       <div
         style={{
@@ -2869,6 +3370,24 @@ function ShelfRow({
         </div>
 
         <span style={{ display: 'flex', gap: 5, alignItems: 'center', flexShrink: 0 }}>
+          {canDropPickedHere && pickedBook && (
+            <button
+              type="button"
+              onClick={() =>
+                onDropBook?.(shelf.id, {
+                  fromShelfId: pickedBook.fromShelfId,
+                  bookId: pickedBook.book.id,
+                })
+              }
+              style={{
+                boxShadow: '0 3px 8px rgba(0,0,0,0.48), inset 0 1px 0 rgba(255,255,255,0.45)',
+              }}
+              className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500 text-stone-950 hover:bg-amber-400 transition cursor-pointer animate-pulse"
+              title={`Drop "${pickedBook.book.title}" into ${shelf.name}`}
+            >
+              Drop Here
+            </button>
+          )}
           <span style={{ font: '500 10.5px system-ui', color: mutedInk }}>
             {shelf.books.length} {shelf.books.length === 1 ? 'book' : 'books'}
           </span>
@@ -2876,7 +3395,7 @@ function ShelfRow({
           <span
             style={{
               display: 'flex',
-              gap: 2,
+              gap: 4,
               opacity: accessible ? 1 : 0.35,
               pointerEvents: accessible ? 'auto' : 'none',
             }}
@@ -2884,10 +3403,13 @@ function ShelfRow({
             <button
               type="button"
               onClick={() => onAddKeepsake(shelf.id)}
-              className="px-1.5 py-0.5 rounded text-[10px] transition cursor-pointer"
+              className="px-1.5 py-0.5 rounded text-[10px] hover:brightness-110 active:translate-y-px transition cursor-pointer"
               style={{
-                background: look.light ? 'rgba(180,83,9,0.12)' : 'rgba(245,158,11,0.15)',
+                background: look.light ? 'rgba(245,158,11,0.22)' : 'rgba(245,158,11,0.2)',
                 color: look.light ? '#78350f' : '#fcd34d',
+                border: look.light ? '1px solid rgba(180,83,9,0.28)' : '1px solid rgba(251,191,36,0.35)',
+                boxShadow:
+                  '0 2px 5px rgba(0,0,0,0.42), 0 1px 2px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.22)',
               }}
               title="Add keepsake ornament"
             >
@@ -2897,10 +3419,13 @@ function ShelfRow({
               type="button"
               disabled={shelfIdx === 0}
               onClick={() => onMoveShelf(shelfIdx, -1)}
-              className="px-1 py-0.5 rounded text-[10px] transition disabled:opacity-30 cursor-pointer"
+              className="px-1.5 py-0.5 rounded text-[10px] font-bold hover:brightness-110 active:translate-y-px transition disabled:opacity-30 cursor-pointer"
               style={{
-                background: look.light ? 'rgba(56,34,20,0.12)' : 'rgba(68,64,60,0.45)',
+                background: look.light ? 'rgba(56,34,20,0.16)' : 'rgba(68,64,60,0.68)',
                 color: ink,
+                border: look.light ? '1px solid rgba(56,34,20,0.25)' : '1px solid rgba(255,255,255,0.2)',
+                boxShadow:
+                  '0 2px 5px rgba(0,0,0,0.45), 0 1px 2px rgba(0,0,0,0.32), inset 0 1px 0 rgba(255,255,255,0.22)',
               }}
               title="Move section up"
             >
@@ -2910,10 +3435,13 @@ function ShelfRow({
               type="button"
               disabled={shelfIdx === totalShelves - 1}
               onClick={() => onMoveShelf(shelfIdx, 1)}
-              className="px-1 py-0.5 rounded text-[10px] transition disabled:opacity-30 cursor-pointer"
+              className="px-1.5 py-0.5 rounded text-[10px] font-bold hover:brightness-110 active:translate-y-px transition disabled:opacity-30 cursor-pointer"
               style={{
-                background: look.light ? 'rgba(56,34,20,0.12)' : 'rgba(68,64,60,0.45)',
+                background: look.light ? 'rgba(56,34,20,0.16)' : 'rgba(68,64,60,0.68)',
                 color: ink,
+                border: look.light ? '1px solid rgba(56,34,20,0.25)' : '1px solid rgba(255,255,255,0.2)',
+                boxShadow:
+                  '0 2px 5px rgba(0,0,0,0.45), 0 1px 2px rgba(0,0,0,0.32), inset 0 1px 0 rgba(255,255,255,0.22)',
               }}
               title="Move section down"
             >
@@ -2977,15 +3505,26 @@ function ShelfRow({
             const c = COVER[b.cover] ?? COVER.Amber!;
             const bookHeight = 108 + ((n + shelfIdx) % 3) * 4;
             const hasCustomBg = Boolean(b.thumbnail?.bgColor);
+            const isPicked = pickedBook?.book.id === b.id && pickedBook?.fromShelfId === shelf.id;
             return (
               <div
                 key={b.id}
                 role="button"
                 tabIndex={0}
-                title={`${b.title} · Click to open in Read Studio (Hover corner icon to customize cover)`}
+                draggable={accessible}
+                onDragStart={(e) => {
+                  if (!accessible) return;
+                  e.dataTransfer.setData(
+                    'application/json',
+                    JSON.stringify({ fromShelfId: shelf.id, bookId: b.id })
+                  );
+                  e.dataTransfer.effectAllowed = 'move';
+                  onPickBook?.(shelf.id, b);
+                }}
+                title={`${b.title} · Drag or Pick & Drop to move between sections · Click to open in Read Studio`}
                 onClick={() => onSelectBook?.(b)}
                 onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && onSelectBook?.(b)}
-                className="sh-book-item group"
+                className={`sh-book-item group ${isPicked ? 'ring-2 ring-amber-400 opacity-75 scale-95' : ''}`}
                 style={{
                   flex: 'none',
                   width: 78,
@@ -3004,7 +3543,7 @@ function ShelfRow({
                   boxShadow:
                     '4px 6px 10px rgba(0,0,0,0.52), inset -3px 0 0 rgba(255,255,255,0.32), inset 0 1px 0 rgba(255,255,255,0.2)',
                   color: b.thumbnail?.fgColor || c.ink,
-                  cursor: 'pointer',
+                  cursor: accessible ? 'grab' : 'pointer',
                   position: 'relative',
                 }}
               >
@@ -3017,9 +3556,28 @@ function ShelfRow({
                       onEditBookThumbnail(shelf.id, b);
                     }}
                     title="Edit Cover Logo, Font, Colors or 100 Icons"
-                    className="opacity-85 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity absolute -top-1.5 -left-1.5 w-5 h-5 rounded-full bg-amber-500 text-stone-950 border border-amber-200 flex items-center justify-center shadow z-20 cursor-pointer"
+                    style={{ boxShadow: '0 3px 8px rgba(0,0,0,0.62), 0 1px 2px rgba(0,0,0,0.45)' }}
+                    className="opacity-85 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity absolute -top-1.5 -left-1.5 w-5 h-5 rounded-full bg-amber-500 text-stone-950 border border-amber-200 flex items-center justify-center z-20 cursor-pointer"
                   >
                     <Palette className="w-2.5 h-2.5" />
+                  </button>
+                )}
+
+                {/* Pick & Drop button for moving between shelf sections */}
+                {accessible && onPickBook && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onPickBook(shelf.id, b);
+                    }}
+                    title={isPicked ? 'Cancel pick up' : 'Pick up book to move to another section'}
+                    style={{ boxShadow: '0 3px 8px rgba(0,0,0,0.62), 0 1px 2px rgba(0,0,0,0.45)' }}
+                    className={`${
+                      isPicked ? 'opacity-100 bg-amber-400 text-stone-950' : 'opacity-85 sm:opacity-0 sm:group-hover:opacity-100 bg-stone-900 text-amber-200'
+                    } transition-opacity absolute -bottom-1.5 -left-1.5 w-5 h-5 rounded-full border border-amber-300/70 flex items-center justify-center z-20 cursor-pointer`}
+                  >
+                    <Move className="w-2.5 h-2.5" />
                   </button>
                 )}
 
@@ -3032,7 +3590,8 @@ function ShelfRow({
                       onRemoveBook(shelf.id, b.id);
                     }}
                     title="Remove book from shelf"
-                    className="opacity-85 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-stone-950 text-amber-300 border border-amber-400/50 flex items-center justify-center shadow z-20 cursor-pointer"
+                    style={{ boxShadow: '0 3px 8px rgba(0,0,0,0.62), 0 1px 2px rgba(0,0,0,0.45)' }}
+                    className="opacity-85 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-stone-950 text-amber-300 border border-amber-400/50 flex items-center justify-center z-20 cursor-pointer"
                   >
                     <X className="w-2.5 h-2.5" />
                   </button>
@@ -3110,7 +3669,9 @@ function ShelfRow({
             marginBottom: 8,
             borderRadius: 5,
             border: `1.5px dashed ${look.light ? '#785a3a' : '#d4af37'}`,
-            background: look.light ? 'rgba(120,90,58,0.08)' : 'rgba(255,255,255,0.06)',
+            background: look.light ? 'rgba(120,90,58,0.1)' : 'rgba(255,255,255,0.08)',
+            boxShadow:
+              '0 4px 10px rgba(0,0,0,0.38), 0 1px 3px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.16)',
             color: ink,
             display: 'flex',
             flexDirection: 'column',
@@ -3142,10 +3703,13 @@ function ShelfRow({
         <button
           type="button"
           onClick={() => scrollByDelta(-150)}
-          className="px-1.5 py-0.5 rounded text-[10px] font-bold transition cursor-pointer"
+          className="px-1.5 py-0.5 rounded text-[10px] font-bold hover:brightness-110 active:translate-y-px transition cursor-pointer"
           style={{
             color: ink,
-            background: look.light ? 'rgba(56,34,20,0.12)' : 'rgba(0,0,0,0.28)',
+            background: look.light ? 'rgba(56,34,20,0.16)' : 'rgba(15,15,18,0.52)',
+            border: look.light ? '1px solid rgba(56,34,20,0.24)' : '1px solid rgba(255,255,255,0.18)',
+            boxShadow:
+              '0 2px 5px rgba(0,0,0,0.45), 0 1px 2px rgba(0,0,0,0.32), inset 0 1px 0 rgba(255,255,255,0.18)',
           }}
           title="Slide books left"
         >
@@ -3166,10 +3730,13 @@ function ShelfRow({
         <button
           type="button"
           onClick={() => scrollByDelta(150)}
-          className="px-1.5 py-0.5 rounded text-[10px] font-bold transition cursor-pointer"
+          className="px-1.5 py-0.5 rounded text-[10px] font-bold hover:brightness-110 active:translate-y-px transition cursor-pointer"
           style={{
             color: ink,
-            background: look.light ? 'rgba(56,34,20,0.12)' : 'rgba(0,0,0,0.28)',
+            background: look.light ? 'rgba(56,34,20,0.16)' : 'rgba(15,15,18,0.52)',
+            border: look.light ? '1px solid rgba(56,34,20,0.24)' : '1px solid rgba(255,255,255,0.18)',
+            boxShadow:
+              '0 2px 5px rgba(0,0,0,0.45), 0 1px 2px rgba(0,0,0,0.32), inset 0 1px 0 rgba(255,255,255,0.18)',
           }}
           title="Slide books right"
         >
@@ -3177,13 +3744,17 @@ function ShelfRow({
         </button>
       </div>
 
-      {/* Wooden Swirl / Honed Basalt Shelf Plank */}
+      {/* Real Photographic Wood / Steel Vault / Honed Basalt Shelf Plank */}
       <div
         style={{
           margin: '0 -12px',
-          height: 13,
-          backgroundImage: `${grain(look.grain, look.name === 'Mocha Espresso')}linear-gradient(180deg, ${look.plank}, ${look.dark})`,
-          boxShadow: '0 4px 7px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.32)',
+          height: look.grain > 0 || look.isVault ? 14 : 13,
+          ...getWoodSurfaceStyle(look, 'h', 'plank', '180deg'),
+          boxShadow: look.isVault
+            ? '0 6px 10px rgba(0,0,0,0.68), inset 0 1.5px 0 rgba(226,232,240,0.38), inset 0 -2px 3px rgba(0,0,0,0.72)'
+            : look.grain > 0
+              ? '0 5px 8px rgba(0,0,0,0.48), inset 0 1.5px 0 rgba(255,238,210,0.34), inset 0 -2px 3px rgba(0,0,0,0.42)'
+              : '0 4px 7px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.32)',
         }}
       />
     </div>
@@ -3207,6 +3778,9 @@ export function Compartment({
   onRemoveBook,
   onEditBookThumbnail,
   onSelectBook,
+  pickedBook,
+  onPickBook,
+  onDropBook,
   onRemoveKeepsake,
   onMoveKeepsake,
   onAddKeepsake,
@@ -3227,6 +3801,9 @@ export function Compartment({
   onRemoveBook: (shelfId: string, bookId: string) => void;
   onEditBookThumbnail?: (shelfId: string, book: Book) => void;
   onSelectBook?: (book: Book) => void;
+  pickedBook?: { fromShelfId: string; book: Book } | null;
+  onPickBook?: (shelfId: string, book: Book) => void;
+  onDropBook?: (targetShelfId: string, explicitSource?: { fromShelfId: string; bookId: string }) => void;
   onRemoveKeepsake: (shelfId: string, keepsakeId: string) => void;
   onMoveKeepsake: (fromShelfId: string, keepsakeId: string, targetShelfIndex: number) => void;
   onAddKeepsake: (shelfId: string) => void;
@@ -3251,10 +3828,35 @@ export function Compartment({
           position: 'absolute',
           inset: 0,
           overflow: 'hidden',
-          background:
-            night && lit
-              ? `radial-gradient(ellipse at 50% 0%, rgba(254,240,138,0.58), transparent 75%), ${look.back}`
-              : look.back,
+          ...(look.grain > 0 || look.isVault
+            ? (() => {
+                const backMat = getWoodSurfaceStyle(look, 'panel', 'back');
+                return {
+                  backgroundColor: backMat.backgroundColor,
+                  backgroundImage:
+                    night && lit
+                      ? `radial-gradient(ellipse at 50% 0%, rgba(254,240,138,0.52), transparent 72%), ${backMat.backgroundImage}`
+                      : backMat.backgroundImage,
+                  backgroundSize:
+                    night && lit
+                      ? `100% 100%, ${backMat.backgroundSize}`
+                      : backMat.backgroundSize,
+                  backgroundRepeat:
+                    night && lit
+                      ? `no-repeat, ${backMat.backgroundRepeat}`
+                      : backMat.backgroundRepeat,
+                  backgroundPosition:
+                    night && lit
+                      ? `center, ${backMat.backgroundPosition}`
+                      : backMat.backgroundPosition,
+                };
+              })()
+            : {
+                background:
+                  night && lit
+                    ? `radial-gradient(ellipse at 50% 0%, rgba(254,240,138,0.58), transparent 75%), ${look.back}`
+                    : look.back,
+              }),
           boxShadow:
             'inset 0 10px 22px rgba(0,0,0,0.48), inset 10px 0 16px rgba(0,0,0,0.3), inset -10px 0 16px rgba(0,0,0,0.3)',
         }}
@@ -3290,6 +3892,9 @@ export function Compartment({
             onRemoveBook={onRemoveBook}
             onEditBookThumbnail={onEditBookThumbnail}
             onSelectBook={onSelectBook}
+            pickedBook={pickedBook}
+            onPickBook={onPickBook}
+            onDropBook={onDropBook}
             onRemoveKeepsake={onRemoveKeepsake}
             onMoveKeepsake={onMoveKeepsake}
             onAddKeepsake={onAddKeepsake}
@@ -3330,6 +3935,9 @@ export function Almirah({
   onRemoveBook,
   onEditBookThumbnail,
   onSelectBook,
+  pickedBook,
+  onPickBook,
+  onDropBook,
   onRemoveKeepsake,
   onMoveKeepsake,
   onAddKeepsake,
@@ -3352,6 +3960,9 @@ export function Almirah({
   onRemoveBook: (shelfId: string, bookId: string) => void;
   onEditBookThumbnail?: (shelfId: string, book: Book) => void;
   onSelectBook?: (book: Book) => void;
+  pickedBook?: { fromShelfId: string; book: Book } | null;
+  onPickBook?: (shelfId: string, book: Book) => void;
+  onDropBook?: (targetShelfId: string, explicitSource?: { fromShelfId: string; bookId: string }) => void;
   onRemoveKeepsake: (shelfId: string, keepsakeId: string) => void;
   onMoveKeepsake: (fromShelfId: string, keepsakeId: string, targetShelfIndex: number) => void;
   onAddKeepsake: (shelfId: string) => void;
@@ -3362,11 +3973,11 @@ export function Almirah({
   const bottom = a.shelves[a.shelves.length - 1];
   const upper = a.shelves.slice(0, -1);
 
-  const wood = (dir: string): CSSProperties => ({
-    backgroundImage: `${grain(look.grain, look.name === 'Mocha Espresso')}linear-gradient(${dir}, ${look.frame}, ${look.dark})`,
-  });
+  const wood = (dir: string): CSSProperties =>
+    getWoodSurfaceStyle(look, 'h', 'frame', dir);
 
-  const stile = (dir: string): CSSProperties => ({ ...wood(dir) });
+  const stile = (dir: string): CSSProperties =>
+    getWoodSurfaceStyle(look, 'v', 'frame', dir);
 
   const shadow = night
     ? '0 20px 44px rgba(0,0,0,0.78)'
@@ -3383,6 +3994,9 @@ export function Almirah({
     onRemoveBook,
     onEditBookThumbnail,
     onSelectBook,
+    pickedBook,
+    onPickBook,
+    onDropBook,
     onRemoveKeepsake,
     onMoveKeepsake,
     onAddKeepsake,
@@ -3421,6 +4035,7 @@ export function Almirah({
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
+            position: 'relative',
             borderRadius: '4px 4px 0 0',
             boxShadow: '0 4px 6px rgba(0,0,0,.4), inset 0 2px 0 rgba(255,255,255,.3)',
             ...wood('90deg'),
@@ -3431,17 +4046,40 @@ export function Almirah({
               width: '94%',
               height: 3,
               borderRadius: 1,
-              background: trim.corniceInlay,
+              background: look.isVault
+                ? 'linear-gradient(90deg, transparent, rgba(203,213,225,0.55), transparent)'
+                : trim.corniceInlay,
               borderBottom: '1px solid rgba(255,255,255,0.18)',
             }}
           />
+          {look.isVault && (
+            <>
+              <span style={{ position: 'absolute', left: 10, width: 6, height: 6, borderRadius: '50%', background: 'radial-gradient(circle at 30% 30%, #e2e8f0, #475569)', boxShadow: '0 1px 2px rgba(0,0,0,0.85)' }} />
+              <span style={{ position: 'absolute', right: 10, width: 6, height: 6, borderRadius: '50%', background: 'radial-gradient(circle at 30% 30%, #e2e8f0, #475569)', boxShadow: '0 1px 2px rgba(0,0,0,0.85)' }} />
+            </>
+          )}
         </div>
 
         {/* Almirah Body with Side Stiles and Compartments */}
         <div style={{ display: 'flex', minWidth: 0 }}>
           {/* Left Vertical Stile */}
-          <div style={{ ...stile('90deg'), position: 'relative', zIndex: 1 }} className="sh-stile flex items-center justify-center pointer-events-none">
+          <div
+            style={{
+              ...stile('90deg'),
+              position: 'relative',
+              zIndex: 1,
+              boxShadow: look.isVault ? 'inset -2px 0 6px rgba(0,0,0,0.75), inset 1px 0 0 rgba(226,232,240,0.22)' : undefined,
+            }}
+            className="sh-stile flex items-center justify-center pointer-events-none"
+          >
             <div style={{ width: 1, height: '70%', background: 'rgba(255,255,255,0.15)' }} />
+            {look.isVault && (
+              <div style={{ position: 'absolute', inset: '22px 0', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center' }}>
+                {[0, 1, 2, 3, 4].map((r) => (
+                  <span key={r} style={{ width: 5, height: 5, borderRadius: '50%', background: 'radial-gradient(circle at 30% 30%, #e2e8f0, #475569)', boxShadow: '0 1px 2px rgba(0,0,0,0.85)' }} />
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Center Bays Column (zIndex: 8 + overflow: visible lets hinged vault/glass doors swing edge-to-edge) */}
@@ -3467,7 +4105,7 @@ export function Almirah({
                     <div
                       style={{
                         height: 14,
-                        boxShadow: '0 4px 6px rgba(0,0,0,.42)',
+                        boxShadow: '0 4px 6px rgba(0,0,0,.42), inset 0 1px 0 rgba(255,255,255,0.22)',
                         ...wood('90deg'),
                       }}
                     />
@@ -3488,8 +4126,23 @@ export function Almirah({
           </div>
 
           {/* Right Vertical Stile */}
-          <div style={{ ...stile('270deg'), position: 'relative', zIndex: 1 }} className="sh-stile flex items-center justify-center pointer-events-none">
+          <div
+            style={{
+              ...stile('270deg'),
+              position: 'relative',
+              zIndex: 1,
+              boxShadow: look.isVault ? 'inset 2px 0 6px rgba(0,0,0,0.75), inset -1px 0 0 rgba(226,232,240,0.22)' : undefined,
+            }}
+            className="sh-stile flex items-center justify-center pointer-events-none"
+          >
             <div style={{ width: 1, height: '70%', background: 'rgba(0,0,0,0.2)' }} />
+            {look.isVault && (
+              <div style={{ position: 'absolute', inset: '22px 0', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center' }}>
+                {[0, 1, 2, 3, 4].map((r) => (
+                  <span key={r} style={{ width: 5, height: 5, borderRadius: '50%', background: 'radial-gradient(circle at 30% 30%, #e2e8f0, #475569)', boxShadow: '0 1px 2px rgba(0,0,0,0.85)' }} />
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
@@ -3513,8 +4166,8 @@ export function Almirah({
             <button
               type="button"
               onClick={onPrevAlmirah}
-              className="p-1.5 rounded-lg bg-black/20 hover:bg-black/35 border border-white/15 transition cursor-pointer"
-              style={{ color: plinthInk }}
+              className="p-1.5 rounded-lg bg-black/25 hover:bg-black/40 border border-white/20 transition cursor-pointer"
+              style={{ color: plinthInk, boxShadow: '0 2px 6px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.18)' }}
               title="Previous Almirah Style"
             >
               <ChevronLeft className="w-3.5 h-3.5" />
@@ -3523,8 +4176,12 @@ export function Almirah({
             <button
               type="button"
               onClick={onNextAlmirah}
-              className="px-3 py-1 rounded-lg bg-black/25 hover:bg-black/40 border text-[11px] font-bold flex items-center gap-2 shadow-xs transition cursor-pointer"
-              style={{ color: plinthInk, borderColor: `${trim.accentHex}66` }}
+              className="px-3 py-1 rounded-lg bg-black/25 hover:bg-black/40 border text-[11px] font-bold flex items-center gap-2 transition cursor-pointer"
+              style={{
+                color: plinthInk,
+                borderColor: `${trim.accentHex}66`,
+                boxShadow: '0 2px 6px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.18)',
+              }}
               title="Click to switch to the next Almirah style"
             >
               <span>{look.name}</span>
@@ -3545,8 +4202,8 @@ export function Almirah({
             <button
               type="button"
               onClick={onAddShelf}
-              className="px-2.5 py-1 rounded-lg bg-black/20 hover:bg-black/35 border border-white/15 text-[10.5px] font-semibold flex items-center gap-1 transition cursor-pointer"
-              style={{ color: plinthInk }}
+              className="px-2.5 py-1 rounded-lg bg-black/25 hover:bg-black/40 border border-white/20 text-[10.5px] font-semibold flex items-center gap-1 transition cursor-pointer"
+              style={{ color: plinthInk, boxShadow: '0 2px 6px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.18)' }}
               title="Add an extra compartment inside this almirah"
             >
               <Plus className="w-3 h-3" style={{ color: look.light ? '#5a3a18' : trim.accentHex }} />
@@ -3556,8 +4213,12 @@ export function Almirah({
             <button
               type="button"
               onClick={onOpenNewAlmirah}
-              className="px-2.5 py-1 rounded-lg text-[10.5px] font-bold flex items-center gap-1 shadow-xs transition cursor-pointer hover:brightness-110"
-              style={{ background: trim.plinthAccentBg, color: trim.plinthText }}
+              className="px-2.5 py-1 rounded-lg text-[10.5px] font-bold flex items-center gap-1 transition cursor-pointer hover:brightness-110"
+              style={{
+                background: trim.plinthAccentBg,
+                color: trim.plinthText,
+                boxShadow: '0 3px 8px rgba(0,0,0,0.48), inset 0 1px 0 rgba(255,255,255,0.28)',
+              }}
               title="Create a new custom almirah"
             >
               <FolderPlus className="w-3 h-3" />
@@ -3574,8 +4235,30 @@ export function Almirah({
           </>
         ) : (
           <>
-            <div style={{ position: 'absolute', bottom: -14, left: 16, width: 14, height: 14, background: look.dark, borderRadius: '0 0 4px 4px' }} />
-            <div style={{ position: 'absolute', bottom: -14, right: 16, width: 14, height: 14, background: look.dark, borderRadius: '0 0 4px 4px' }} />
+            <div
+              style={{
+                position: 'absolute',
+                bottom: -14,
+                left: 16,
+                width: look.isVault ? 20 : 14,
+                height: 14,
+                ...(look.grain > 0 || look.isVault ? getWoodSurfaceStyle(look, 'v', 'frame', '90deg') : { background: look.dark }),
+                borderRadius: '0 0 4px 4px',
+                boxShadow: 'inset 0 2px 3px rgba(0,0,0,0.5), 0 2px 5px rgba(0,0,0,0.45)',
+              }}
+            />
+            <div
+              style={{
+                position: 'absolute',
+                bottom: -14,
+                right: 16,
+                width: look.isVault ? 20 : 14,
+                height: 14,
+                ...(look.grain > 0 || look.isVault ? getWoodSurfaceStyle(look, 'v', 'frame', '270deg') : { background: look.dark }),
+                borderRadius: '0 0 4px 4px',
+                boxShadow: 'inset 0 2px 3px rgba(0,0,0,0.5), 0 2px 5px rgba(0,0,0,0.45)',
+              }}
+            />
           </>
         )}
       </div>
@@ -3938,7 +4621,9 @@ export function Mini({ design, themeId = '1' }: { design: string; themeId?: Shel
         height: 52,
         boxSizing: 'border-box',
         margin: '0 auto',
-        background: `linear-gradient(180deg, ${l.frame}, ${l.dark})`,
+        ...(l.grain > 0 || l.isVault
+          ? getWoodSurfaceStyle(l, 'v', 'frame', '180deg')
+          : { background: `linear-gradient(180deg, ${l.frame}, ${l.dark})` }),
         boxShadow: '1px 2px 4px rgba(0,0,0,.4)',
         borderRadius: 2,
       }}
@@ -3948,13 +4633,34 @@ export function Mini({ design, themeId = '1' }: { design: string; themeId?: Shel
           key={k}
           style={{
             flex: 1,
-            background:
-              l.door === 'glass' || l.door === 'split-glass'
-                ? 'linear-gradient(115deg, rgba(255,255,255,.6), rgba(255,255,255,.12))'
-                : l.face,
+            position: 'relative',
+            ...(l.isVault
+              ? getWoodSurfaceStyle(l, 'panel', 'door', '135deg')
+              : {
+                  background:
+                    l.door === 'glass' || l.door === 'split-glass'
+                      ? 'linear-gradient(115deg, rgba(255,255,255,.35), rgba(255,255,255,.06))'
+                      : l.face,
+                }),
             boxShadow: `inset 0 0 0 1px ${l.dark}`,
           }}
-        />
+        >
+          {l.isVault && k === 0 && (
+            <span
+              style={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                width: 8,
+                height: 8,
+                borderRadius: '50%',
+                border: '1.5px solid #94a3b8',
+                background: '#d4af37',
+              }}
+            />
+          )}
+        </span>
       ))}
     </span>
   );
@@ -4042,9 +4748,10 @@ export default function ShelfRoom({
   /* Doors start closed so books appear behind glass (or opaque steel) and unlock when opened */
   const [openMap, setOpenMap] = useState<Record<string, boolean>>({});
 
-  /* Modals */
+  /* Modals & Book Pick/Drop */
   const [activeAddShelfId, setActiveAddShelfId] = useState<string | null>(null);
   const [editingShelfBook, setEditingShelfBook] = useState<{ shelfId: string; book: Book } | null>(null);
+  const [pickedBook, setPickedBook] = useState<{ fromShelfId: string; book: Book } | null>(null);
   const [isNewAlmirahModalOpen, setIsNewAlmirahModalOpen] = useState(false);
   const [newAlmirahName, setNewAlmirahName] = useState('');
   const [selectedDesign, setSelectedDesign] = useState<string>(DESIGNS[0]);
@@ -4151,6 +4858,9 @@ export default function ShelfRoom({
   };
 
   const handleRemoveBookFromShelf = (shelfId: string, bookId: string) => {
+    if (pickedBook?.book.id === bookId && pickedBook.fromShelfId === shelfId) {
+      setPickedBook(null);
+    }
     save(
       data.map((a) => ({
         ...a,
@@ -4161,6 +4871,54 @@ export default function ShelfRoom({
         ),
       }))
     );
+  };
+
+  const handleTogglePickBook = (shelfId: string, book: Book) => {
+    setPickedBook((prev) =>
+      prev && prev.book.id === book.id && prev.fromShelfId === shelfId
+        ? null
+        : { fromShelfId: shelfId, book }
+    );
+  };
+
+  const handleDropBookToShelf = (
+    targetShelfId: string,
+    explicitSource?: { fromShelfId: string; bookId: string }
+  ) => {
+    const srcShelfId = explicitSource?.fromShelfId ?? pickedBook?.fromShelfId;
+    const srcBookId = explicitSource?.bookId ?? pickedBook?.book.id;
+    if (!srcShelfId || !srcBookId || srcShelfId === targetShelfId) {
+      setPickedBook(null);
+      return;
+    }
+
+    let movedBook: Book | undefined;
+    const stripped = data.map((a) => ({
+      ...a,
+      shelves: a.shelves.map((s) => {
+        if (s.id !== srcShelfId) return s;
+        const found = s.books.find((b) => b.id === srcBookId);
+        if (found) movedBook = found;
+        return { ...s, books: s.books.filter((b) => b.id !== srcBookId) };
+      }),
+    }));
+
+    if (!movedBook) {
+      setPickedBook(null);
+      return;
+    }
+
+    const updated = stripped.map((a) => ({
+      ...a,
+      shelves: a.shelves.map((s) =>
+        s.id === targetShelfId
+          ? { ...s, books: [...s.books, movedBook!] }
+          : s
+      ),
+    }));
+
+    save(updated);
+    setPickedBook(null);
   };
 
   const handleRemoveKeepsake = (shelfId: string, keepsakeId: string) => {
@@ -4266,11 +5024,35 @@ export default function ShelfRoom({
     <div style={{ maxWidth: 1180, margin: '0 auto', padding: '6px 6px', font: '14px system-ui', position: 'relative' }}>
       <style>{CSS}</style>
 
-      {/* Floating Shelf Zoom Control Bar (Pinch-Zoom + Tap Zoom for Mobile & Desktop) */}
+      {/* Floating Shelf Pick-and-Drop Banner + Zoom Control Bar */}
       <div
-        className="flex items-center justify-end mb-2 px-1"
+        className="flex flex-wrap items-center justify-between gap-2 mb-2 px-1"
         style={{ position: 'relative', zIndex: 25 }}
       >
+        {pickedBook ? (
+          <div
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border shadow-sm backdrop-blur-md text-xs font-semibold"
+            style={{
+              background: night ? 'rgba(68, 42, 16, 0.9)' : 'rgba(254, 243, 199, 0.95)',
+              borderColor: 'rgba(245, 158, 11, 0.7)',
+              color: night ? '#fef3c7' : '#78350f',
+            }}
+          >
+            <Move className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+            <span className="truncate max-w-[230px]">
+              Picked &ldquo;{pickedBook.book.title}&rdquo; · Drag or click Drop Here on any open section
+            </span>
+            <button
+              type="button"
+              onClick={() => setPickedBook(null)}
+              className="px-2 py-0.5 rounded-full bg-black/15 hover:bg-black/25 text-[10.5px] font-bold cursor-pointer"
+            >
+              Cancel
+            </button>
+          </div>
+        ) : (
+          <span />
+        )}
         <div
           className="inline-flex items-center gap-1 px-2 py-1 rounded-full border shadow-sm backdrop-blur-md"
           style={{
@@ -4361,6 +5143,9 @@ export default function ShelfRoom({
                         onRemoveBook={handleRemoveBookFromShelf}
                         onEditBookThumbnail={(shelfId, book) => setEditingShelfBook({ shelfId, book })}
                         onSelectBook={onSelectBook}
+                        pickedBook={pickedBook}
+                        onPickBook={handleTogglePickBook}
+                        onDropBook={handleDropBookToShelf}
                         onRemoveKeepsake={handleRemoveKeepsake}
                         onMoveKeepsake={handleMoveKeepsake}
                         onAddKeepsake={handleAddKeepsakeToShelf}

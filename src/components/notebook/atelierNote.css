@@ -2445,21 +2445,29 @@ html.dark .an-ed .an-hand-underline {
   padding-left: 4px;
 }
 
-/* Floating Resizable Video Player Windows */
+/* Bottom-Docked Video Player Windows (Stuck firmly to bottom side) */
 .an-vw {
   position: fixed;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
   z-index: 100;
-  width: 440px;
-  height: 310px;
-  min-width: 280px;
-  min-height: 200px;
+  width: min(500px, calc(100vw - 16px));
+  height: 295px;
+  max-width: calc(100vw - 16px);
+  max-height: calc(100vh - 76px);
   background: #140e0a;
-  border-radius: 16px;
-  box-shadow: 0 30px 60px -20px rgba(0,0,0,.6), 0 0 0 1px #382518;
+  border-radius: 14px 14px 0 0;
+  box-shadow: 0 -10px 36px rgba(0, 0, 0, 0.55), 0 0 0 1px #382518;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   color: #efe4d4;
+}
+
+.an-vw.maximized {
+  width: min(920px, calc(100vw - 24px));
+  height: min(74vh, 620px);
 }
 
 .an-vw.min {
@@ -2472,13 +2480,7 @@ html.dark .an-ed .an-hand-underline {
   align-items: center;
   gap: 8px;
   padding: 7px 8px 7px 12px;
-  cursor: grab;
   user-select: none;
-  touch-action: none;
-}
-
-.an-vw-h:active {
-  cursor: grabbing;
 }
 
 .an-vw-h .t {
@@ -2549,26 +2551,6 @@ html.dark .an-ed .an-hand-underline {
   min-width: 44px;
 }
 
-.an-speed {
-  display: flex;
-  background: rgba(255,255,255,.06);
-  border-radius: 8px;
-  padding: 2px;
-}
-
-.an-speed button {
-  font-family: var(--an-mono);
-  font-size: 10.5px;
-  padding: 3px 6px;
-  border-radius: 6px;
-  color: #B7B9B1;
-}
-
-.an-speed button[aria-pressed="true"] {
-  background: #efe4d4;
-  color: #140e0a;
-}
-
 .an-vw .stamp {
   display: flex;
   align-items: center;
@@ -2580,17 +2562,6 @@ html.dark .an-ed .an-hand-underline {
   color: #140e0a;
   white-space: nowrap;
   cursor: pointer;
-}
-
-.an-vw-rz {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  width: 18px;
-  height: 18px;
-  cursor: nwse-resize;
-  touch-action: none;
-  background: linear-gradient(135deg, transparent 55%, rgba(255,255,255,.35) 55% 62%, transparent 62% 72%, rgba(255,255,255,.35) 72% 79%, transparent 79%);
 }
 
 .an-dock {

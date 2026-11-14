@@ -51,7 +51,7 @@ export const DESIGN_OPTIONS = [
     num: '3',
     name: 'Coastal Beach',
     label: 'Coastal Beach Balcony',
-    tagline: 'Sea-glass & seashell sand tones, coastal pebble buttons & ocean balcony with leaping dolphins',
+    tagline: 'Sea-glass & seashell sand tones, coastal pebble buttons & sunlit ocean balcony',
     badge: 'Theme 3',
   },
   {

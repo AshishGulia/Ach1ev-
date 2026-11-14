@@ -55,7 +55,7 @@ const getEmptyMainBook = (subject: SubjectCourse): MedicalBook => ({
   title: 'No Book Loaded',
   subject,
   author: 'Personal Study Desk',
-  edition: 'Upload a PDF or select from Shelf',
+  edition: 'Upload a document (PDF, Word, EPUB) or select from Shelf',
   coverColor: '#7c4521',
   bookmarks: [],
   pages: [],
@@ -365,25 +365,54 @@ export const ReadStudioView: React.FC<ReadStudioViewProps> = ({
     setDriveUploadErr(null);
     const sizeLabel = `${(file.size / (1024 * 1024)).toFixed(2)} MB`;
 
+    const ext = file.name.split('.').pop()?.toLowerCase() || '';
+    const isPdf = ext === 'pdf' || file.type === 'application/pdf';
+    const isTextReadable = ext === 'txt' || ext === 'md' || ext === 'csv' || ext === 'rtf';
+
     if (uploadTargetMode === 'local') {
       const localUrl = URL.createObjectURL(file);
+      let renderedHtml = '';
+      if (isTextReadable) {
+        try {
+          const rawText = await file.text();
+          const escaped = rawText
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+          renderedHtml = `<pre style="white-space:pre-wrap;font-family:inherit;line-height:1.7;">${escaped}</pre>`;
+        } catch {}
+      } else if (!isPdf) {
+        const formatLabel = ext ? ext.toUpperCase() : 'DOCUMENT';
+        renderedHtml = `
+          <div style="padding:20px;border-radius:16px;border:1px solid rgba(164,124,67,0.35);background:rgba(164,124,67,0.08);">
+            <p style="margin:0 0 8px;font-weight:700;font-size:15px;">${file.name}</p>
+            <p style="margin:0 0 14px;font-size:13px;opacity:0.8;">Format: <strong>${formatLabel}</strong> · Size: ${sizeLabel}. Ready for reference in Read Studio.</p>
+            <a href="${localUrl}" download="${file.name}" style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:10px;background:#8a5a2b;color:#fff;font-size:12px;font-weight:600;text-decoration:none;">Open / Download ${formatLabel} File</a>
+          </div>`;
+      }
+
       const newDoc: AttachedDoc = {
         id: `doc-local-${Date.now()}`,
         title: file.name,
-        type: 'pdf',
-        authorOrSource: `Local File · ${sizeLabel}`,
+        type: isPdf ? 'pdf' : 'book',
+        authorOrSource: `Local Document · ${sizeLabel}`,
         fileSize: sizeLabel,
-        pdfUrl: localUrl,
+        pdfUrl: isPdf ? localUrl : undefined,
+        webUrl: !isPdf ? localUrl : undefined,
         storageProvider: 'local',
-        summary: 'Loaded locally in browser memory for this session.',
+        summary: isPdf
+          ? 'Loaded locally in browser memory for this session.'
+          : `${(ext || 'Document').toUpperCase()} file loaded in Read Studio (${sizeLabel}).`,
         currentPage: 1,
         pages: [
           {
             pageNumber: 1,
             title: file.name,
-            keyTopic: 'Local PDF Document',
-            summaryPearl: 'Previewing directly from local browser memory.',
-            contentHtml: '',
+            keyTopic: isPdf ? 'Local PDF Document' : `Local ${(ext || 'Document').toUpperCase()} Document`,
+            summaryPearl: isPdf
+              ? 'Previewing directly from local browser memory.'
+              : 'Uploaded document ready for study and side-by-side reference.',
+            contentHtml: renderedHtml,
           },
         ],
       };
@@ -393,7 +422,7 @@ export const ReadStudioView: React.FC<ReadStudioViewProps> = ({
       return;
     }
 
-    // Offload heavy PDF directly to user's personal Google Drive
+    // Offload document directly to user's personal Google Drive
     setDriveUploadPct(1);
     try {
       const accessToken = await getValidDriveAccessToken();
@@ -403,7 +432,7 @@ export const ReadStudioView: React.FC<ReadStudioViewProps> = ({
         onProgress: (pct) => setDriveUploadPct(pct),
       });
 
-      const docTitle = file.name.replace(/\.pdf$/i, '');
+      const docTitle = file.name.replace(/\.(pdf|docx?|epub|txt|rtf|odt)$/i, '');
       const newBook: MedicalBook = {
         id: `book-drive-${Date.now()}`,
         title: docTitle,
@@ -632,7 +661,7 @@ export const ReadStudioView: React.FC<ReadStudioViewProps> = ({
 
         <div>
           <p className="text-sm font-sans text-stone-700 dark:text-[#efe4d4] leading-relaxed">
-            Select a book from your Shelf, open your subject textbook, or attach a secondary book / PDF to start reading.
+            Select a book from your Shelf or upload a document (PDF, Word, EPUB) to start reading.
           </p>
         </div>
 
@@ -643,6 +672,7 @@ export const ReadStudioView: React.FC<ReadStudioViewProps> = ({
               if (onNavigateToShelf) {
                 onNavigateToShelf();
               } else {
+                setUploadTargetMode('local');
                 setIsAttachModalOpen(true);
               }
             }}
@@ -655,16 +685,13 @@ export const ReadStudioView: React.FC<ReadStudioViewProps> = ({
           <button
             type="button"
             onClick={() => {
-              if (books.length > 0) {
-                setIsBookClosed(false);
-              } else {
-                setUploadTargetMode('local');
-                setIsAttachModalOpen(true);
-              }
+              setUploadTargetMode('local');
+              setIsAttachModalOpen(true);
             }}
-            className="themed-soft-pill w-full sm:w-auto px-5 py-3 rounded-full bg-[#efe7d8] dark:bg-[#2a1d14] text-[#2a1d14] dark:text-white font-semibold text-sm hover:bg-[#e5dac6] dark:hover:bg-[#38271b] transition-colors cursor-pointer"
+            className="themed-soft-pill w-full sm:w-auto px-5 py-3 rounded-full bg-[#efe7d8] dark:bg-[#2a1d14] text-[#2a1d14] dark:text-white font-semibold text-sm hover:bg-[#e5dac6] dark:hover:bg-[#38271b] transition-colors flex items-center justify-center gap-2 cursor-pointer"
           >
-            {books.length > 0 ? 'Open Recent Shelf Book' : 'Upload / Attach PDF'}
+            <UploadCloud className="w-4 h-4" />
+            <span>Upload Document</span>
           </button>
         </div>
       </div>
@@ -728,17 +755,6 @@ export const ReadStudioView: React.FC<ReadStudioViewProps> = ({
             );
           })}
         </div>
-
-        {/* Center: "+ Attach Book / Doc" Button */}
-        <button
-          type="button"
-          className="read-attach-btn"
-          onClick={() => setIsAttachModalOpen(true)}
-          title="Attach secondary books, PDFs, clinical guidelines, or diagrams for side-by-side reading"
-        >
-          <Plus className="w-4 h-4 stroke-[2.5]" />
-          <span>Attach Book / Doc</span>
-        </button>
 
         {/* Right: Reading Comfort Controls & Dual Split View Toggle */}
         <div className="read-controls-cluster">
@@ -1150,10 +1166,13 @@ export const ReadStudioView: React.FC<ReadStudioViewProps> = ({
                   type="button"
                   className="read-attach-btn"
                   style={{ padding: '4px 10px', fontSize: '11px' }}
-                  onClick={() => setIsAttachModalOpen(true)}
+                  onClick={() => {
+                    setUploadTargetMode('local');
+                    setIsAttachModalOpen(true);
+                  }}
                 >
-                  <Plus className="w-3 h-3" />
-                  <span>Switch Reference</span>
+                  <UploadCloud className="w-3 h-3" />
+                  <span>Upload Document</span>
                 </button>
               </div>
             </section>
@@ -1431,8 +1450,8 @@ export const ReadStudioView: React.FC<ReadStudioViewProps> = ({
           <div className="read-modal-card" onClick={(e) => e.stopPropagation()}>
             <div className="read-modal-header">
               <h3 className="font-semibold text-lg text-stone-900 dark:text-stone-100 flex items-center gap-2">
-                <Paperclip className="w-4 h-4 text-[#A47C43]" />
-                <span>Attach PDF or Document</span>
+                <UploadCloud className="w-4 h-4 text-[#A47C43]" />
+                <span>Upload Document</span>
               </h3>
               <button
                 type="button"
@@ -1444,7 +1463,7 @@ export const ReadStudioView: React.FC<ReadStudioViewProps> = ({
               </button>
             </div>
 
-            {/* Modal Body: Only 2 Options — Take from Drive & Device Upload */}
+            {/* Modal Body: Only 2 Options — Device Upload & Take from Drive */}
             <div className="read-modal-body custom-scrollbar space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs items-start">
                 {/* Option 1: Take from Drive + Connect Drive directly below */}
@@ -1470,7 +1489,7 @@ export const ReadStudioView: React.FC<ReadStudioViewProps> = ({
                       )}
                     </div>
                     <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-1">
-                      Open PDFs from your Google Drive
+                      Open documents from your Google Drive
                     </p>
                   </button>
 
@@ -1516,7 +1535,7 @@ export const ReadStudioView: React.FC<ReadStudioViewProps> = ({
                       <span>Device Upload</span>
                     </div>
                     <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-1">
-                      Upload a PDF directly from this device
+                      Upload PDF, Word (.doc/.docx), EPUB, or text files
                     </p>
                   </button>
                 </div>
@@ -1565,7 +1584,7 @@ export const ReadStudioView: React.FC<ReadStudioViewProps> = ({
 
               <input
                 type="file"
-                accept=".pdf,application/pdf"
+                accept=".pdf,.doc,.docx,.epub,.txt,.rtf,.odt,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/epub+zip,text/plain"
                 className="hidden"
                 id="read-file-input"
                 disabled={driveUploadPct !== null}
@@ -1709,13 +1728,13 @@ export const ReadStudioView: React.FC<ReadStudioViewProps> = ({
                 <label htmlFor="read-file-input" className="read-dropzone block">
                   <UploadCloud className="w-8 h-8 text-[#A47C43] mx-auto mb-2" />
                   <p className="text-sm font-semibold text-stone-800 dark:text-stone-200">
-                    Upload PDF from Device
+                    Upload Document from Device
                   </p>
                   <p className="text-xs text-stone-400 mt-1">
-                    Select any PDF file from your computer or phone to open right away
+                    Select any PDF, Word (.doc/.docx), EPUB, or text file to open right away
                   </p>
                   <span className="themed-accent-btn inline-block mt-3 px-4 py-1.5 rounded-lg bg-[#A47C43] text-white text-xs font-semibold hover:bg-[#8e6834]">
-                    Browse Device
+                    Upload Document
                   </span>
                 </label>
               )}

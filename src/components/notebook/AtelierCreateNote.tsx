@@ -49,7 +49,6 @@ import {
   Globe,
   FileText,
   Music,
-  GripHorizontal,
   RotateCcw,
   RotateCw,
   Clock,
@@ -93,6 +92,7 @@ import {
   Superscript,
   PenTool,
   RefreshCw,
+  UploadCloud,
 } from 'lucide-react';
 import { Notebook, DesignId, MedicalBook } from '../../types';
 import { getDrivePreviewUrl } from '../../services/googleDriveService';
@@ -557,21 +557,62 @@ export const AtelierCreateNote: React.FC<AtelierCreateNoteProps> = ({
 
   const draftNoteIdRef = useRef<string>(`nb-${Date.now()}`);
 
-  // Documents Catalog synced from user's real Shelf books + session attachments
+  const readShelfRoomBooks = useCallback((): DocumentItem[] => {
+    try {
+      const raw = localStorage.getItem('medden_shelf_room_v6');
+      if (!raw) return [];
+      const almirahs = JSON.parse(raw);
+      if (!Array.isArray(almirahs)) return [];
+      const collected: DocumentItem[] = [];
+      const seenTitles = new Set(books.map((b) => b.title.trim().toLowerCase()));
+      for (const alm of almirahs) {
+        if (!alm || !Array.isArray(alm.shelves)) continue;
+        for (const shelf of alm.shelves) {
+          if (!shelf || !Array.isArray(shelf.books)) continue;
+          for (const sb of shelf.books) {
+            const title = String(sb?.title || '').trim();
+            if (!title) continue;
+            const key = title.toLowerCase();
+            if (seenTitles.has(key)) continue;
+            seenTitles.add(key);
+            collected.push({
+              id: `shelf-book-${sb.id || `${alm.id}-${title}`}`,
+              type: 'book',
+              title,
+              short: title,
+              tag: `${alm.name || 'Shelf'} · ${shelf.name || 'Section'}`,
+              pages: [
+                `<div class="run"><span>${alm.name || 'Personal Shelf'} · ${shelf.name || 'Section'}</span><span>Shelf Volume</span></div><h2>${title}</h2><p>Picked up directly from <strong>${shelf.name || 'Shelf'}</strong> inside <strong>${alm.name || 'your Almirah'}</strong>.</p><p>Use this split panel to read alongside your active note.</p>`,
+              ],
+            });
+          }
+        }
+      }
+      return collected;
+    } catch {
+      return [];
+    }
+  }, [books]);
+
+  // Documents Catalog synced from user's real Shelf books + Almirah books + session uploads
   const [docsList, setDocsList] = useState<DocumentItem[]>(() =>
-    books.length > 0 ? books.map(mapBookToDocItem) : INITIAL_DOCS
+    [...books.map(mapBookToDocItem), ...readShelfRoomBooks()]
   );
 
   useEffect(() => {
+    const shelfExtras = readShelfRoomBooks();
     setDocsList((prev) => {
       const sessionDocs = prev.filter(
-        (d) => !books.some((b) => b.id === d.id) && (d.id.startsWith('web-') || d.id.startsWith('doc-'))
+        (d) =>
+          !books.some((b) => b.id === d.id) &&
+          !shelfExtras.some((s) => s.id === d.id) &&
+          (d.id.startsWith('web-') || d.id.startsWith('doc-'))
       );
-      return [...books.map(mapBookToDocItem), ...sessionDocs];
+      return [...books.map(mapBookToDocItem), ...shelfExtras, ...sessionDocs];
     });
-  }, [books]);
+  }, [books, readShelfRoomBooks]);
 
-  // Subwindow Panes State (empty until user opens a book or attaches a file/URL)
+  // Subwindow Panes State (empty until user opens a book or uploads a document)
   const [docPanes, setDocPanes] = useState<OpenDocPane[]>([]);
 
   // Window State for Note & Maximization
@@ -579,6 +620,7 @@ export const AtelierCreateNote: React.FC<AtelierCreateNoteProps> = ({
   const [isNoteClosed, setIsNoteClosed] = useState(false);
   const [maximizedWindowId, setMaximizedWindowId] = useState<string | null>(null);
   const [isBookPickerOpen, setIsBookPickerOpen] = useState(false);
+  const [bookPickerTab, setBookPickerTab] = useState<'shelf' | 'upload'>('shelf');
 
   const [syncScroll, setSyncScroll] = useState(false);
 
@@ -1160,76 +1202,7 @@ export const AtelierCreateNote: React.FC<AtelierCreateNoteProps> = ({
     showToast('Resource removed');
   };
 
-  // Video Drag & Resize
-  const handleVideoHeaderPointerDown = (id: string, e: React.PointerEvent<HTMLDivElement>) => {
-    const target = e.target as HTMLElement;
-    if (target.closest('button')) return;
-    const currentWin = videoWindows.find((v) => v.id === id);
-    if (!currentWin || currentWin.isMaximized) return;
-
-    topZIndexRef.current += 1;
-    setVideoWindows((prev) => prev.map((v) => (v.id === id ? { ...v, zIndex: topZIndexRef.current } : v)));
-
-    const startX = e.clientX - currentWin.left;
-    const startY = e.clientY - currentWin.top;
-
-    const onPointerMove = (ev: PointerEvent) => {
-      setVideoWindows((prev) =>
-        prev.map((v) =>
-          v.id === id
-            ? {
-                ...v,
-                left: Math.min(window.innerWidth - 80, Math.max(10, ev.clientX - startX)),
-                top: Math.min(window.innerHeight - 40, Math.max(50, ev.clientY - startY)),
-              }
-            : v
-        )
-      );
-    };
-
-    const onPointerUp = () => {
-      window.removeEventListener('pointermove', onPointerMove);
-      window.removeEventListener('pointerup', onPointerUp);
-    };
-
-    window.addEventListener('pointermove', onPointerMove);
-    window.addEventListener('pointerup', onPointerUp);
-  };
-
-  const handleVideoResizePointerDown = (id: string, e: React.PointerEvent<HTMLSpanElement>) => {
-    e.preventDefault();
-    const currentWin = videoWindows.find((v) => v.id === id);
-    if (!currentWin || currentWin.isMaximized) return;
-
-    const startX = e.clientX;
-    const startY = e.clientY;
-    const startW = currentWin.width;
-    const startH = currentWin.height;
-
-    const onPointerMove = (ev: PointerEvent) => {
-      setVideoWindows((prev) =>
-        prev.map((v) =>
-          v.id === id
-            ? {
-                ...v,
-                width: Math.max(280, startW + ev.clientX - startX),
-                height: Math.max(200, startH + ev.clientY - startY),
-              }
-            : v
-        )
-      );
-    };
-
-    const onPointerUp = () => {
-      window.removeEventListener('pointermove', onPointerMove);
-      window.removeEventListener('pointerup', onPointerUp);
-    };
-
-    window.addEventListener('pointermove', onPointerMove);
-    window.addEventListener('pointerup', onPointerUp);
-  };
-
-  // Video Window Controls
+  // Video Window Controls (Bottom-docked)
   const togglePlayVideo = (id: string) => {
     setVideoWindows((prev) => prev.map((v) => (v.id === id ? { ...v, isPlaying: !v.isPlaying } : v)));
   };
@@ -1238,11 +1211,6 @@ export const AtelierCreateNote: React.FC<AtelierCreateNoteProps> = ({
     setVideoWindows((prev) =>
       prev.map((v) => (v.id === id ? { ...v, currentTime: Math.max(0, v.currentTime + delta) } : v))
     );
-  };
-
-  const setVideoPlaybackRate = (id: string, rate: number) => {
-    setVideoWindows((prev) => prev.map((v) => (v.id === id ? { ...v, playbackRate: rate } : v)));
-    showToast(`Speed ${rate}×`);
   };
 
   const stampVideoTimestamp = (vid: VideoWindowState) => {
@@ -1256,29 +1224,80 @@ export const AtelierCreateNote: React.FC<AtelierCreateNoteProps> = ({
 
   const toggleMaximizeVideo = (id: string) => {
     setVideoWindows((prev) =>
-      prev.map((v) => {
-        if (v.id !== id) return v;
-        if (v.isMaximized) {
-          return {
-            ...v,
-            isMaximized: false,
-            left: v.preMaxStyle?.left ?? v.left,
-            top: v.preMaxStyle?.top ?? v.top,
-            width: v.preMaxStyle?.width ?? 440,
-            height: v.preMaxStyle?.height ?? 310,
-          };
-        }
-        return {
-          ...v,
-          isMaximized: true,
-          preMaxStyle: { left: v.left, top: v.top, width: v.width, height: v.height },
-          left: 40,
-          top: 75,
-          width: window.innerWidth - 80,
-          height: window.innerHeight - 150,
-        };
-      })
+      prev.map((v) => (v.id === id ? { ...v, isMaximized: !v.isMaximized } : v))
     );
+  };
+
+  const handleBookPickerFileUpload = async (file: File) => {
+    const ext = file.name.split('.').pop()?.toLowerCase() || '';
+    const isPdf = ext === 'pdf' || file.type === 'application/pdf';
+    const isImage = file.type.startsWith('image/');
+    const isText = ext === 'txt' || ext === 'md' || ext === 'csv' || ext === 'rtf';
+    const cleanTitle = file.name.replace(/\.(pdf|docx?|epub|txt|md|rtf|png|jpe?g|webp)$/i, '') || file.name;
+    const blobUrl = URL.createObjectURL(file);
+
+    let newDoc: DocumentItem;
+    if (isPdf) {
+      newDoc = {
+        id: `doc-${Date.now()}`,
+        type: 'pdf',
+        title: cleanTitle,
+        short: cleanTitle,
+        tag: 'Uploaded PDF',
+        url: blobUrl,
+      };
+    } else if (isImage) {
+      newDoc = {
+        id: `doc-${Date.now()}`,
+        type: 'image',
+        title: cleanTitle,
+        short: cleanTitle,
+        tag: 'Uploaded Image',
+        url: blobUrl,
+      };
+    } else if (isText) {
+      let textBody = '';
+      try {
+        textBody = await file.text();
+      } catch {}
+      const escaped = textBody.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      newDoc = {
+        id: `doc-${Date.now()}`,
+        type: 'book',
+        title: cleanTitle,
+        short: cleanTitle,
+        tag: `Uploaded ${(ext || 'TXT').toUpperCase()}`,
+        pages: [
+          `<div class="run"><span>${file.name}</span><span>Uploaded Document</span></div><h2>${cleanTitle}</h2><pre style="white-space:pre-wrap;font-family:inherit;line-height:1.65;">${escaped}</pre>`,
+        ],
+      };
+    } else {
+      const fmt = (ext || 'DOCUMENT').toUpperCase();
+      newDoc = {
+        id: `doc-${Date.now()}`,
+        type: 'book',
+        title: cleanTitle,
+        short: cleanTitle,
+        tag: `Uploaded ${fmt}`,
+        pages: [
+          `<div class="run"><span>${file.name}</span><span>${fmt} Document</span></div><h2>${cleanTitle}</h2><p>Uploaded <strong>${fmt}</strong> document ready for study reference.</p><p><a href="${blobUrl}" download="${file.name}">Download / Open ${file.name}</a></p>`,
+        ],
+      };
+    }
+
+    setDocsList((prev) => [...prev, newDoc]);
+    setResources((prev) => [
+      ...prev,
+      {
+        id: `res-${Date.now()}`,
+        type: isImage ? 'image' : 'doc',
+        title: cleanTitle,
+        docId: newDoc.id,
+        meta: newDoc.tag || 'Document',
+      },
+    ]);
+    handleOpenBookWindow(newDoc.id);
+    setBookPickerTab('shelf');
   };
 
   // Attach Dialog Submission
@@ -2690,8 +2709,11 @@ export const AtelierCreateNote: React.FC<AtelierCreateNoteProps> = ({
         <button
           className="an-btn"
           style={{ borderColor: 'var(--an-brass)', color: 'var(--an-brass)' }}
-          onClick={() => setIsBookPickerOpen(true)}
-          title="Open a book or document"
+          onClick={() => {
+            setBookPickerTab('shelf');
+            setIsBookPickerOpen(true);
+          }}
+          title="Open a book or upload document"
         >
           <BookOpen className="w-4 h-4" />
           <span className="lbl">Book</span>
@@ -2813,8 +2835,11 @@ export const AtelierCreateNote: React.FC<AtelierCreateNoteProps> = ({
           {/* Quick Add Book Action */}
           <button
             className="an-dock-add-btn"
-            onClick={() => setIsBookPickerOpen(true)}
-            title="Open another book or document"
+            onClick={() => {
+              setBookPickerTab('shelf');
+              setIsBookPickerOpen(true);
+            }}
+            title="Open another book or upload document"
           >
             <Plus className="w-3 h-3" />
             <span>Open Book</span>
@@ -4150,33 +4175,18 @@ export const AtelierCreateNote: React.FC<AtelierCreateNoteProps> = ({
         </button>
       )}
 
-      {/* 4. Floating Resizable Draggable Video Windows */}
+      {/* 4. Bottom-Docked Video Player Windows (Fixed to bottom side, no float or speed buttons) */}
       {videoWindows.map((win) => {
         if (win.isMinimized) return null;
         return (
           <div
             key={win.id}
             className={`an-vw ${win.isMaximized ? 'maximized' : ''}`}
-            style={{
-              left: win.left,
-              top: win.top,
-              width: win.width,
-              height: win.height,
-              zIndex: win.zIndex,
-            }}
-            onPointerDown={() => {
-              topZIndexRef.current += 1;
-              setVideoWindows((prev) =>
-                prev.map((v) => (v.id === win.id ? { ...v, zIndex: topZIndexRef.current } : v))
-              );
-            }}
+            style={{ zIndex: win.zIndex }}
           >
-            {/* Header / Drag Bar */}
-            <div
-              className="an-vw-h"
-              onPointerDown={(e) => handleVideoHeaderPointerDown(win.id, e)}
-            >
-              <GripHorizontal className="w-4 h-4 text-stone-500" />
+            {/* Header Bar */}
+            <div className="an-vw-h">
+              <CirclePlay className="w-4 h-4 text-amber-400 shrink-0" />
               <span className="t">{win.title}</span>
               <button
                 className="vb"
@@ -4191,7 +4201,7 @@ export const AtelierCreateNote: React.FC<AtelierCreateNoteProps> = ({
               </button>
               <button
                 className="vb"
-                title={win.isMaximized ? 'Restore size' : 'Fit to note'}
+                title={win.isMaximized ? 'Compact bottom player' : 'Expand bottom player'}
                 onClick={() => toggleMaximizeVideo(win.id)}
               >
                 {win.isMaximized ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
@@ -4235,18 +4245,6 @@ export const AtelierCreateNote: React.FC<AtelierCreateNoteProps> = ({
 
               <span className="time">{formatTime(win.currentTime)}</span>
 
-              <div className="an-speed" role="group" aria-label="Playback speed">
-                {[0.75, 1, 1.25, 1.5, 2].map((s) => (
-                  <button
-                    key={s}
-                    aria-pressed={win.playbackRate === s}
-                    onClick={() => setVideoPlaybackRate(win.id, s)}
-                  >
-                    {s}×
-                  </button>
-                ))}
-              </div>
-
               <span className="grow" />
               <button
                 className="stamp"
@@ -4257,13 +4255,6 @@ export const AtelierCreateNote: React.FC<AtelierCreateNoteProps> = ({
                 Timestamp
               </button>
             </div>
-
-            {/* Resizing Grip */}
-            <span
-              className="an-vw-rz"
-              onPointerDown={(e) => handleVideoResizePointerDown(win.id, e)}
-              aria-hidden="true"
-            />
           </div>
         );
       })}
@@ -4369,7 +4360,7 @@ export const AtelierCreateNote: React.FC<AtelierCreateNoteProps> = ({
             <form onSubmit={handleAttachSubmit}>
               <h3>Attach a resource</h3>
               <p className="sub">
-                Linked resources open beside your note — videos float in a resizable window.
+                Linked resources open beside your note — videos dock cleanly at the bottom.
               </p>
 
               {/* Resource Type Tabs */}
@@ -4498,60 +4489,104 @@ export const AtelierCreateNote: React.FC<AtelierCreateNoteProps> = ({
         </div>
       )}
 
-      {/* 8. Open Book / Subwindow Picker Modal */}
+      {/* 8. Open Book / Subwindow Picker Modal (Pickup Book from Shelf + Upload) */}
       {isBookPickerOpen && (
         <div className="an-dialog-overlay" onClick={() => setIsBookPickerOpen(false)}>
-          <div className="an-dialog" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 540 }}>
-            <h3>Open a Book or Reference</h3>
+          <div className="an-dialog" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 560 }}>
+            <h3>Open a Book or Document</h3>
             <p className="sub">
-              Select any medical book or document to open as a dedicated subwindow in your layout.
+              Pick up a volume from your Shelf or upload a document to open alongside your note.
             </p>
 
-            <div className="an-book-grid">
-              {docsList.length === 0 ? (
-                <div className="col-span-full py-8 px-4 text-center border border-dashed border-stone-300 dark:border-[#382518] rounded-xl space-y-2">
-                  <p className="text-sm font-semibold text-stone-700 dark:text-[#efe4d4]">
-                    No books in Shelf yet
-                  </p>
-                  <p className="text-xs text-stone-500 dark:text-[#a69079]">
-                    Upload a PDF in Library or attach a local PDF, image, YouTube video, or web link directly here.
-                  </p>
-                  <button
-                    type="button"
-                    className="an-btn primary mx-auto mt-2"
-                    onClick={() => {
-                      setIsBookPickerOpen(false);
-                      setIsAttachOpen(true);
-                    }}
-                  >
-                    <Paperclip className="w-3.5 h-3.5" />
-                    <span>Attach File or URL</span>
-                  </button>
-                </div>
-              ) : (
-                docsList.map((doc) => {
-                  const isCurrentlyOpen = visiblePanes.some((p) => p.docId === doc.id);
-                  return (
-                    <button
-                      key={doc.id}
-                      className="an-book-card"
-                      onClick={() => handleOpenBookWindow(doc.id)}
-                    >
-                      <div className="b-icon">
-                        <BookOpen className="w-4 h-4" />
-                      </div>
-                      <div className="b-info">
-                        <b>{doc.title}</b>
-                        <small>
-                          {doc.tag || 'Reference'} · {doc.pages?.length || 1} pages
-                          {isCurrentlyOpen && ' (Already open)'}
-                        </small>
-                      </div>
-                    </button>
-                  );
-                })
-              )}
+            {/* Two Primary Options: Pickup Book from Shelf & Upload */}
+            <div className="an-atabs mb-3" role="tablist">
+              <button
+                type="button"
+                role="tab"
+                aria-pressed={bookPickerTab === 'shelf'}
+                onClick={() => setBookPickerTab('shelf')}
+              >
+                <BookOpen className="w-4 h-4" />
+                <span>Pickup Book from Shelf</span>
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-pressed={bookPickerTab === 'upload'}
+                onClick={() => setBookPickerTab('upload')}
+              >
+                <UploadCloud className="w-4 h-4" />
+                <span>Upload</span>
+              </button>
             </div>
+
+            {bookPickerTab === 'shelf' ? (
+              <div className="an-book-grid">
+                {docsList.length === 0 ? (
+                  <div className="col-span-full py-8 px-4 text-center border border-dashed border-stone-300 dark:border-[#382518] rounded-xl space-y-2.5">
+                    <p className="text-sm font-semibold text-stone-700 dark:text-[#efe4d4]">
+                      No books in Shelf yet
+                    </p>
+                    <p className="text-xs text-stone-500 dark:text-[#a69079]">
+                      Add volumes to any Almirah in your Shelf, or upload a document right here.
+                    </p>
+                    <button
+                      type="button"
+                      className="an-btn primary mx-auto mt-2"
+                      onClick={() => setBookPickerTab('upload')}
+                    >
+                      <UploadCloud className="w-3.5 h-3.5" />
+                      <span>Upload Document</span>
+                    </button>
+                  </div>
+                ) : (
+                  docsList.map((doc) => {
+                    const isCurrentlyOpen = visiblePanes.some((p) => p.docId === doc.id);
+                    return (
+                      <button
+                        key={doc.id}
+                        type="button"
+                        className="an-book-card"
+                        onClick={() => handleOpenBookWindow(doc.id)}
+                      >
+                        <div className="b-icon">
+                          <BookOpen className="w-4 h-4" />
+                        </div>
+                        <div className="b-info">
+                          <b>{doc.title}</b>
+                          <small>
+                            {doc.tag || 'Shelf'} · {doc.pages?.length || 1} pages
+                            {isCurrentlyOpen && ' (Already open)'}
+                          </small>
+                        </div>
+                      </button>
+                    );
+                  })
+                )}
+              </div>
+            ) : (
+              <div className="py-2 space-y-3">
+                <label className="an-drop cursor-pointer block" htmlFor="bookPickerUploadInput">
+                  <div className="flex flex-col items-center gap-2 py-4">
+                    <UploadCloud className="w-7 h-7 text-[#A47C43]" />
+                    <span className="text-sm font-semibold">Upload PDF, Word (.doc/.docx), EPUB, or Image</span>
+                    <span className="text-xs opacity-70">Opens immediately beside your note</span>
+                  </div>
+                  <input
+                    id="bookPickerUploadInput"
+                    type="file"
+                    accept=".pdf,.doc,.docx,.epub,.txt,.rtf,.odt,image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/epub+zip"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        void handleBookPickerFileUpload(file);
+                      }
+                      e.target.value = '';
+                    }}
+                  />
+                </label>
+              </div>
+            )}
 
             <div className="an-d-actions">
               <button

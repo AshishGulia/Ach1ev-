@@ -857,7 +857,7 @@ export const WindowsHeader: React.FC<WindowsHeaderProps> = ({
         {/* Prominent Eye Logo Rest Button (Warm Caramel/Amber theme-matched) */}
         <button
           onClick={onTriggerEyeBreak}
-          title={`20-20-20 Ocular Rest Timer (${breakTimerCountdown || 'Rest'} remaining) - Click to take eye break`}
+          title={`20-20-20 Ocular Rest Timer (${breakTimerCountdown || 'Rest'} remaining) - Click for Eye Rest Timer & Settings`}
           className="themed-soft-pill flex items-center gap-1 sm:gap-2 px-1.5 sm:px-2.5 py-1 sm:py-1.5 rounded-xl bg-[#A47C43]/15 hover:bg-[#A47C43]/25 text-[#6e4520] dark:text-amber-300 border border-[#A47C43]/40 transition-all cursor-pointer hover:scale-105 active:scale-95 shadow-2xs"
         >
           <Eye className="w-4 h-4 sm:w-5 sm:h-5 text-[#A47C43] dark:text-amber-400 animate-pulse stroke-[2.2]" />
