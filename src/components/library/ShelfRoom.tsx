@@ -1168,8 +1168,7 @@ export function Room({
       </div>
       )}
 
-      {/* 8. INTERACTIVE PULL CORD (Night Mode Only) */}
-      {night && (
+      {/* 8. INTERACTIVE PULL CORD (Daylight shows helpful sunlight dialog; Night toggles almirah spotlight) */}
       <div
         style={abs({
           top: 0,
@@ -1184,7 +1183,7 @@ export function Room({
         <button
           type="button"
           aria-label="Pull rope to toggle almirah interior spotlight"
-          title="Pull cord to toggle almirah spotlights"
+          title={night ? 'Pull cord to toggle almirah spotlights' : 'Pull cord'}
           onClick={onPull}
           style={{
             all: 'unset',
@@ -1201,7 +1200,7 @@ export function Room({
               width: 2.5,
               height: 110,
               background: 'repeating-linear-gradient(180deg, #f5f5f4 0 4px, #d6d3d1 4px 6px)',
-              boxShadow: '1px 1px 2px rgba(0,0,0,0.5)',
+              boxShadow: '1px 1px 2px rgba(0,0,0,0.45)',
             }}
           />
           <span
@@ -1210,7 +1209,7 @@ export function Room({
               height: 26,
               borderRadius: '0 0 7px 7px',
               background: 'linear-gradient(90deg, #d4af37 0%, #a16207 100%)',
-              boxShadow: '0 3px 5px rgba(0,0,0,0.5)',
+              boxShadow: '0 3px 5px rgba(0,0,0,0.45)',
             }}
           />
         </button>
@@ -1221,14 +1220,16 @@ export function Room({
             fontWeight: 700,
             letterSpacing: 0.8,
             textTransform: 'uppercase',
-            color: '#fef3c7',
+            color: night ? '#fef3c7' : '#ffffff',
+            backgroundColor: night ? 'transparent' : 'rgba(28, 20, 14, 0.55)',
+            padding: night ? 0 : '1px 5px',
+            borderRadius: 6,
             textShadow: '0 1px 3px rgba(0,0,0,0.9)',
           }}
         >
-          {lit ? 'Almirah Light ON' : 'Pull for Light'}
+          {night ? (lit ? 'Almirah Light ON' : 'Pull for Light') : 'Pull for Light'}
         </span>
       </div>
-      )}
 
       {/* 9. NIGHT TIME SUBTLE AMBIENCE (Lamp gently illuminates room; pull-cord lights interior of almirah) */}
       <div
@@ -4103,10 +4104,16 @@ export default function ShelfRoom({
   const patch = (id: string, fn: (a: AlmirahT) => AlmirahT) =>
     save(data.map((a) => (a.id === id ? fn(a) : a)));
 
+  const [daylightRopeDialogOpen, setDaylightRopeDialogOpen] = useState(false);
+
   const pull = () => {
     setPulled(true);
-    setLit((v) => !v);
     window.setTimeout(() => setPulled(false), 180);
+    if (!night) {
+      setDaylightRopeDialogOpen(true);
+      return;
+    }
+    setLit((v) => !v);
   };
 
   const moveShelf = (a: AlmirahT, i: number, d: -1 | 1) => {
@@ -4550,6 +4557,36 @@ export default function ShelfRoom({
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* DAYLIGHT BULB ROPE DIALOG */}
+      {daylightRopeDialogOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/55 backdrop-blur-xs animate-in fade-in duration-150"
+          onClick={() => setDaylightRopeDialogOpen(false)}
+        >
+          <div
+            className="w-full max-w-sm rounded-2xl bg-[#fdfaf4] dark:bg-[#18110c] border border-amber-500/40 shadow-2xl p-5 text-center space-y-3 text-[#1c140e] dark:text-[#efe4d4]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="w-11 h-11 rounded-full bg-amber-400/25 border border-amber-500/40 flex items-center justify-center mx-auto text-amber-600 dark:text-amber-400 text-xl">
+              ☀️
+            </div>
+            <h4 className="font-serif font-bold text-base text-[#1c140e] dark:text-[#efe4d4]">
+              No need right now, use sunlight
+            </h4>
+            <p className="text-xs text-[#6f5d4d] dark:text-[#a69079]">
+              Your study sanctuary is already lit by natural daytime sunlight. Switch to Night Mode to illuminate the almirah spotlights.
+            </p>
+            <button
+              type="button"
+              onClick={() => setDaylightRopeDialogOpen(false)}
+              className="px-5 py-2 rounded-xl bg-[#A47C43] hover:bg-[#8e6834] text-white text-xs font-bold shadow-xs cursor-pointer"
+            >
+              OK
+            </button>
           </div>
         </div>
       )}

@@ -10,6 +10,7 @@ import {
 
 export const INITIAL_USER_PROFILE: UserProfile = {
   name: 'User',
+  username: 'scholar',
   institution: '',
   currentYear: '',
   specialityGoal: '',

@@ -8,12 +8,27 @@ import {
   Heart,
   CheckCircle2,
   BookOpen,
+  Sun,
+  Moon,
+  LayoutDashboard,
+  BookOpenText,
+  PenTool,
+  CalendarDays,
+  Users,
+  Brain,
+  Coffee,
+  Activity,
+  MessageSquareCode,
+  Settings as SettingsIcon,
+  Trash2,
 } from 'lucide-react';
 
 export interface ThemeAppStorePreviewsProps {
   editionId: DesignId;
   isSelected?: boolean;
   onApply?: () => void;
+  previewMode?: 'light' | 'dark';
+  onChangePreviewMode?: (mode: 'light' | 'dark') => void;
 }
 
 export type SectionType = 'my-space' | 'read-studio' | 'create-note' | 'my-shelf';
@@ -30,16 +45,16 @@ interface ScreenshotData {
 const SECTION_DATA: Record<SectionType, ScreenshotData> = {
   'my-space': {
     id: 'my-space',
-    title: 'Cockpit',
-    sectionBadge: 'Section 1 · Study Command',
-    tagline: 'Unified Study Collage, Slabs & Telemetry',
+    title: 'Cockpit & Sidebar',
+    sectionBadge: 'Section 1 · Full Sidebar & Cockpit',
+    tagline: 'All Sidebar Sections, Slabs & Workspace Wallpaper',
     description:
-      'Identical ergonomic Cockpit layout across all 10 themes — customizable topic slabs, 20-20-20 eye rest countdown, checklist, calendar preview, and daily thought — restyled cleanly in each theme’s palette, button shape, and blurred wallpaper.',
+      'Preview every sidebar section (Cockpit, Read, Create note, Calendar, Shelf, Mnemonics, Ach1evers Hub, Leisure, Explore Body, Talk to Developer, Settings & Trash) and study slabs in both Light and Dark mode.',
     features: [
-      'Identical functional layout across all 10 themes',
+      'Complete sidebar rail preview across all 10 themes',
       'Blurred theme wallpaper & custom watermarks in Themes 2–10',
       'Distinct sober button silhouette per edition',
-      'Sharp Dark Mode typography with high contrast',
+      'High-contrast Dark Mode typography & Light/Dark toggle',
     ],
   },
   'read-studio': {
@@ -48,7 +63,7 @@ const SECTION_DATA: Record<SectionType, ScreenshotData> = {
     sectionBadge: 'Section 2 · Clinical Atlas',
     tagline: 'Dual-Page Textbook Reader & Anatomical Snip',
     description:
-      'Same dual-page medical PDF reader, chapter index drawer, boundary hover stretch slider, and snip-to-note toolbar across every theme — adapted in each theme’s header bar, button silhouette, and wallpaper depth.',
+      'Dual-page medical PDF reader, chapter index drawer, boundary hover stretch slider, and snip-to-note toolbar across every theme — adapted in each theme’s header bar, sidebar rail, and wallpaper depth.',
     features: [
       'Dual-page spread with anatomical snip tool',
       'Matching gradient slim sidebar & header glass bar',
@@ -72,7 +87,7 @@ const SECTION_DATA: Record<SectionType, ScreenshotData> = {
   },
   'my-shelf': {
     id: 'my-shelf',
-    title: 'Shelf',
+    title: 'Shelf & Room',
     sectionBadge: 'Section 4 · Living Almirah Room',
     tagline: '50 Unique Backdrops, 10 Rugs, Left Lamp & Stealthy Cat',
     description:
@@ -81,7 +96,7 @@ const SECTION_DATA: Record<SectionType, ScreenshotData> = {
       '50 zero-repeat backdrops (5 unique bays × 10 themes)',
       '10 unique theme-matched carpet silhouettes & weaves',
       'Standing lamp on left & fig plant on right across all themes',
-      'Click cat anytime to stalk in a random direction slowly',
+      'Daylight sunlight dialog & night study ambiance',
     ],
   },
 };
@@ -201,158 +216,193 @@ const SHELF_WORLD_PREVIEW: Record<
   },
 };
 
+const SIDEBAR_SECTIONS_MINI = [
+  { id: 'my-space', label: 'Cockpit', icon: LayoutDashboard },
+  { id: 'read-studio', label: 'Read', icon: BookOpenText },
+  { id: 'create-note', label: 'Note', icon: PenTool },
+  { id: 'roster', label: 'Cal', icon: CalendarDays },
+  { id: 'my-shelf', label: 'Shelf', icon: BookOpen },
+  { id: 'mnemonics', label: 'Mnem.', icon: Brain },
+  { id: 'community', label: 'Hub', icon: Users },
+  { id: 'leisure', label: 'Leisure', icon: Coffee },
+  { id: 'explore-body', label: 'Body', icon: Activity },
+  { id: 'talk-to-dev', label: 'Dev', icon: MessageSquareCode },
+];
+
 export const ThemeAppStorePreviews: React.FC<ThemeAppStorePreviewsProps> = ({
   editionId,
   onApply,
+  previewMode = 'light',
+  onChangePreviewMode,
 }) => {
   const [activeModalSection, setActiveModalSection] = useState<SectionType | null>(null);
+  const [localPreviewMode, setLocalPreviewMode] = useState<'light' | 'dark'>(previewMode);
+  const effectiveMode = onChangePreviewMode ? previewMode : localPreviewMode;
+  const isDark = effectiveMode === 'dark';
+
   const meta = getThemeMeta(editionId);
+  const sb = isDark ? meta.sidebar.dark : meta.sidebar.light;
   const shelfWorld = SHELF_WORLD_PREVIEW[editionId] ?? SHELF_WORLD_PREVIEW['1'];
   const btnRadius = meta.buttonRadius;
 
+  const tBg = isDark ? meta.darkBg : meta.lightBg;
+  const tSurface = isDark ? meta.darkSurface : meta.lightSurface;
+  const tRaised = isDark ? meta.darkRaised : meta.lightRaised;
+  const tHeader = isDark ? meta.darkHeader : meta.lightHeader;
+  const tBorder = isDark ? meta.darkBorder : meta.lightBorder;
+  const tInk = isDark ? meta.darkInk : meta.lightInk;
+  const tMuted = isDark ? meta.darkMuted : meta.lightMuted;
+  const tAccent = isDark ? meta.darkAccent : meta.lightAccent;
+  const tAccentSoft = isDark ? meta.darkAccentSoft : meta.lightAccentSoft;
+  const tWallpaper = isDark ? meta.darkWallpaperUri : meta.lightWallpaperUri;
+
   const sections: SectionType[] = ['my-space', 'read-studio', 'create-note', 'my-shelf'];
 
-  // Background style helper using the real theme Light wallpaper/surface tokens
   const workspacePreviewStyle: React.CSSProperties = {
-    backgroundColor: meta.lightBg,
-    backgroundImage: meta.lightWallpaperUri || 'none',
+    backgroundColor: tBg,
+    backgroundImage: tWallpaper || 'none',
     backgroundSize: 'cover',
     backgroundRepeat: 'no-repeat',
     backgroundPosition: 'center',
-    color: meta.lightInk,
+    color: tInk,
   };
 
-  const renderMiniPreview = (section: SectionType) => {
+  // Shared miniature full-sidebar replica showing EVERY section for each theme in Light/Dark
+  const renderSidebarRailReplica = (activeMiniId: string, expandedScale = false) => (
+    <div
+      className={`${expandedScale ? 'w-20 p-1.5' : 'w-12 sm:w-14 p-1'} shrink-0 flex flex-col justify-between border-r overflow-hidden`}
+      style={{
+        background: sb.railBg,
+        borderColor: sb.railBorder,
+      }}
+    >
+      <div className="space-y-0.5 min-w-0">
+        <div
+          className={`${expandedScale ? 'text-[8px]' : 'text-[6px]'} font-black tracking-tight truncate px-0.5 mb-0.5`}
+          style={{ color: tAccent }}
+        >
+          ACH1EV
+        </div>
+        <div
+          className="rounded-md p-0.5 space-y-0.5"
+          style={{
+            background: sb.navSectionBg,
+            border: `1px solid ${sb.sectionBorder}`,
+          }}
+        >
+          {SIDEBAR_SECTIONS_MINI.map((s) => {
+            const Icon = s.icon;
+            const isAct = s.id === activeMiniId;
+            return (
+              <div
+                key={s.id}
+                className={`flex items-center gap-1 px-1 ${expandedScale ? 'py-0.5 text-[7px]' : 'py-[1px] text-[5px]'} font-medium truncate`}
+                style={{
+                  background: isAct ? sb.activeBtnBg : sb.idleBtnBg,
+                  color: isAct ? sb.activeBtnText : sb.idleBtnText,
+                  border: isAct ? `1px solid ${sb.activeBtnBorder}` : '1px solid transparent',
+                  borderRadius: btnRadius,
+                }}
+              >
+                <Icon
+                  className={`${expandedScale ? 'w-2.5 h-2.5' : 'w-2 h-2'} shrink-0`}
+                  style={{ color: isAct ? sb.activeIconColor : sb.idleIconColor }}
+                />
+                <span className="truncate">{s.label}</span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <div
+        className="rounded-md p-0.5 space-y-0.5 mt-0.5"
+        style={{
+          background: sb.footerSectionBg,
+          border: `1px solid ${sb.sectionBorder}`,
+        }}
+      >
+        <div
+          className={`flex items-center gap-1 px-1 ${expandedScale ? 'text-[6.5px]' : 'text-[4.5px]'} truncate`}
+          style={{ color: sb.idleBtnText }}
+        >
+          <SettingsIcon className="w-2 h-2 shrink-0" style={{ color: sb.idleIconColor }} />
+          <span>Settings</span>
+        </div>
+        <div
+          className={`flex items-center gap-1 px-1 ${expandedScale ? 'text-[6.5px]' : 'text-[4.5px]'} truncate`}
+          style={{ color: sb.trashTextColor }}
+        >
+          <Trash2 className="w-2 h-2 shrink-0" style={{ color: sb.trashIconColor }} />
+          <span>Trash</span>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderMiniPreview = (section: SectionType, isLightbox = false) => {
     switch (section) {
       case 'my-space':
         return (
-          <div
-            className="w-full h-full flex select-none overflow-hidden"
-            style={workspacePreviewStyle}
-          >
-            {/* Left Slim Gradient Sidebar Replica */}
-            <div
-              className="w-11 shrink-0 p-1 flex flex-col justify-between border-r"
-              style={{
-                background: meta.sidebar.light.railBg,
-                borderColor: meta.sidebar.light.railBorder,
-              }}
-            >
-              <div className="space-y-1">
-                <div
-                  className="text-[7px] font-black tracking-tight truncate px-0.5"
-                  style={{ color: meta.lightAccent }}
-                >
-                  ACH1EV
-                </div>
-                <div
-                  className="h-3 px-1 flex items-center text-[6px] font-bold text-white shadow-2xs"
-                  style={{
-                    background: meta.sidebar.light.activeBtnBg,
-                    borderRadius: btnRadius,
-                  }}
-                >
-                  Cockpit
-                </div>
-                <div
-                  className="h-2.5 px-1 flex items-center text-[5.5px]"
-                  style={{
-                    background: meta.sidebar.light.idleBtnBg,
-                    color: meta.sidebar.light.idleBtnText,
-                    borderRadius: btnRadius,
-                  }}
-                >
-                  Read
-                </div>
-                <div
-                  className="h-2.5 px-1 flex items-center text-[5.5px]"
-                  style={{
-                    background: meta.sidebar.light.idleBtnBg,
-                    color: meta.sidebar.light.idleBtnText,
-                    borderRadius: btnRadius,
-                  }}
-                >
-                  Shelf
-                </div>
-              </div>
-              <div
-                className="text-[5.5px] font-mono px-0.5 truncate"
-                style={{ color: meta.sidebar.light.mutedLabelColor }}
-              >
-                {meta.shapeName}
-              </div>
-            </div>
+          <div className="w-full h-full flex select-none overflow-hidden" style={workspacePreviewStyle}>
+            {renderSidebarRailReplica('my-space', isLightbox)}
 
             {/* Unified Cockpit Content Replica */}
-            <div className="flex-1 p-2 flex flex-col justify-between min-w-0">
+            <div className="flex-1 p-1.5 sm:p-2 flex flex-col justify-between min-w-0">
               <div
                 className="flex items-center justify-between pb-1 border-b"
-                style={{ borderColor: meta.lightBorder }}
+                style={{ borderColor: tBorder }}
               >
-                <span className="text-[8.5px] font-bold uppercase tracking-wide truncate">
+                <span className="text-[7.5px] sm:text-[8.5px] font-bold uppercase tracking-wide truncate">
                   {meta.name}
                 </span>
                 <span
-                  className="text-[6.5px] px-1.5 py-0.5 text-white font-semibold shadow-2xs shrink-0"
+                  className="text-[5.5px] sm:text-[6.5px] px-1.5 py-0.5 font-semibold shadow-2xs shrink-0"
                   style={{
-                    background: `linear-gradient(135deg, ${meta.lightAccent}, ${meta.darkBorder})`,
+                    background: isDark ? tAccent : `linear-gradient(135deg, ${meta.lightAccent}, ${meta.darkBorder})`,
+                    color: isDark ? '#110c09' : '#ffffff',
                     borderRadius: btnRadius,
                   }}
                 >
-                  {meta.shapeName}
+                  {isDark ? 'Dark' : 'Light'}
                 </span>
               </div>
 
-              <div className="grid grid-cols-2 gap-1.5 my-1 flex-1">
+              <div className="grid grid-cols-2 gap-1 my-1 flex-1">
                 <div
                   className="p-1.5 rounded-lg border flex flex-col justify-between backdrop-blur-xs"
-                  style={{
-                    background: meta.lightSurface,
-                    borderColor: meta.lightBorder,
-                  }}
+                  style={{ background: tSurface, borderColor: tBorder }}
                 >
-                  <span className="text-[7.5px] font-bold truncate">Cardiology Slab</span>
-                  <div
-                    className="h-1 rounded-full overflow-hidden my-1"
-                    style={{ background: meta.lightAccentSoft }}
-                  >
-                    <div
-                      className="w-3/4 h-full"
-                      style={{ background: meta.lightAccent }}
-                    />
+                  <span className="text-[6.5px] sm:text-[7.5px] font-bold truncate">Cardiology Slab</span>
+                  <div className="h-1 rounded-full overflow-hidden my-0.5" style={{ background: tAccentSoft }}>
+                    <div className="w-3/4 h-full" style={{ background: tAccent }} />
                   </div>
-                  <span className="text-[6px]" style={{ color: meta.lightMuted }}>
+                  <span className="text-[5.5px]" style={{ color: tMuted }}>
                     Tasks · Timer
                   </span>
                 </div>
 
                 <div
                   className="p-1.5 rounded-lg border flex flex-col justify-between backdrop-blur-xs"
-                  style={{
-                    background: meta.lightRaised,
-                    borderColor: meta.lightBorder,
-                  }}
+                  style={{ background: tRaised, borderColor: tBorder }}
                 >
-                  <span className="text-[7.5px] font-bold truncate">Daily Agenda</span>
-                  <span className="text-[6px]" style={{ color: meta.lightMuted }}>
-                    Exact Theme 1 Grid
+                  <span className="text-[6.5px] sm:text-[7.5px] font-bold truncate">Daily Agenda</span>
+                  <span className="text-[5.5px]" style={{ color: tMuted }}>
+                    {meta.shapeName}
                   </span>
-                  <span
-                    className="text-[6px] font-bold truncate"
-                    style={{ color: meta.lightAccent }}
-                  >
-                    {editionId === '1' ? 'Marble / Espresso' : 'Blurred Wallpaper'}
+                  <span className="text-[5.5px] font-bold truncate" style={{ color: tAccent }}>
+                    {isDark ? 'Night Atelier' : 'Daylight Mode'}
                   </span>
                 </div>
               </div>
 
               <div
-                className="flex items-center justify-between text-[6.5px] font-mono border-t pt-0.5"
-                style={{ borderColor: meta.lightBorder, color: meta.lightMuted }}
+                className="flex items-center justify-between text-[5.5px] sm:text-[6px] font-mono border-t pt-0.5"
+                style={{ borderColor: tBorder, color: tMuted }}
               >
                 <span>Theme {editionId}</span>
-                <span className="font-bold" style={{ color: meta.lightAccent }}>
-                  Unified Cockpit
+                <span className="font-bold" style={{ color: tAccent }}>
+                  All Sections Active
                 </span>
               </div>
             </div>
@@ -361,145 +411,130 @@ export const ThemeAppStorePreviews: React.FC<ThemeAppStorePreviewsProps> = ({
 
       case 'read-studio':
         return (
-          <div
-            className="w-full h-full p-2 flex flex-col justify-between select-none"
-            style={workspacePreviewStyle}
-          >
-            <div
-              className="flex items-center justify-between border-b pb-1 px-1.5 py-0.5 rounded-md"
-              style={{
-                background: meta.lightHeader,
-                borderColor: meta.lightBorder,
-              }}
-            >
-              <div className="flex items-center gap-1 truncate">
-                <BookOpen className="w-3 h-3 shrink-0" style={{ color: meta.lightAccent }} />
-                <span className="text-[8px] font-serif font-bold truncate">
-                  Harrison&apos;s Internal Medicine
-                </span>
-              </div>
-              <span
-                className="text-[6.5px] font-mono px-1.5 py-0.5 text-white shrink-0"
-                style={{ background: meta.lightAccent, borderRadius: btnRadius }}
-              >
-                Snip
-              </span>
-            </div>
-
-            <div className="grid grid-cols-2 gap-1.5 my-1 flex-1">
+          <div className="w-full h-full flex select-none overflow-hidden" style={workspacePreviewStyle}>
+            {renderSidebarRailReplica('read-studio', isLightbox)}
+            <div className="flex-1 p-1.5 sm:p-2 flex flex-col justify-between min-w-0">
               <div
-                className="p-1.5 rounded border space-y-1 shadow-2xs"
-                style={{ background: meta.lightSurface, borderColor: meta.lightBorder }}
+                className="flex items-center justify-between border-b pb-1 px-1.5 py-0.5 rounded-md"
+                style={{ background: tHeader, borderColor: tBorder }}
               >
-                <div className="h-1.5 rounded-xs w-3/4" style={{ background: meta.lightInk }} />
-                <div className="h-0.5 rounded-xs w-full" style={{ background: meta.lightBorder }} />
-                <div className="h-0.5 rounded-xs w-5/6" style={{ background: meta.lightBorder }} />
-                <div className="h-0.5 rounded-xs w-full" style={{ background: meta.lightBorder }} />
-              </div>
-              <div
-                className="p-1 rounded border flex flex-col items-center justify-center shadow-2xs"
-                style={{ background: meta.lightSurface, borderColor: meta.lightBorder }}
-              >
-                <div
-                  className="w-7 h-6 flex items-center justify-center border"
+                <div className="flex items-center gap-1 truncate">
+                  <BookOpen className="w-3 h-3 shrink-0" style={{ color: tAccent }} />
+                  <span className="text-[7px] sm:text-[8px] font-serif font-bold truncate">
+                    Harrison&apos;s Medicine
+                  </span>
+                </div>
+                <span
+                  className="text-[5.5px] font-mono px-1.5 py-0.5 font-bold shrink-0"
                   style={{
-                    background: meta.lightAccentSoft,
-                    borderColor: meta.lightBorder,
+                    background: tAccent,
+                    color: isDark ? '#110c09' : '#ffffff',
                     borderRadius: btnRadius,
                   }}
                 >
-                  <Heart className="w-3.5 h-3.5" style={{ color: meta.lightAccent }} />
-                </div>
-                <span className="text-[6px] font-bold mt-1">Coronary Atlas</span>
+                  Snip
+                </span>
               </div>
-            </div>
 
-            <div
-              className="flex items-center justify-between text-[6.5px] font-mono border-t pt-0.5"
-              style={{ borderColor: meta.lightBorder, color: meta.lightMuted }}
-            >
-              <span>Dual-Page Reader</span>
-              <span className="font-bold" style={{ color: meta.lightAccent }}>
-                {meta.name}
-              </span>
+              <div className="grid grid-cols-2 gap-1 my-1 flex-1">
+                <div
+                  className="p-1.5 rounded border space-y-1 shadow-2xs"
+                  style={{ background: tSurface, borderColor: tBorder }}
+                >
+                  <div className="h-1.5 rounded-xs w-3/4" style={{ background: tInk }} />
+                  <div className="h-0.5 rounded-xs w-full" style={{ background: tBorder }} />
+                  <div className="h-0.5 rounded-xs w-5/6" style={{ background: tBorder }} />
+                  <div className="h-0.5 rounded-xs w-full" style={{ background: tBorder }} />
+                </div>
+                <div
+                  className="p-1 rounded border flex flex-col items-center justify-center shadow-2xs"
+                  style={{ background: tSurface, borderColor: tBorder }}
+                >
+                  <div
+                    className="w-6 h-5 flex items-center justify-center border"
+                    style={{
+                      background: tAccentSoft,
+                      borderColor: tBorder,
+                      borderRadius: btnRadius,
+                    }}
+                  >
+                    <Heart className="w-3 h-3" style={{ color: tAccent }} />
+                  </div>
+                  <span className="text-[5.5px] font-bold mt-0.5">Coronary Atlas</span>
+                </div>
+              </div>
+
+              <div
+                className="flex items-center justify-between text-[5.5px] font-mono border-t pt-0.5"
+                style={{ borderColor: tBorder, color: tMuted }}
+              >
+                <span>Dual Reader</span>
+                <span className="font-bold" style={{ color: tAccent }}>
+                  {isDark ? 'Dark' : 'Light'}
+                </span>
+              </div>
             </div>
           </div>
         );
 
       case 'create-note':
         return (
-          <div
-            className="w-full h-full p-2 flex flex-col justify-between select-none"
-            style={workspacePreviewStyle}
-          >
-            {/* Unified Rich Ribbon Header */}
-            <div
-              className="flex items-center justify-between border-b pb-1 px-1.5 py-0.5 rounded-md"
-              style={{
-                background: meta.lightHeader,
-                borderColor: meta.lightBorder,
-              }}
-            >
-              <span className="text-[8.5px] font-bold font-serif truncate">
-                Ruled Studio Ribbon
-              </span>
-              <div className="flex items-center gap-1 shrink-0">
-                <span
-                  className="px-1.5 py-0.5 text-[6px] font-bold text-white"
-                  style={{ background: meta.lightAccent, borderRadius: btnRadius }}
-                >
-                  Fonts
+          <div className="w-full h-full flex select-none overflow-hidden" style={workspacePreviewStyle}>
+            {renderSidebarRailReplica('create-note', isLightbox)}
+            <div className="flex-1 p-1.5 sm:p-2 flex flex-col justify-between min-w-0">
+              <div
+                className="flex items-center justify-between border-b pb-1 px-1.5 py-0.5 rounded-md"
+                style={{ background: tHeader, borderColor: tBorder }}
+              >
+                <span className="text-[7px] sm:text-[8px] font-bold font-serif truncate">
+                  Ruled Studio
                 </span>
-                <span
-                  className="px-1.5 py-0.5 text-[6px] font-bold border"
-                  style={{
-                    background: meta.lightSurface,
-                    borderColor: meta.lightBorder,
-                    borderRadius: btnRadius,
-                  }}
-                >
-                  Table
-                </span>
-              </div>
-            </div>
-
-            {/* Clean Ruled Paper Centerpiece */}
-            <div
-              className="my-1 pl-2.5 pr-1.5 py-1 flex-1 flex flex-col justify-between rounded border shadow-2xs"
-              style={{
-                background: '#fcfbf7',
-                borderColor: meta.lightBorder,
-                borderLeft: `3px solid ${meta.lightAccent}`,
-                color: '#1f2329',
-              }}
-            >
-              <div className="space-y-1">
-                <div className="text-[7px] font-semibold">
-                  Clinical Ward Summary · Drag Margin to Resize
+                <div className="flex items-center gap-1 shrink-0">
+                  <span
+                    className="px-1.5 py-0.5 text-[5.5px] font-bold"
+                    style={{
+                      background: tAccent,
+                      color: isDark ? '#110c09' : '#ffffff',
+                      borderRadius: btnRadius,
+                    }}
+                  >
+                    Fonts
+                  </span>
                 </div>
-                <div className="h-0.5 bg-sky-200 rounded-full w-full" />
-                <div className="h-0.5 bg-sky-200 rounded-full w-5/6" />
               </div>
 
               <div
-                className="p-1 text-[6px] font-mono border rounded-xs"
+                className="my-1 pl-2 pr-1.5 py-1 flex-1 flex flex-col justify-between rounded border shadow-2xs"
                 style={{
-                  background: meta.lightAccentSoft,
-                  borderColor: meta.lightBorder,
+                  background: isDark ? '#1a1410' : '#fcfbf7',
+                  borderColor: tBorder,
+                  borderLeft: `3px solid ${tAccent}`,
+                  color: isDark ? '#efe4d4' : '#1f2329',
                 }}
               >
-                [Draggable &amp; Color-Formatted Table]
-              </div>
-            </div>
+                <div className="space-y-1">
+                  <div className="text-[6.5px] font-semibold truncate">Ward Note Summary</div>
+                  <div className="h-0.5 bg-sky-300/60 rounded-full w-full" />
+                  <div className="h-0.5 bg-sky-300/60 rounded-full w-5/6" />
+                </div>
 
-            <div
-              className="flex items-center justify-between text-[6.5px] font-mono border-t pt-0.5"
-              style={{ borderColor: meta.lightBorder, color: meta.lightMuted }}
-            >
-              <span>Identical Editor Layout</span>
-              <span className="font-bold" style={{ color: meta.lightAccent }}>
-                {meta.shapeName}
-              </span>
+                <div
+                  className="p-1 text-[5.5px] font-mono border rounded-xs truncate"
+                  style={{ background: tAccentSoft, borderColor: tBorder }}
+                >
+                  [Resizable Table]
+                </div>
+              </div>
+
+              <div
+                className="flex items-center justify-between text-[5.5px] font-mono border-t pt-0.5"
+                style={{ borderColor: tBorder, color: tMuted }}
+              >
+                <span>Ruled Notebook</span>
+                <span className="font-bold" style={{ color: tAccent }}>
+                  {meta.shapeName}
+                </span>
+              </div>
             </div>
           </div>
         );
@@ -507,70 +542,79 @@ export const ThemeAppStorePreviews: React.FC<ThemeAppStorePreviewsProps> = ({
       case 'my-shelf':
         return (
           <div
-            className="w-full h-full p-1.5 flex flex-col justify-between text-white select-none relative overflow-hidden"
-            style={{ background: shelfWorld.skyBg }}
+            className="w-full h-full flex select-none relative overflow-hidden"
+            style={{
+              background: isDark
+                ? `linear-gradient(180deg, #0b0806 0%, #17110d 100%)`
+                : shelfWorld.skyBg,
+            }}
           >
-            <div className="flex justify-between text-[6.5px] font-mono text-white/90 px-1 drop-shadow-xs">
-              <span>
-                {shelfWorld.emoji} {shelfWorld.worldLabel}
-              </span>
-              <span>5 Unique Bays</span>
-            </div>
-
-            {/* Room Arrangement: Left Lamp + Center Almirah + Right Plant */}
-            <div className="flex items-end justify-between px-1.5 flex-1 gap-1.5 my-0.5">
-              {/* Left Standing Lamp */}
-              <div className="flex flex-col items-center shrink-0 pb-0.5" title="Lamp on Left">
-                <div className="w-3 h-2 rounded-t bg-amber-100 border border-amber-400" />
-                <div className="w-0.5 h-6 bg-amber-700" />
-                <div className="w-2.5 h-0.5 bg-amber-900 rounded" />
+            {renderSidebarRailReplica('my-shelf', isLightbox)}
+            <div className="flex-1 p-1.5 flex flex-col justify-between text-white min-w-0">
+              <div className="flex justify-between text-[5.5px] sm:text-[6.5px] font-mono text-white/90 px-0.5 drop-shadow-xs">
+                <span className="truncate">
+                  {isDark ? '🌙 ' : '☀️ '}
+                  {shelfWorld.worldLabel}
+                </span>
+                <span className="shrink-0">{isDark ? 'Night Lamp' : 'Sunlight'}</span>
               </div>
 
-              {/* Center Almirah */}
+              <div className="flex items-end justify-between px-1 flex-1 gap-1 my-0.5">
+                <div className="flex flex-col items-center shrink-0 pb-0.5">
+                  <div
+                    className={`w-2.5 h-2 rounded-t border ${
+                      isDark ? 'bg-amber-300 border-amber-500 shadow-[0_0_8px_rgba(251,191,36,0.9)]' : 'bg-amber-100 border-amber-400'
+                    }`}
+                  />
+                  <div className="w-0.5 h-5 bg-amber-700" />
+                  <div className="w-2 h-0.5 bg-amber-900 rounded" />
+                </div>
+
+                <div
+                  className="flex-1 h-full rounded p-1 flex flex-col justify-between shadow-md"
+                  style={{
+                    background: shelfWorld.cabinetBg,
+                    border: `2px solid ${shelfWorld.cabinetBorder}`,
+                  }}
+                >
+                  <div className="flex items-end gap-0.5 h-5 border-b border-white/15 pb-0.5 px-1 bg-black/25">
+                    <div className="w-2 h-4 bg-rose-700 rounded-2xs" />
+                    <div className="w-2 h-4.5 bg-sky-700 rounded-2xs" />
+                    <div className="w-2 h-3.5 bg-emerald-700 rounded-2xs" />
+                  </div>
+                  <div className="h-3.5 bg-black/30 rounded-2xs flex items-center justify-between px-1 text-[5px] text-amber-100 truncate">
+                    <span className="truncate">{shelfWorld.accentBadge}</span>
+                    <span>🐾</span>
+                  </div>
+                </div>
+
+                <div className="flex flex-col items-center shrink-0 pb-0.5">
+                  <div className="text-[9px] leading-none">🪴</div>
+                </div>
+              </div>
+
               <div
-                className="flex-1 h-full rounded p-1 flex flex-col justify-between shadow-md"
-                style={{
-                  background: shelfWorld.cabinetBg,
-                  border: `2px solid ${shelfWorld.cabinetBorder}`,
-                }}
+                className="h-2.5 rounded px-1.5 flex items-center justify-between text-[5px] font-mono font-bold text-stone-900 shadow-xs"
+                style={{ background: shelfWorld.rugColor, borderRadius: btnRadius }}
               >
-                <div className="flex items-end gap-1 h-6 border-b border-white/15 pb-0.5 px-1 bg-black/25">
-                  <div className="w-2.5 h-4.5 bg-rose-700 rounded-2xs" />
-                  <div className="w-2.5 h-5 bg-sky-700 rounded-2xs" />
-                  <div className="w-2.5 h-4 bg-emerald-700 rounded-2xs" />
-                </div>
-                <div className="h-4 bg-black/30 rounded-2xs flex items-center justify-between px-1 text-[5.5px] text-amber-100">
-                  <span>{shelfWorld.accentBadge}</span>
-                  <span>🐾</span>
-                </div>
+                <span className="truncate">Rug: {shelfWorld.rugLabel}</span>
+                <span>Flowcharts</span>
               </div>
-
-              {/* Right Plant */}
-              <div className="flex flex-col items-center shrink-0 pb-0.5" title="Plant on Right">
-                <div className="text-[10px] leading-none">🪴</div>
-              </div>
-            </div>
-
-            {/* Distinct Theme Carpet Bar */}
-            <div
-              className="h-3 rounded px-1.5 flex items-center justify-between text-[5.5px] font-mono font-bold text-stone-900 shadow-xs"
-              style={{
-                background: shelfWorld.rugColor,
-                borderRadius: btnRadius,
-              }}
-            >
-              <span>Rug: {shelfWorld.rugLabel}</span>
-              <span>Stealthy Cat</span>
             </div>
           </div>
         );
     }
   };
 
+  const handleTogglePreviewMode = (next: 'light' | 'dark') => {
+    if (onChangePreviewMode) onChangePreviewMode(next);
+    else setLocalPreviewMode(next);
+  };
+
   return (
-    <div className="my-2 space-y-2">
-      {/* Horizontal Screenshot Carousel (App Store Style) */}
-      <div className="flex gap-3 overflow-x-auto pb-2 pt-1 custom-scrollbar snap-x snap-mandatory">
+    <div className="my-1.5 space-y-1.5">
+      {/* Horizontal Screenshot Carousel (Compact on Mobile) */}
+      <div className="flex gap-2 sm:gap-3 overflow-x-auto pb-1.5 pt-0.5 custom-scrollbar snap-x snap-mandatory">
         {sections.map((section) => {
           const data = SECTION_DATA[section];
           return (
@@ -580,10 +624,10 @@ export const ThemeAppStorePreviews: React.FC<ThemeAppStorePreviewsProps> = ({
                 e.stopPropagation();
                 setActiveModalSection(section);
               }}
-              className="themed-glass-card w-56 sm:w-64 shrink-0 snap-start rounded-2xl border border-stone-200/90 dark:border-[#382518] bg-stone-50/80 dark:bg-[#1a120d] p-2 hover:border-amber-500/80 dark:hover:border-amber-400/80 hover:shadow-xl transition-all duration-200 cursor-pointer group hover:-translate-y-0.5"
+              className="themed-glass-card w-44 sm:w-64 shrink-0 snap-start rounded-xl sm:rounded-2xl border border-stone-200/90 dark:border-[#382518] bg-stone-50/80 dark:bg-[#1a120d] p-1.5 sm:p-2 hover:border-amber-500/80 dark:hover:border-amber-400/80 hover:shadow-xl transition-all duration-200 cursor-pointer group hover:-translate-y-0.5"
             >
-              <div className="w-full h-36 rounded-xl overflow-hidden border border-stone-200 dark:border-stone-800 shadow-xs relative group-hover:ring-2 group-hover:ring-sky-500/30 transition-all">
-                {renderMiniPreview(section)}
+              <div className="w-full h-28 sm:h-36 rounded-lg sm:rounded-xl overflow-hidden border border-stone-200 dark:border-stone-800 shadow-xs relative group-hover:ring-2 group-hover:ring-sky-500/30 transition-all">
+                {renderMiniPreview(section, false)}
 
                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-150 backdrop-blur-2xs">
                   <div className="p-2 rounded-full bg-white/95 text-stone-900 shadow-md transform scale-90 group-hover:scale-100 transition-transform">
@@ -591,8 +635,8 @@ export const ThemeAppStorePreviews: React.FC<ThemeAppStorePreviewsProps> = ({
                   </div>
                 </div>
 
-                <div className="absolute top-1.5 left-1.5 pointer-events-none">
-                  <span className="px-2 py-0.5 rounded-md bg-stone-900/85 text-white text-[9px] font-bold shadow-xs backdrop-blur-2xs">
+                <div className="absolute top-1 left-1 pointer-events-none flex items-center gap-1">
+                  <span className="px-1.5 py-0.5 rounded-md bg-stone-900/85 text-white text-[8px] sm:text-[9px] font-bold shadow-xs backdrop-blur-2xs">
                     {data.title}
                   </span>
                 </div>
@@ -605,37 +649,68 @@ export const ThemeAppStorePreviews: React.FC<ThemeAppStorePreviewsProps> = ({
       {/* LIGHTBOX ZOOM MODAL */}
       {activeModalSection && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 animate-in fade-in duration-200"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-3 sm:p-4 animate-in fade-in duration-200"
           onClick={() => setActiveModalSection(null)}
         >
           <div
-            className="themed-glass-card w-full max-w-2xl bg-white dark:bg-[#140e0a] rounded-3xl border border-stone-200 dark:border-[#382518] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-150"
+            className="themed-glass-card w-full max-w-2xl bg-white dark:bg-[#140e0a] rounded-2xl sm:rounded-3xl border border-stone-200 dark:border-[#382518] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-150"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="themed-glass-bar flex items-center justify-between p-4 border-b border-stone-200 dark:border-[#352317] bg-stone-50 dark:bg-[#18110c]">
-              <div>
-                <span className="text-[10px] font-mono uppercase tracking-wider text-sky-600 dark:text-sky-400 font-bold">
+            <div className="themed-glass-bar flex items-center justify-between p-3.5 sm:p-4 border-b border-stone-200 dark:border-[#352317] bg-stone-50 dark:bg-[#18110c] gap-2">
+              <div className="min-w-0">
+                <span className="text-[10px] font-mono uppercase tracking-wider text-amber-700 dark:text-amber-400 font-bold">
                   {meta.name} · {SECTION_DATA[activeModalSection].sectionBadge}
                 </span>
-                <h3 className="text-base font-bold text-slate-900 dark:text-zinc-100 flex items-center gap-2">
+                <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-zinc-100 flex items-center gap-2 truncate">
                   <span>{SECTION_DATA[activeModalSection].title}</span>
-                  <span className="text-xs font-normal text-stone-500">
+                  <span className="text-xs font-normal text-stone-500 hidden sm:inline">
                     · {SECTION_DATA[activeModalSection].tagline}
                   </span>
                 </h3>
               </div>
-              <button
-                type="button"
-                onClick={() => setActiveModalSection(null)}
-                className="p-1.5 rounded-lg text-stone-500 hover:text-stone-900 dark:hover:text-white hover:bg-stone-200 dark:hover:bg-stone-800 transition-colors cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
+
+              <div className="flex items-center gap-2 shrink-0">
+                {/* Light / Dark Screenshot Mode Switch in Lightbox */}
+                <div className="flex items-center p-0.5 rounded-lg bg-stone-200 dark:bg-[#251a12] border border-stone-300/70 dark:border-[#382518]">
+                  <button
+                    type="button"
+                    onClick={() => handleTogglePreviewMode('light')}
+                    className={`px-2 py-1 rounded-md text-[10px] font-bold flex items-center gap-1 cursor-pointer transition-colors ${
+                      !isDark
+                        ? 'bg-white text-stone-900 shadow-2xs'
+                        : 'text-stone-600 dark:text-stone-400'
+                    }`}
+                  >
+                    <Sun className="w-3 h-3 text-amber-500" />
+                    <span>Light</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleTogglePreviewMode('dark')}
+                    className={`px-2 py-1 rounded-md text-[10px] font-bold flex items-center gap-1 cursor-pointer transition-colors ${
+                      isDark
+                        ? 'bg-amber-500 text-[#110c09] shadow-2xs'
+                        : 'text-stone-600 dark:text-stone-400'
+                    }`}
+                  >
+                    <Moon className="w-3 h-3" />
+                    <span>Dark</span>
+                  </button>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setActiveModalSection(null)}
+                  className="p-1.5 rounded-lg text-stone-500 hover:text-stone-900 dark:hover:text-white hover:bg-stone-200 dark:hover:bg-stone-800 transition-colors cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
             </div>
 
-            <div className="p-5">
-              <div className="w-full h-64 rounded-2xl overflow-hidden border border-stone-300 dark:border-stone-700 shadow-inner relative">
-                {renderMiniPreview(activeModalSection)}
+            <div className="p-4 sm:p-5">
+              <div className="w-full h-56 sm:h-64 rounded-2xl overflow-hidden border border-stone-300 dark:border-stone-700 shadow-inner relative">
+                {renderMiniPreview(activeModalSection, true)}
               </div>
 
               <div className="mt-4 space-y-3">
@@ -654,16 +729,16 @@ export const ThemeAppStorePreviews: React.FC<ThemeAppStorePreviewsProps> = ({
               </div>
             </div>
 
-            <div className="themed-glass-bar flex items-center justify-between p-4 border-t border-stone-200 dark:border-[#352317] bg-stone-50 dark:bg-[#18110c]">
-              <div className="flex items-center gap-1.5">
+            <div className="themed-glass-bar flex flex-wrap items-center justify-between gap-2 p-3.5 sm:p-4 border-t border-stone-200 dark:border-[#352317] bg-stone-50 dark:bg-[#18110c]">
+              <div className="flex items-center gap-1 flex-wrap">
                 {sections.map((s) => (
                   <button
                     key={s}
                     type="button"
                     onClick={() => setActiveModalSection(s)}
-                    className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition cursor-pointer ${
+                    className={`px-2 py-1 rounded-lg text-[10.5px] font-semibold transition cursor-pointer ${
                       activeModalSection === s
-                        ? 'themed-tab-active bg-sky-600 text-white shadow-xs'
+                        ? 'themed-tab-active bg-amber-700 text-white shadow-xs'
                         : 'themed-soft-pill bg-stone-200/80 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-300'
                     }`}
                   >
@@ -680,7 +755,7 @@ export const ThemeAppStorePreviews: React.FC<ThemeAppStorePreviewsProps> = ({
                       onApply();
                       setActiveModalSection(null);
                     }}
-                    className="themed-accent-btn flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold transition shadow-sm cursor-pointer"
+                    className="themed-accent-btn flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold transition shadow-sm cursor-pointer"
                   >
                     <Check className="w-3.5 h-3.5" />
                     <span>Apply {meta.name}</span>
@@ -689,7 +764,7 @@ export const ThemeAppStorePreviews: React.FC<ThemeAppStorePreviewsProps> = ({
                 <button
                   type="button"
                   onClick={() => setActiveModalSection(null)}
-                  className="themed-soft-pill px-3.5 py-1.5 rounded-xl bg-stone-200 dark:bg-stone-800 text-stone-700 dark:text-stone-300 text-xs font-medium hover:bg-stone-300 transition cursor-pointer"
+                  className="themed-soft-pill px-3 py-1.5 rounded-xl bg-stone-200 dark:bg-stone-800 text-stone-700 dark:text-stone-300 text-xs font-medium hover:bg-stone-300 transition cursor-pointer"
                 >
                   Close
                 </button>

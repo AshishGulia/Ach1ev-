@@ -1,14 +1,10 @@
 import React, { useState } from 'react';
-import { SUBSCRIPTION_TIERS } from '../../data/subscriptionData';
+import { SUBSCRIPTION_TIERS, COMPETITOR_BENCHMARKS } from '../../data/subscriptionData';
 import { SubscriptionTier } from '../../types';
 import {
-  Sparkles,
   Check,
-  ShieldCheck,
   X,
-  CreditCard,
   Zap,
-  Star,
   CheckCircle2,
   Crown,
 } from 'lucide-react';
@@ -45,7 +41,7 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/60 backdrop-blur-md animate-in fade-in duration-200">
       <div className="relative w-full max-w-5xl max-h-[92vh] flex flex-col rounded-2xl bg-[#fdfcfa] dark:bg-[#140e0a] border border-amber-900/20 dark:border-amber-500/25 shadow-2xl overflow-hidden text-stone-800 dark:text-stone-100 font-sans">
-        
+
         {/* Header */}
         <div className="px-6 py-5 border-b border-stone-200 dark:border-[#382518] flex items-center justify-between bg-stone-50/80 dark:bg-[#18110c]/95">
           <div>
@@ -54,11 +50,11 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
                 <Crown className="w-5 h-5" />
               </span>
               <h3 className="text-base font-bold text-stone-900 dark:text-stone-50">
-                Ach1ev Academic Membership &amp; Subscriptions
+                Ach1ev Academic Membership &amp; Note-App Benchmark Pricing
               </h3>
             </div>
             <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5">
-              Choose the ideal tier for foundational study, clinical residency, or department research
+              Student-calibrated pricing benchmarked against Notion, GoodNotes, Notability, Obsidian Sync &amp; Evernote
             </p>
           </div>
 
@@ -114,8 +110,8 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
           </div>
         </div>
 
-        {/* 4 Tiers Grid */}
-        <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
+        {/* 4 Tiers Grid + Competitor Pricing Criteria Table */}
+        <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {SUBSCRIPTION_TIERS.map((tier) => {
               const isCurrent = activeTier === tier.id;
@@ -132,7 +128,6 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
                   }`}
                 >
                   <div>
-                    {/* Badge */}
                     <div className="flex items-center justify-between gap-1 mb-2">
                       <span
                         className={`text-[10px] font-mono px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${
@@ -157,7 +152,6 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
                       {tier.description}
                     </p>
 
-                    {/* Price */}
                     <div className="my-4 pb-3 border-b border-stone-200 dark:border-[#352317]">
                       <div className="flex items-baseline gap-1">
                         <span className="text-2xl font-black text-stone-900 dark:text-stone-50 font-mono">
@@ -176,7 +170,6 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
                       )}
                     </div>
 
-                    {/* Features list */}
                     <ul className="space-y-2 text-xs">
                       {tier.features.map((feat, fIdx) => (
                         <li key={fIdx} className="flex items-start gap-2 text-[11px] leading-snug">
@@ -187,7 +180,6 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
                     </ul>
                   </div>
 
-                  {/* Action Button */}
                   <div className="mt-5 pt-3 border-t border-stone-100 dark:border-[#352317]">
                     <button
                       type="button"
@@ -197,7 +189,7 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
                         isCurrent
                           ? 'bg-amber-600/15 text-amber-900 dark:text-amber-300 border border-amber-500/30 cursor-default'
                           : tier.highlight
-                          ? 'bg-amber-600 hover:bg-amber-700 text-white shadow-xs'
+                          ? 'themed-accent-btn bg-amber-600 hover:bg-amber-700 text-white shadow-xs'
                           : 'bg-stone-200 dark:bg-[#251a12] hover:bg-stone-300 dark:hover:bg-[#322318] text-stone-800 dark:text-stone-200'
                       }`}
                     >
@@ -217,6 +209,64 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
                 </div>
               );
             })}
+          </div>
+
+          {/* Note-App Subscription Criteria Benchmark Matrix */}
+          <div className="rounded-2xl border border-stone-200 dark:border-[#382518] bg-white dark:bg-[#1a120d] overflow-hidden">
+            <div className="px-4 py-3 border-b border-stone-200 dark:border-[#352317] bg-stone-50/90 dark:bg-[#18110c] flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <h4 className="text-xs font-bold text-stone-900 dark:text-stone-100">
+                  Note-Making Apps Price &amp; Feature Criteria Match
+                </h4>
+                <p className="text-[11px] text-stone-500 dark:text-stone-400">
+                  How each Ach1ev tier matches top global note-making apps with student-friendly pricing
+                </p>
+              </div>
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30 font-semibold">
+                Up to 80% Savings
+              </span>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse text-[11px]">
+                <thead>
+                  <tr className="border-b border-stone-200 dark:border-[#352317] text-stone-500 dark:text-stone-400 font-mono uppercase text-[10px]">
+                    <th className="py-2.5 px-3.5">Other Note App</th>
+                    <th className="py-2.5 px-3">Market Price</th>
+                    <th className="py-2.5 px-3">Matched Feature Criteria</th>
+                    <th className="py-2.5 px-3">Ach1ev Tier &amp; Price</th>
+                    <th className="py-2.5 px-3.5">Included Advantage</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-stone-100 dark:divide-[#2e1e14]">
+                  {COMPETITOR_BENCHMARKS.map((row) => (
+                    <tr key={row.app} className="hover:bg-stone-50/70 dark:hover:bg-[#231912]/60">
+                      <td className="py-2.5 px-3.5 font-bold text-stone-900 dark:text-stone-100 whitespace-nowrap">
+                        {row.app}
+                      </td>
+                      <td className="py-2.5 px-3 font-mono text-stone-600 dark:text-stone-300 whitespace-nowrap">
+                        <div>~₹{row.typicalPriceMonthlyInr}/mo</div>
+                        <div className="text-[9.5px] opacity-75">{row.typicalPriceNote}</div>
+                      </td>
+                      <td className="py-2.5 px-3 text-stone-700 dark:text-stone-300 max-w-xs">
+                        {row.keyMatchedFeatures}
+                      </td>
+                      <td className="py-2.5 px-3 whitespace-nowrap">
+                        <span className="font-bold text-amber-700 dark:text-amber-300 block">
+                          {row.matchedAch1evTier}
+                        </span>
+                        <span className="font-mono font-bold text-stone-900 dark:text-stone-100">
+                          ₹{row.ach1evPriceMonthlyInr}/mo (₹{row.ach1evPriceAnnualInr}/yr)
+                        </span>
+                      </td>
+                      <td className="py-2.5 px-3.5 text-stone-600 dark:text-stone-300">
+                        {row.ach1evAdvantage}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>

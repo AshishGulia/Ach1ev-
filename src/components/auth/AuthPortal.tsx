@@ -20,6 +20,9 @@ import {
   CheckCircle2,
   AlertCircle,
   KeyRound,
+  Phone,
+  ShieldCheck,
+  RotateCcw,
 } from 'lucide-react';
 
 interface AuthPortalProps {
@@ -28,6 +31,19 @@ interface AuthPortalProps {
   onToggleDarkMode?: () => void;
   onClose?: () => void;
 }
+
+const COUNTRY_CODES = [
+  { code: '+91', label: '🇮🇳 +91' },
+  { code: '+1', label: '🇺🇸 +1' },
+  { code: '+44', label: '🇬🇧 +44' },
+  { code: '+61', label: '🇦🇺 +61' },
+  { code: '+971', label: '🇦🇪 +971' },
+  { code: '+65', label: '🇸🇬 +65' },
+  { code: '+49', label: '🇩🇪 +49' },
+  { code: '+81', label: '🇯🇵 +81' },
+  { code: '+977', label: '🇳🇵 +977' },
+  { code: '+880', label: '🇧🇩 +880' },
+];
 
 const GoogleLogo = () => (
   <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
@@ -67,9 +83,11 @@ const MicrosoftLogo = () => (
 
 export const AuthPortal: React.FC<AuthPortalProps> = ({
   isModal = false,
-  isDarkMode,
   onClose,
 }) => {
+  // Opening HTML splash & Login Portal always stay Dark regardless of dashboard Light default
+  const isDarkMode = true;
+
   const {
     supabaseReady,
     authRedirectError,
@@ -77,30 +95,47 @@ export const AuthPortal: React.FC<AuthPortalProps> = ({
     signInWithEmail,
     signUpWithEmail,
     signInWithSocial,
+    signInWithPhoneOtp,
+    verifyPhoneOtp,
     resetPassword,
     refreshAuthClient,
   } = useAuth();
 
+  const [authMethod, setAuthMethod] = useState<'email' | 'phone'>('email');
   const [mode, setMode] = useState<'signin' | 'signup' | 'forgot'>('signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [institution, setInstitution] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [includeDriveOnGoogle, setIncludeDriveOnGoogle] = useState(true);
+
+  // Contact Number + OTP state
+  const [countryCode, setCountryCode] = useState('+91');
+  const [phoneDigits, setPhoneDigits] = useState('');
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpCode, setOtpCode] = useState('');
+  const [resendCooldown, setResendCooldown] = useState(0);
+
   const [submitting, setSubmitting] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
-  // Luxury Dark-Chocolate Opening Intro Animation when opening website login page
+  // Luxury Dark-Chocolate Opening Intro Animation (3 seconds total, no Skip button)
   const [showIntro, setShowIntro] = useState<boolean>(!isModal);
 
   useEffect(() => {
     if (!showIntro) return;
-    // Quick 1.6s brand glow reveal, then smooth 0.4s fade-out straight into login page
-    const tEnd = window.setTimeout(() => setShowIntro(false), 2000);
-    return () => { window.clearTimeout(tEnd); };
+    const tEnd = window.setTimeout(() => setShowIntro(false), 3000);
+    return () => {
+      window.clearTimeout(tEnd);
+    };
   }, [showIntro]);
+
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const timer = window.setTimeout(() => setResendCooldown((c) => Math.max(0, c - 1)), 1000);
+    return () => window.clearTimeout(timer);
+  }, [resendCooldown]);
 
   useEffect(() => {
     if (authRedirectError) {
@@ -116,14 +151,52 @@ export const AuthPortal: React.FC<AuthPortalProps> = ({
   const [cfgKey, setCfgKey] = useState(currentCfg.anonKey);
   const [cfgGoogleId, setCfgGoogleId] = useState(() => getGoogleClientId());
 
-  const handleSocialAuth = async (provider: SocialProviderId, overrideDriveScope?: boolean) => {
+  const handleSocialAuth = async (provider: SocialProviderId) => {
     setErrorMsg(null);
     setSuccessMsg(null);
     setSubmitting(provider);
-    const useDriveScope = overrideDriveScope ?? includeDriveOnGoogle;
-    const { error } = await signInWithSocial(provider, useDriveScope);
+    const { error } = await signInWithSocial(provider, false);
     setSubmitting(null);
     if (error) setErrorMsg(error);
+  };
+
+  const fullPhone = `${countryCode}${phoneDigits.replace(/[^\d]/g, '')}`;
+
+  const handleSendPhoneOtp = async (e?: React.FormEvent) => {
+    e?.preventDefault();
+    setErrorMsg(null);
+    setSuccessMsg(null);
+    const digitsOnly = phoneDigits.replace(/[^\d]/g, '');
+    if (digitsOnly.length < 7) {
+      setErrorMsg('Please enter a valid mobile number (without country code).');
+      return;
+    }
+    setSubmitting('phone-send');
+    const { error } = await signInWithPhoneOtp(fullPhone);
+    setSubmitting(null);
+    if (error) {
+      setErrorMsg(error);
+    } else {
+      setOtpSent(true);
+      setResendCooldown(30);
+      setSuccessMsg(`Verification code sent via SMS to ${fullPhone}.`);
+    }
+  };
+
+  const handleVerifyPhoneOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMsg(null);
+    setSuccessMsg(null);
+    if (otpCode.trim().length < 4) {
+      setErrorMsg('Enter the 6-digit OTP code sent to your mobile number.');
+      return;
+    }
+    setSubmitting('phone-verify');
+    const { error } = await verifyPhoneOtp(fullPhone, otpCode.trim());
+    setSubmitting(null);
+    if (error) {
+      setErrorMsg(error);
+    }
   };
 
   const handleSubmitForm = async (e: React.FormEvent) => {
@@ -195,46 +268,28 @@ export const AuthPortal: React.FC<AuthPortalProps> = ({
     <div
       className={`${
         isModal
-          ? 'fixed inset-0 z-50 bg-black/45 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto'
+          ? 'fixed inset-0 z-50 bg-black/55 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto'
           : 'min-h-screen w-full relative overflow-y-auto flex items-center justify-center p-4 sm:p-8'
-      } transition-colors duration-300 ${
-        isDarkMode
-          ? 'text-[#efe4d4]'
-          : 'text-[#2a1f18]'
-      }`}
+      } transition-colors duration-300 text-[#efe4d4]`}
       style={{
-        background: isDarkMode
-          ? 'radial-gradient(ellipse 85% 75% at 22% 24%, #261209 0%, #150904 52%, #0c0402 100%)'
-          : 'radial-gradient(ellipse 90% 80% at 20% 18%, #fdfbf6 0%, #f4ede0 52%, #e9decb 100%)',
+        background:
+          'radial-gradient(ellipse 85% 75% at 22% 24%, #261209 0%, #150904 52%, #0c0402 100%)',
       }}
     >
-      {/* QUICK BRAND REVEAL INTRO: Exact Photo Layout + HD Champagne Gold + Masked Glare */}
+      {/* 3-SECOND BRAND REVEAL INTRO (Always Dark, No Skip Button) */}
       {showIntro && (
         <div
           className="fixed inset-0 z-[70] flex flex-col items-center justify-center overflow-hidden"
           style={{
-            background: isDarkMode
-              ? 'radial-gradient(ellipse 90% 80% at 50% 42%, #2b1309 0%, #170804 50%, #090301 100%)'
-              : 'radial-gradient(ellipse 90% 80% at 50% 42%, #fefcf7 0%, #f4ecdd 55%, #eadcc6 100%)',
-            animation: 'loginIntroFadeOut 0.4s ease-in 1.55s both',
+            background:
+              'radial-gradient(ellipse 90% 80% at 50% 42%, #2b1309 0%, #170804 50%, #090301 100%)',
+            animation: 'loginIntroFadeOut 0.45s ease-in 2.55s both',
           }}
         >
-          <button
-            type="button"
-            onClick={() => setShowIntro(false)}
-            className={`fixed top-5 right-5 z-20 px-3.5 py-1.5 rounded-full text-[11px] font-medium tracking-wider uppercase transition-colors cursor-pointer backdrop-blur-md ${
-              isDarkMode
-                ? 'bg-[#1b0c06]/75 text-[#e8cfab] hover:bg-[#2c150c]'
-                : 'bg-white/65 text-[#6b4d2b] hover:bg-white/85 shadow-sm'
-            }`}
-          >
-            Skip →
-          </button>
-
-          {/* Horizontal Logo + Name Lockup matching exact reference photo */}
+          {/* Horizontal Logo + Name Lockup */}
           <div
             className="relative flex items-center justify-center px-6 py-8"
-            style={{ animation: 'loginFinalReveal 0.55s cubic-bezier(0.22, 1, 0.36, 1) both' }}
+            style={{ animation: 'loginFinalReveal 0.65s cubic-bezier(0.22, 1, 0.36, 1) both' }}
           >
             <span
               className="relative inline-block select-none"
@@ -255,36 +310,26 @@ export const AuthPortal: React.FC<AuthPortalProps> = ({
       {/* Ambient Subtle Warm Orbs behind the frosted glass box */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
         <div
-          className={`absolute -top-28 -left-20 w-[440px] h-[440px] rounded-full blur-3xl animate-pulse ${
-            isDarkMode ? 'bg-[#5c2d16] opacity-30' : 'bg-[#d8ab74] opacity-40'
-          }`}
+          className="absolute -top-28 -left-20 w-[440px] h-[440px] rounded-full blur-3xl animate-pulse bg-[#5c2d16] opacity-30"
           style={{ animationDuration: '9s' }}
         />
         <div
-          className={`absolute top-1/4 right-[8%] w-[360px] h-[360px] rounded-full blur-3xl animate-pulse ${
-            isDarkMode ? 'bg-[#6b3a1c] opacity-20' : 'bg-[#cfa064] opacity-35'
-          }`}
+          className="absolute top-1/4 right-[8%] w-[360px] h-[360px] rounded-full blur-3xl animate-pulse bg-[#6b3a1c] opacity-20"
           style={{ animationDuration: '11s' }}
         />
         <div
-          className={`absolute -bottom-32 -right-16 w-[480px] h-[480px] rounded-full blur-3xl animate-pulse ${
-            isDarkMode ? 'bg-[#3d1c0d] opacity-25' : 'bg-[#a67647] opacity-30'
-          }`}
+          className="absolute -bottom-32 -right-16 w-[480px] h-[480px] rounded-full blur-3xl animate-pulse bg-[#3d1c0d] opacity-25"
           style={{ animationDuration: '12s' }}
         />
       </div>
 
-      {/* Modal close button only (mode toggle removed from login page) */}
+      {/* Modal close button only */}
       {isModal && onClose && (
         <div className="fixed top-4 right-4 z-50 flex items-center">
           <button
             type="button"
             onClick={onClose}
-            className={`p-2.5 rounded-xl backdrop-blur-xl transition-all cursor-pointer shadow-lg ${
-              isDarkMode
-                ? 'bg-[#1a0d07]/80 text-[#efe4d4] hover:bg-[#2a150b]'
-                : 'bg-white/65 text-stone-700 hover:bg-white/85'
-            }`}
+            className="p-2.5 rounded-xl backdrop-blur-xl transition-all cursor-pointer shadow-lg bg-[#1a0d07]/80 text-[#efe4d4] hover:bg-[#2a150b]"
             title="Close Authentication Portal"
           >
             <X className="w-4 h-4" />
@@ -294,7 +339,7 @@ export const AuthPortal: React.FC<AuthPortalProps> = ({
 
       {/* Simple Clean Split Layout: Brand Logo & Name Beside Bevelled Frosted-Glass Login Box */}
       <div className="relative z-10 w-full max-w-4xl grid grid-cols-1 lg:grid-cols-12 gap-6 items-center my-auto">
-        {/* Left: Frameless Brand Panel — Exact horizontal photo layout with glare on gold logo & name */}
+        {/* Left: Frameless Brand Panel */}
         <div className="lg:col-span-5 flex flex-col items-center lg:items-start justify-center text-center lg:text-left p-4 sm:p-6 relative">
           <div className="flex flex-col items-center lg:items-start gap-5 w-full">
             <AchievBrand
@@ -303,11 +348,8 @@ export const AuthPortal: React.FC<AuthPortalProps> = ({
               imgClassName="h-20 sm:h-24 md:h-[104px] w-auto max-w-full"
             />
 
-            {/* Description — cursive, subtle, stylish */}
             <p
-              className={`leading-relaxed max-w-xs italic font-serif ${
-                isDarkMode ? 'text-[#c9b08a] opacity-70' : 'text-[#7a5c3a] opacity-85'
-              }`}
+              className="leading-relaxed max-w-xs italic font-serif text-[#c9b08a] opacity-75"
               style={{ fontSize: 'clamp(0.82rem, 1.5vw, 1rem)' }}
             >
               A quiet space to settle thoughts, write clinical notes, and carry your study desk everywhere.
@@ -315,24 +357,15 @@ export const AuthPortal: React.FC<AuthPortalProps> = ({
           </div>
         </div>
 
-        {/* Right: Borderless Frosted-Glass Bevelled Login Box */}
+        {/* Right: Borderless Frosted-Glass Bevelled Login Box (Always Dark) */}
         <div
           className="lg:col-span-7 rounded-3xl p-6 sm:p-8 backdrop-blur-2xl backdrop-saturate-150 flex flex-col justify-between transition-all"
-          style={
-            isDarkMode
-              ? {
-                  background:
-                    'linear-gradient(160deg, rgba(36, 18, 10, 0.56) 0%, rgba(18, 8, 4, 0.44) 100%)',
-                  boxShadow:
-                    'inset 0 1.5px 1px rgba(255, 224, 178, 0.14), inset 0 -2px 6px rgba(0, 0, 0, 0.45), 0 24px 60px rgba(0, 0, 0, 0.55)',
-                }
-              : {
-                  background:
-                    'linear-gradient(160deg, rgba(255, 253, 248, 0.56) 0%, rgba(250, 243, 230, 0.36) 100%)',
-                  boxShadow:
-                    'inset 0 1.5px 1px rgba(255, 255, 255, 0.9), inset 0 -2px 6px rgba(148, 106, 56, 0.1), 0 24px 55px rgba(96, 62, 28, 0.14)',
-                }
-          }
+          style={{
+            background:
+              'linear-gradient(160deg, rgba(36, 18, 10, 0.62) 0%, rgba(18, 8, 4, 0.5) 100%)',
+            boxShadow:
+              'inset 0 1.5px 1px rgba(255, 224, 178, 0.14), inset 0 -2px 6px rgba(0, 0, 0, 0.45), 0 24px 60px rgba(0, 0, 0, 0.55)',
+          }}
         >
           <div>
             {/* Forgot password hint */}
@@ -342,13 +375,7 @@ export const AuthPortal: React.FC<AuthPortalProps> = ({
 
             {/* Supabase / OAuth Runtime Key Configurator */}
             {(!supabaseReady || showConfigDrawer) && (
-              <div
-                className={`mb-4 p-3 rounded-2xl border text-xs flex flex-col gap-2 ${
-                  isDarkMode
-                    ? 'bg-amber-950/30 border-amber-700/40 text-amber-200'
-                    : 'bg-amber-50 border-amber-300 text-amber-900'
-                }`}
-              >
+              <div className="mb-4 p-3 rounded-2xl border text-xs flex flex-col gap-2 bg-amber-950/30 border-amber-700/40 text-amber-200">
                 <div className="flex items-center justify-between gap-2">
                   <span className="font-semibold flex items-center gap-1.5">
                     <Database className="w-3.5 h-3.5 text-amber-500" />
@@ -369,37 +396,25 @@ export const AuthPortal: React.FC<AuthPortalProps> = ({
                       placeholder="https://your-project.supabase.co"
                       value={cfgUrl}
                       onChange={(e) => setCfgUrl(e.target.value)}
-                      className={`w-full px-3 py-1.5 rounded-lg border text-xs outline-none ${
-                        isDarkMode
-                          ? 'bg-[#110c09] border-[#382518] text-[#efe4d4]'
-                          : 'bg-white border-amber-300 text-stone-900'
-                      }`}
+                      className="w-full px-3 py-1.5 rounded-lg border text-xs outline-none bg-[#110c09] border-[#382518] text-[#efe4d4]"
                     />
                     <input
                       type="password"
                       placeholder="Supabase anon public key"
                       value={cfgKey}
                       onChange={(e) => setCfgKey(e.target.value)}
-                      className={`w-full px-3 py-1.5 rounded-lg border text-xs outline-none ${
-                        isDarkMode
-                          ? 'bg-[#110c09] border-[#382518] text-[#efe4d4]'
-                          : 'bg-white border-amber-300 text-stone-900'
-                      }`}
+                      className="w-full px-3 py-1.5 rounded-lg border text-xs outline-none bg-[#110c09] border-[#382518] text-[#efe4d4]"
                     />
                     <input
                       type="text"
                       placeholder="Google OAuth Client ID (xxx.apps.googleusercontent.com)"
                       value={cfgGoogleId}
                       onChange={(e) => setCfgGoogleId(e.target.value)}
-                      className={`w-full px-3 py-1.5 rounded-lg border text-xs outline-none font-mono ${
-                        isDarkMode
-                          ? 'bg-[#110c09] border-[#382518] text-[#efe4d4]'
-                          : 'bg-white border-amber-300 text-stone-900'
-                      }`}
+                      className="w-full px-3 py-1.5 rounded-lg border text-xs outline-none font-mono bg-[#110c09] border-[#382518] text-[#efe4d4]"
                     />
                     <button
                       type="submit"
-                      className="px-3 py-1 rounded-lg bg-amber-600 text-white font-semibold text-xs hover:bg-amber-700 cursor-pointer"
+                      className="px-3 py-1 rounded-lg bg-amber-600 text-[#110c09] font-semibold text-xs hover:bg-amber-500 cursor-pointer"
                     >
                       Save Browser Keys
                     </button>
@@ -410,314 +425,410 @@ export const AuthPortal: React.FC<AuthPortalProps> = ({
 
             {/* Status Banners */}
             {errorMsg && (
-              <div className="mb-4 p-3 rounded-xl bg-[#7f1d1d]/12 dark:bg-[#6e171b]/30 border border-[#7f1d1d]/30 dark:border-[#962d32]/50 text-[#6e1418] dark:text-[#e49b9e] text-xs space-y-2">
+              <div className="mb-4 p-3 rounded-xl bg-[#6e171b]/35 border border-[#962d32]/50 text-[#f3b6b8] text-xs space-y-2">
                 <div className="flex items-start gap-2">
                   <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                   <span className="leading-relaxed">{errorMsg}</span>
                 </div>
-                {(errorMsg.toLowerCase().includes('google') || errorMsg.toLowerCase().includes('oauth')) && (
-                  <div className="flex flex-wrap items-center gap-2 pl-6">
-                    {includeDriveOnGoogle && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setIncludeDriveOnGoogle(false);
-                          void handleSocialAuth('google', false);
-                        }}
-                        className="px-2.5 py-1 rounded-lg bg-amber-600/90 hover:bg-amber-600 text-white font-semibold text-[11px] cursor-pointer"
-                      >
-                        Retry Google Sign-In (without Drive)
-                      </button>
-                    )}
-                    {errorMsg.toLowerCase().includes('client id') && (
-                      <button
-                        type="button"
-                        onClick={() => setShowConfigDrawer(true)}
-                        className="px-2.5 py-1 rounded-lg border border-current/30 font-semibold text-[11px] cursor-pointer hover:opacity-80"
-                      >
-                        Enter Google Client ID
-                      </button>
-                    )}
+                {errorMsg.toLowerCase().includes('client id') && (
+                  <div className="pl-6">
+                    <button
+                      type="button"
+                      onClick={() => setShowConfigDrawer(true)}
+                      className="px-2.5 py-1 rounded-lg border border-current/30 font-semibold text-[11px] cursor-pointer hover:opacity-80"
+                    >
+                      Enter Google Client ID
+                    </button>
                   </div>
                 )}
               </div>
             )}
 
             {successMsg && (
-              <div className="mb-4 p-3 rounded-xl bg-amber-500/12 border border-amber-500/35 text-amber-800 dark:text-amber-200 text-xs flex items-start gap-2">
-                <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />
+              <div className="mb-4 p-3 rounded-xl bg-amber-500/15 border border-amber-500/35 text-amber-200 text-xs flex items-start gap-2">
+                <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-amber-400" />
                 <span>{successMsg}</span>
               </div>
             )}
 
-            {/* Multi-Provider Social Auth Buttons — Bevelled satin glass buttons */}
+            {/* Multi-Provider Social Auth Buttons (Drive checkbox removed — Drive connects inside Cloud & Drive) */}
             {mode !== 'forgot' && (
-              <div className="space-y-2 mb-3">
-                <div className="flex flex-col gap-2.5">
+              <div className="space-y-2.5 mb-3">
+                <div className="flex flex-col gap-2">
                   <button
                     type="button"
                     disabled={!!submitting}
                     onClick={() => handleSocialAuth('google')}
-                    className={`flex items-center justify-center gap-2.5 py-2.5 px-4 rounded-xl text-xs font-semibold transition-all cursor-pointer hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 ${
-                      isDarkMode
-                        ? 'text-[#efe4d4]'
-                        : 'text-stone-800'
-                    }`}
-                    style={
-                      isDarkMode
-                        ? {
-                            background: 'linear-gradient(180deg, rgba(48, 30, 20, 0.85) 0%, rgba(28, 17, 11, 0.9) 100%)',
-                            boxShadow: 'inset 0 1px 0 rgba(255,224,178,0.16), inset 0 -1.5px 0 rgba(0,0,0,0.45), 0 4px 12px rgba(0,0,0,0.28)',
-                          }
-                        : {
-                            background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.88) 0%, rgba(244, 237, 224, 0.72) 100%)',
-                            boxShadow: 'inset 0 1.5px 0 rgba(255,255,255,0.96), inset 0 -1.5px 0 rgba(138,98,52,0.16), 0 5px 14px rgba(84,54,24,0.09)',
-                          }
-                    }
+                    className="flex items-center justify-center gap-2.5 py-2.5 px-4 rounded-xl text-xs font-semibold transition-all cursor-pointer hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 text-[#efe4d4]"
+                    style={{
+                      background: 'linear-gradient(180deg, rgba(48, 30, 20, 0.85) 0%, rgba(28, 17, 11, 0.9) 100%)',
+                      boxShadow: 'inset 0 1px 0 rgba(255,224,178,0.16), inset 0 -1.5px 0 rgba(0,0,0,0.45), 0 4px 12px rgba(0,0,0,0.28)',
+                    }}
                   >
                     <GoogleLogo />
                     <span>{submitting === 'google' ? 'Connecting...' : 'Continue with Google'}</span>
                   </button>
 
-                  <button
-                    type="button"
-                    disabled={!!submitting}
-                    onClick={() => handleSocialAuth('apple')}
-                    className={`flex items-center justify-center gap-2.5 py-2.5 px-4 rounded-xl text-xs font-semibold transition-all cursor-pointer hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 ${
-                      isDarkMode ? 'text-[#efe4d4]' : 'text-white'
-                    }`}
-                    style={
-                      isDarkMode
-                        ? {
-                            background: 'linear-gradient(180deg, rgba(48, 30, 20, 0.85) 0%, rgba(28, 17, 11, 0.9) 100%)',
-                            boxShadow: 'inset 0 1px 0 rgba(255,224,178,0.16), inset 0 -1.5px 0 rgba(0,0,0,0.45), 0 4px 12px rgba(0,0,0,0.28)',
-                          }
-                        : {
-                            background: 'linear-gradient(180deg, #2d2622 0%, #14100e 100%)',
-                            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.24), inset 0 -2px 0 rgba(0,0,0,0.5), 0 6px 14px rgba(24,16,12,0.18)',
-                          }
-                    }
-                  >
-                    <AppleLogo />
-                    <span>{submitting === 'apple' ? 'Connecting...' : 'Continue with Apple'}</span>
-                  </button>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      disabled={!!submitting}
+                      onClick={() => handleSocialAuth('apple')}
+                      className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs font-semibold transition-all cursor-pointer hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 text-[#efe4d4]"
+                      style={{
+                        background: 'linear-gradient(180deg, rgba(48, 30, 20, 0.85) 0%, rgba(28, 17, 11, 0.9) 100%)',
+                        boxShadow: 'inset 0 1px 0 rgba(255,224,178,0.16), inset 0 -1.5px 0 rgba(0,0,0,0.45), 0 4px 12px rgba(0,0,0,0.28)',
+                      }}
+                    >
+                      <AppleLogo />
+                      <span>{submitting === 'apple' ? 'Connecting...' : 'Apple'}</span>
+                    </button>
 
-                  <button
-                    type="button"
-                    disabled={!!submitting}
-                    onClick={() => handleSocialAuth('azure')}
-                    className={`flex items-center justify-center gap-2.5 py-2.5 px-4 rounded-xl text-xs font-semibold transition-all cursor-pointer hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 ${
-                      isDarkMode ? 'text-[#efe4d4]' : 'text-stone-800'
-                    }`}
-                    style={
-                      isDarkMode
-                        ? {
-                            background: 'linear-gradient(180deg, rgba(48, 30, 20, 0.85) 0%, rgba(28, 17, 11, 0.9) 100%)',
-                            boxShadow: 'inset 0 1px 0 rgba(255,224,178,0.16), inset 0 -1.5px 0 rgba(0,0,0,0.45), 0 4px 12px rgba(0,0,0,0.28)',
-                          }
-                        : {
-                            background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.88) 0%, rgba(244, 237, 224, 0.72) 100%)',
-                            boxShadow: 'inset 0 1.5px 0 rgba(255,255,255,0.96), inset 0 -1.5px 0 rgba(138,98,52,0.16), 0 5px 14px rgba(84,54,24,0.09)',
-                          }
-                    }
-                  >
-                    <MicrosoftLogo />
-                    <span>{submitting === 'azure' ? 'Connecting...' : 'Continue with Microsoft'}</span>
-                  </button>
+                    <button
+                      type="button"
+                      disabled={!!submitting}
+                      onClick={() => handleSocialAuth('azure')}
+                      className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs font-semibold transition-all cursor-pointer hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 text-[#efe4d4]"
+                      style={{
+                        background: 'linear-gradient(180deg, rgba(48, 30, 20, 0.85) 0%, rgba(28, 17, 11, 0.9) 100%)',
+                        boxShadow: 'inset 0 1px 0 rgba(255,224,178,0.16), inset 0 -1.5px 0 rgba(0,0,0,0.45), 0 4px 12px rgba(0,0,0,0.28)',
+                      }}
+                    >
+                      <MicrosoftLogo />
+                      <span>{submitting === 'azure' ? 'Connecting...' : 'Microsoft'}</span>
+                    </button>
+                  </div>
                 </div>
 
-                {/* Google Drive OAuth Scope Opt-In */}
-                <label className="flex items-center gap-2 text-[11px] opacity-65 cursor-pointer select-none px-1 pt-0.5">
-                  <input
-                    type="checkbox"
-                    checked={includeDriveOnGoogle}
-                    onChange={(e) => setIncludeDriveOnGoogle(e.target.checked)}
-                    className="rounded accent-amber-600"
-                  />
-                  <span>Link <strong>Google Drive</strong> during sign-in for PDF vault</span>
-                </label>
-
-                <div className="relative flex items-center py-1.5">
-                  <div className="flex-grow border-t border-black/10 dark:border-white/10" />
-                  <span className="px-3 text-[10px] font-mono uppercase tracking-wider opacity-45">
-                    or email
-                  </span>
-                  <div className="flex-grow border-t border-black/10 dark:border-white/10" />
+                {/* Auth Method Switcher: Email & Password vs Contact Number + OTP */}
+                <div className="pt-1">
+                  <div className="grid grid-cols-2 gap-1 p-1 rounded-xl bg-[#120a06]/80 border border-[#3d2517]">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAuthMethod('email');
+                        setErrorMsg(null);
+                      }}
+                      className={`py-1.5 px-3 rounded-lg text-[11px] font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                        authMethod === 'email'
+                          ? 'bg-[#e8cfab] text-[#110c09] shadow-xs'
+                          : 'text-[#bfa78a] hover:text-[#efe4d4]'
+                      }`}
+                    >
+                      <Mail className="w-3.5 h-3.5" />
+                      <span>Email &amp; Password</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAuthMethod('phone');
+                        setErrorMsg(null);
+                      }}
+                      className={`py-1.5 px-3 rounded-lg text-[11px] font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                        authMethod === 'phone'
+                          ? 'bg-[#e8cfab] text-[#110c09] shadow-xs'
+                          : 'text-[#bfa78a] hover:text-[#efe4d4]'
+                      }`}
+                    >
+                      <Phone className="w-3.5 h-3.5" />
+                      <span>Phone + OTP</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
 
-            {/* Email & Password Form */}
-            <form onSubmit={handleSubmitForm} className="space-y-3.5">
-              {mode === 'signup' && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {/* METHOD 1: EMAIL & PASSWORD / SIGNUP / FORGOT FORM */}
+            {(authMethod === 'email' || mode === 'forgot') && (
+              <form onSubmit={handleSubmitForm} className="space-y-3">
+                {mode !== 'forgot' && (
+                  <div className="flex items-center justify-between text-[11px] text-[#c9b08a]">
+                    <span>{mode === 'signin' ? 'Sign in with email' : 'Create new account'}</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMode(mode === 'signin' ? 'signup' : 'signin');
+                        setErrorMsg(null);
+                        setSuccessMsg(null);
+                      }}
+                      className="text-amber-400 hover:underline font-semibold cursor-pointer"
+                    >
+                      {mode === 'signin' ? 'New here? Create account' : 'Already have an account? Sign in'}
+                    </button>
+                  </div>
+                )}
+
+                {mode === 'signup' && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-xs font-semibold block mb-1 opacity-85">
+                        Full Name / Title
+                      </label>
+                      <div className="relative">
+                        <User className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 opacity-45" />
+                        <input
+                          type="text"
+                          placeholder="Dr. Aarav Sharma"
+                          value={fullName}
+                          onChange={(e) => setFullName(e.target.value)}
+                          className="w-full pl-9 pr-3 py-2.5 rounded-xl text-xs outline-none transition-all focus:ring-2 focus:ring-amber-500/40 bg-[#120c08]/80 text-[#efe4d4] placeholder-[#8b735c]"
+                          style={{
+                            boxShadow:
+                              'inset 0 1.5px 3px rgba(0,0,0,0.45), inset 0 -1px 0 rgba(255,224,178,0.08)',
+                          }}
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-xs font-semibold block mb-1 opacity-85">
+                        Medical School / Hospital
+                      </label>
+                      <div className="relative">
+                        <Building2 className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 opacity-45" />
+                        <input
+                          type="text"
+                          placeholder="AIIMS / Johns Hopkins"
+                          value={institution}
+                          onChange={(e) => setInstitution(e.target.value)}
+                          className="w-full pl-9 pr-3 py-2.5 rounded-xl text-xs outline-none transition-all focus:ring-2 focus:ring-amber-500/40 bg-[#120c08]/80 text-[#efe4d4] placeholder-[#8b735c]"
+                          style={{
+                            boxShadow:
+                              'inset 0 1.5px 3px rgba(0,0,0,0.45), inset 0 -1px 0 rgba(255,224,178,0.08)',
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <div>
+                  <label className="text-xs font-semibold block mb-1 opacity-85">
+                    Email Address
+                  </label>
+                  <div className="relative">
+                    <Mail className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 opacity-45" />
+                    <input
+                      type="email"
+                      placeholder="scholar@medschool.edu"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full pl-9 pr-3 py-2.5 rounded-xl text-xs outline-none transition-all focus:ring-2 focus:ring-amber-500/40 bg-[#120c08]/80 text-[#efe4d4] placeholder-[#8b735c]"
+                      style={{
+                        boxShadow:
+                          'inset 0 1.5px 3px rgba(0,0,0,0.45), inset 0 -1px 0 rgba(255,224,178,0.08)',
+                      }}
+                      required
+                    />
+                  </div>
+                </div>
+
+                {mode !== 'forgot' && (
                   <div>
-                    <label className="text-xs font-semibold block mb-1 opacity-85">
-                      Full Name / Title
-                    </label>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-xs font-semibold opacity-85">Password</label>
+                      {mode === 'signin' && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setMode('forgot');
+                            setErrorMsg(null);
+                          }}
+                          className="text-[11px] font-medium text-amber-400 hover:underline cursor-pointer"
+                        >
+                          Forgot password?
+                        </button>
+                      )}
+                    </div>
                     <div className="relative">
-                      <User className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 opacity-45" />
+                      <Lock className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 opacity-45" />
                       <input
-                        type="text"
-                        placeholder="Dr. Aarav Sharma"
-                        value={fullName}
-                        onChange={(e) => setFullName(e.target.value)}
-                        className={`w-full pl-9 pr-3 py-2.5 rounded-xl text-xs outline-none transition-all focus:ring-2 focus:ring-amber-500/40 ${
-                          isDarkMode
-                            ? 'bg-[#120c08]/75 text-[#efe4d4] placeholder-[#8b735c]'
-                            : 'bg-white/65 text-stone-900 placeholder-stone-400'
-                        }`}
+                        type={showPassword ? 'text' : 'password'}
+                        placeholder="••••••••••••"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="w-full pl-9 pr-10 py-2.5 rounded-xl text-xs outline-none transition-all focus:ring-2 focus:ring-amber-500/40 bg-[#120c08]/80 text-[#efe4d4] placeholder-[#8b735c]"
                         style={{
-                          boxShadow: isDarkMode
-                            ? 'inset 0 1.5px 3px rgba(0,0,0,0.45), inset 0 -1px 0 rgba(255,224,178,0.08)'
-                            : 'inset 0 1.5px 3px rgba(108,74,38,0.1), inset 0 -1px 0 rgba(255,255,255,0.9)',
+                          boxShadow:
+                            'inset 0 1.5px 3px rgba(0,0,0,0.45), inset 0 -1px 0 rgba(255,224,178,0.08)',
+                        }}
+                        required
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 opacity-55 hover:opacity-100 cursor-pointer"
+                        title={showPassword ? 'Hide password' : 'Show password'}
+                      >
+                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={!!submitting}
+                  className="w-full py-2.5 px-4 rounded-xl text-white font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50"
+                  style={{
+                    background: 'linear-gradient(180deg, rgba(168, 108, 62, 0.92) 0%, rgba(126, 74, 38, 0.95) 100%)',
+                    backdropFilter: 'blur(10px)',
+                    boxShadow:
+                      'inset 0 1.5px 1px rgba(255, 236, 202, 0.5), inset 0 -2px 2px rgba(48, 20, 6, 0.35), 0 10px 24px rgba(132, 84, 42, 0.32)',
+                    border: 'none',
+                  }}
+                >
+                  {mode === 'forgot' ? (
+                    <>
+                      <KeyRound className="w-4 h-4" />
+                      <span>{submitting === 'email' ? 'Sending Reset Link...' : 'Send Reset Link'}</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>
+                        {submitting === 'email'
+                          ? 'Authenticating...'
+                          : mode === 'signin'
+                          ? 'Sign In'
+                          : 'Create Account'}
+                      </span>
+                      <ArrowRight className="w-4 h-4" />
+                    </>
+                  )}
+                </button>
+
+                {mode === 'forgot' && (
+                  <button
+                    type="button"
+                    onClick={() => setMode('signin')}
+                    className="w-full text-center text-xs font-medium opacity-75 hover:opacity-100 cursor-pointer pt-1"
+                  >
+                    Back to Sign In
+                  </button>
+                )}
+              </form>
+            )}
+
+            {/* METHOD 2: CONTACT NUMBER + SMS OTP VERIFICATION */}
+            {authMethod === 'phone' && mode !== 'forgot' && (
+              <form
+                onSubmit={otpSent ? handleVerifyPhoneOtp : handleSendPhoneOtp}
+                className="space-y-3"
+              >
+                <div>
+                  <label className="text-xs font-semibold block mb-1 opacity-85">
+                    Contact Number
+                  </label>
+                  <div className="flex gap-2">
+                    <select
+                      value={countryCode}
+                      onChange={(e) => setCountryCode(e.target.value)}
+                      disabled={otpSent}
+                      aria-label="Country Code"
+                      className="px-2.5 py-2.5 rounded-xl text-xs outline-none bg-[#120c08]/85 text-[#efe4d4] border border-[#3d2517] focus:ring-2 focus:ring-amber-500/40 cursor-pointer shrink-0 disabled:opacity-65"
+                    >
+                      {COUNTRY_CODES.map((c) => (
+                        <option key={c.code} value={c.code} className="bg-[#180d07] text-[#efe4d4]">
+                          {c.label}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="relative flex-1">
+                      <Phone className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 opacity-45" />
+                      <input
+                        type="tel"
+                        inputMode="numeric"
+                        placeholder="9876543210"
+                        value={phoneDigits}
+                        disabled={otpSent}
+                        onChange={(e) => setPhoneDigits(e.target.value.replace(/[^\d\s-]/g, ''))}
+                        className="w-full pl-9 pr-3 py-2.5 rounded-xl text-xs outline-none transition-all focus:ring-2 focus:ring-amber-500/40 bg-[#120c08]/80 text-[#efe4d4] placeholder-[#8b735c] disabled:opacity-65"
+                        style={{
+                          boxShadow:
+                            'inset 0 1.5px 3px rgba(0,0,0,0.45), inset 0 -1px 0 rgba(255,224,178,0.08)',
                         }}
                         required
                       />
                     </div>
                   </div>
-                  <div>
-                    <label className="text-xs font-semibold block mb-1 opacity-85">
-                      Medical School / Hospital
-                    </label>
-                    <div className="relative">
-                      <Building2 className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 opacity-45" />
-                      <input
-                        type="text"
-                        placeholder="AIIMS / Johns Hopkins"
-                        value={institution}
-                        onChange={(e) => setInstitution(e.target.value)}
-                        className={`w-full pl-9 pr-3 py-2.5 rounded-xl text-xs outline-none transition-all focus:ring-2 focus:ring-amber-500/40 ${
-                          isDarkMode
-                            ? 'bg-[#120c08]/75 text-[#efe4d4] placeholder-[#8b735c]'
-                            : 'bg-white/65 text-stone-900 placeholder-stone-400'
-                        }`}
-                        style={{
-                          boxShadow: isDarkMode
-                            ? 'inset 0 1.5px 3px rgba(0,0,0,0.45), inset 0 -1px 0 rgba(255,224,178,0.08)'
-                            : 'inset 0 1.5px 3px rgba(108,74,38,0.1), inset 0 -1px 0 rgba(255,255,255,0.9)',
-                        }}
-                      />
-                    </div>
-                  </div>
                 </div>
-              )}
 
-              <div>
-                <label className="text-xs font-semibold block mb-1 opacity-85">
-                  Email Address
-                </label>
-                <div className="relative">
-                  <Mail className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 opacity-45" />
-                  <input
-                    type="email"
-                    placeholder="scholar@medschool.edu"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className={`w-full pl-9 pr-3 py-2.5 rounded-xl text-xs outline-none transition-all focus:ring-2 focus:ring-amber-500/40 ${
-                      isDarkMode
-                        ? 'bg-[#120c08]/75 text-[#efe4d4] placeholder-[#8b735c]'
-                        : 'bg-white/65 text-stone-900 placeholder-stone-400'
-                    }`}
-                    style={{
-                      boxShadow: isDarkMode
-                        ? 'inset 0 1.5px 3px rgba(0,0,0,0.45), inset 0 -1px 0 rgba(255,224,178,0.08)'
-                        : 'inset 0 1.5px 3px rgba(108,74,38,0.1), inset 0 -1px 0 rgba(255,255,255,0.9)',
-                    }}
-                    required
-                  />
-                </div>
-              </div>
-
-              {mode !== 'forgot' && (
-                <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <label className="text-xs font-semibold opacity-85">Password</label>
-                    {mode === 'signin' && (
+                {otpSent && (
+                  <div className="space-y-2 animate-in fade-in duration-150">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-semibold opacity-85 flex items-center gap-1.5">
+                        <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
+                        <span>6-Digit OTP Verification Code</span>
+                      </label>
                       <button
                         type="button"
                         onClick={() => {
-                          setMode('forgot');
+                          setOtpSent(false);
+                          setOtpCode('');
                           setErrorMsg(null);
+                          setSuccessMsg(null);
                         }}
-                        className="text-[11px] font-medium text-amber-700 dark:text-amber-400 hover:underline cursor-pointer"
+                        className="text-[11px] text-amber-400 hover:underline cursor-pointer"
                       >
-                        Forgot password?
+                        Change number
                       </button>
-                    )}
-                  </div>
-                  <div className="relative">
-                    <Lock className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 opacity-45" />
+                    </div>
                     <input
-                      type={showPassword ? 'text' : 'password'}
-                      placeholder="••••••••••••"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className={`w-full pl-9 pr-10 py-2.5 rounded-xl text-xs outline-none transition-all focus:ring-2 focus:ring-amber-500/40 ${
-                        isDarkMode
-                          ? 'bg-[#120c08]/75 text-[#efe4d4] placeholder-[#8b735c]'
-                          : 'bg-white/65 text-stone-900 placeholder-stone-400'
-                      }`}
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={6}
+                      placeholder="Enter 6-digit SMS OTP"
+                      value={otpCode}
+                      onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                      className="w-full px-4 py-2.5 rounded-xl text-sm font-mono tracking-[0.35em] text-center outline-none transition-all focus:ring-2 focus:ring-amber-500/40 bg-[#120c08]/90 text-[#efe4d4] placeholder-[#8b735c] placeholder:tracking-normal"
                       style={{
-                        boxShadow: isDarkMode
-                          ? 'inset 0 1.5px 3px rgba(0,0,0,0.45), inset 0 -1px 0 rgba(255,224,178,0.08)'
-                          : 'inset 0 1.5px 3px rgba(108,74,38,0.1), inset 0 -1px 0 rgba(255,255,255,0.9)',
+                        boxShadow:
+                          'inset 0 1.5px 3px rgba(0,0,0,0.45), inset 0 -1px 0 rgba(255,224,178,0.08)',
                       }}
                       required
                     />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 opacity-55 hover:opacity-100 cursor-pointer"
-                      title={showPassword ? 'Hide password' : 'Show password'}
-                    >
-                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
+                    <div className="flex items-center justify-between text-[11px] text-[#c9b08a]">
+                      <span>SMS sent to {fullPhone}</span>
+                      <button
+                        type="button"
+                        disabled={resendCooldown > 0 || submitting === 'phone-send'}
+                        onClick={() => handleSendPhoneOtp()}
+                        className="flex items-center gap-1 text-amber-400 hover:underline disabled:opacity-45 cursor-pointer"
+                      >
+                        <RotateCcw className="w-3 h-3" />
+                        <span>
+                          {resendCooldown > 0 ? `Resend OTP in ${resendCooldown}s` : 'Resend OTP'}
+                        </span>
+                      </button>
+                    </div>
                   </div>
-                </div>
-              )}
-
-              <button
-                type="submit"
-                disabled={!!submitting}
-                className="w-full py-2.5 px-4 rounded-xl text-white font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50"
-                style={{
-                  background: 'linear-gradient(180deg, rgba(168, 108, 62, 0.92) 0%, rgba(126, 74, 38, 0.95) 100%)',
-                  backdropFilter: 'blur(10px)',
-                  boxShadow:
-                    'inset 0 1.5px 1px rgba(255, 236, 202, 0.5), inset 0 -2px 2px rgba(48, 20, 6, 0.35), 0 10px 24px rgba(132, 84, 42, 0.32)',
-                  border: 'none',
-                }}
-              >
-                {mode === 'forgot' ? (
-                  <>
-                    <KeyRound className="w-4 h-4" />
-                    <span>{submitting === 'email' ? 'Sending Reset Link...' : 'Send Reset Link'}</span>
-                  </>
-                ) : (
-                  <>
-                    <span>
-                      {submitting === 'email'
-                        ? 'Authenticating...'
-                        : mode === 'signin'
-                        ? 'Sign In'
-                        : 'Create Account'}
-                    </span>
-                    <ArrowRight className="w-4 h-4" />
-                  </>
                 )}
-              </button>
 
-              {mode === 'forgot' && (
                 <button
-                  type="button"
-                  onClick={() => setMode('signin')}
-                  className="w-full text-center text-xs font-medium opacity-75 hover:opacity-100 cursor-pointer pt-1"
+                  type="submit"
+                  disabled={!!submitting}
+                  className="w-full py-2.5 px-4 rounded-xl text-white font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50"
+                  style={{
+                    background: 'linear-gradient(180deg, rgba(168, 108, 62, 0.92) 0%, rgba(126, 74, 38, 0.95) 100%)',
+                    backdropFilter: 'blur(10px)',
+                    boxShadow:
+                      'inset 0 1.5px 1px rgba(255, 236, 202, 0.5), inset 0 -2px 2px rgba(48, 20, 6, 0.35), 0 10px 24px rgba(132, 84, 42, 0.32)',
+                    border: 'none',
+                  }}
                 >
-                  Back to Sign In
+                  <span>
+                    {submitting === 'phone-send'
+                      ? 'Sending SMS OTP...'
+                      : submitting === 'phone-verify'
+                      ? 'Verifying OTP...'
+                      : otpSent
+                      ? 'Verify & Enter Ach1ev'
+                      : 'Send OTP'}
+                  </span>
+                  <ArrowRight className="w-4 h-4" />
                 </button>
-              )}
-            </form>
+              </form>
+            )}
           </div>
         </div>
       </div>
@@ -726,3 +837,4 @@ export const AuthPortal: React.FC<AuthPortalProps> = ({
 };
 
 export default AuthPortal;
+

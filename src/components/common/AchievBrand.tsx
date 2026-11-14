@@ -15,9 +15,9 @@ const resolveAssetUrl = (relativePath: string): string => {
   return `${normalizedBase}${relativePath.replace(/^\/+/, '')}`;
 };
 
-export const ACHIEV_LOGO_URL = resolveAssetUrl('assets/brand/achiev-logo.png?v=hd4');
-export const ACHIEV_EMBLEM_URL = resolveAssetUrl('assets/brand/achiev-emblem.png?v=hd4');
-export const ACHIEV_WORDMARK_URL = resolveAssetUrl('assets/brand/achiev-wordmark.png?v=hd4');
+export const ACHIEV_LOGO_URL = resolveAssetUrl('assets/brand/achiev-logo.png?v=hd5');
+export const ACHIEV_EMBLEM_URL = resolveAssetUrl('assets/brand/achiev-emblem.png?v=hd5');
+export const ACHIEV_WORDMARK_URL = resolveAssetUrl('assets/brand/achiev-wordmark.png?v=hd5');
 
 export const AchievBrand: React.FC<AchievBrandProps> = ({
   variant = 'compact',

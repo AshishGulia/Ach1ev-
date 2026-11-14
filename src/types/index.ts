@@ -207,6 +207,8 @@ export interface BreakTimerConfig {
 
 export interface UserProfile {
   name: string;
+  username?: string;
+  phone?: string;
   institution: string;
   currentYear: string;
   specialityGoal: string;
@@ -298,6 +300,7 @@ export interface SidebarSettings {
   showMnemonics?: boolean;
   showCommunity: boolean;
   showLeisure?: boolean;
+  showExploreBody?: boolean;
   showTalkToDev: boolean;
 }
 

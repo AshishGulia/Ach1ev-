@@ -241,13 +241,14 @@ export default function App() {
   const [isGlobalGeminiOpen, setIsGlobalGeminiOpen] = useState<boolean>(false);
   const [isAIStudioModalOpen, setIsAIStudioModalOpen] = useState<boolean>(false);
 
-  // Default opening theme: Light Mode (one-time migration ensures previous dark default resets to light)
+  // Default opening dashboard theme: Light Mode & Theme 1 (one-time migration key)
   const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
     try {
-      const migrated = localStorage.getItem('ach1ev_light_default_v1');
+      const migrated = localStorage.getItem('ach1ev_defaults_v2');
       if (!migrated) {
-        localStorage.setItem('ach1ev_light_default_v1', '1');
+        localStorage.setItem('ach1ev_defaults_v2', '1');
         localStorage.setItem('medden_theme', 'light');
+        localStorage.setItem('medden_active_design', '1');
         return false;
       }
       const saved = localStorage.getItem('medden_theme');
@@ -313,28 +314,32 @@ export default function App() {
 
   const isEdition1 = true;
 
-  // Sync Dark Theme class & attributes on <html>
+  // Sync Dark Theme class & attributes on <html>:
+  // Splash & Login screen always force Dark Mode; inside Dashboard reflects isDarkMode (default Light) + activeDesign (default Theme 1).
+  const isInsideDashboard = Boolean(user || googleUser || isGuestMode) && !authLoading;
   useEffect(() => {
     const root = document.documentElement;
-    if (isDarkMode) {
+    const effectiveDark = isInsideDashboard ? isDarkMode : true;
+    const effectiveDesign = isInsideDashboard ? activeDesign : '1';
+    if (effectiveDark) {
       root.classList.add('dark');
       root.setAttribute('data-theme', 'dark');
-      localStorage.setItem('medden_theme', 'dark');
-      localStorage.setItem('theme', 'dark');
     } else {
       root.classList.remove('dark');
       root.setAttribute('data-theme', 'light');
-      localStorage.setItem('medden_theme', 'light');
-      localStorage.setItem('theme', 'light');
     }
-    root.setAttribute('data-design', activeDesign);
+    if (isInsideDashboard) {
+      localStorage.setItem('medden_theme', isDarkMode ? 'dark' : 'light');
+      localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+    }
+    root.setAttribute('data-design', effectiveDesign);
     root.setAttribute('data-edition', '1');
-    if (isDarkMode && activeDesign === '1') {
+    if (effectiveDark && effectiveDesign === '1') {
       root.classList.add('theme-1-dark');
     } else {
       root.classList.remove('theme-1-dark');
     }
-  }, [isDarkMode, activeDesign]);
+  }, [isInsideDashboard, isDarkMode, activeDesign]);
 
   // Allow nested workspaces (e.g. AtelierCreateNote) to toggle global dark mode cleanly
   useEffect(() => {
@@ -953,9 +958,9 @@ export default function App() {
     return (
       <div
         className="min-h-screen w-screen flex flex-col items-center justify-center gap-4"
-        style={{ backgroundColor: 'var(--th-bg)', color: 'var(--th-ink)' }}
+        style={{ backgroundColor: '#0c0402', color: '#efe4d4' }}
       >
-        <AchievBrand variant="lockup" isDarkMode={isDarkMode} imgClassName="h-14 w-auto animate-pulse" />
+        <AchievBrand variant="lockup" isDarkMode={true} imgClassName="h-14 w-auto animate-pulse" />
         <p className="text-xs font-mono opacity-75">Initializing Ach1ev Cloud Workspace...</p>
       </div>
     );
@@ -964,7 +969,7 @@ export default function App() {
   if (!user && !googleUser && !isGuestMode) {
     return (
       <AuthPortal
-        isDarkMode={isDarkMode}
+        isDarkMode={true}
         onToggleDarkMode={() => setIsDarkMode((prev) => !prev)}
       />
     );
@@ -1149,7 +1154,7 @@ export default function App() {
             )
           )}
 
-          {(activeView === 'library' || activeView === 'explore-body') && (
+          {activeView === 'library' && (
             <LibraryView
               isDarkMode={isDarkMode}
               activeDesign={activeDesign}
@@ -1177,9 +1182,18 @@ export default function App() {
             />
           )}
 
+          {activeView === 'explore-body' && (
+            <ExploreBodyView
+              currentSubject={currentSubject}
+              onSnipToNote={handleSnipToActiveNote}
+              onOpenNotebookWithTopic={() => handleCreateBlankNote()}
+            />
+          )}
+
           {activeView === 'community' && (
             <CommunityView
               currentSubject={currentSubject}
+              userProfile={userProfile}
               onSnipToNote={handleSnipToActiveNote}
             />
           )}

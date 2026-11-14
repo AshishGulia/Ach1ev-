@@ -10,42 +10,25 @@ import {
   getCurrentLanguage,
   setAppLanguage,
 } from '../../data/translations';
-import { SUBSCRIPTION_TIERS } from '../../data/subscriptionData';
+import { SUBSCRIPTION_TIERS, COMPETITOR_BENCHMARKS } from '../../data/subscriptionData';
 import { ThemeAppStorePreviews } from './ThemeAppStorePreviews';
 import { useAuth } from '../../contexts/AuthContext';
-import { getSupabaseConfig, saveRuntimeSupabaseConfig } from '../../lib/supabaseClient';
 import {
   DRIVE_APP_FOLDER_NAME,
-  getGoogleClientId,
-  saveRuntimeGoogleClientId,
 } from '../../services/googleDriveService';
 import {
   User,
   Settings,
   Eye,
-  FileText,
   Volume2,
   X,
   Check,
+  CheckCircle2,
   Download,
   RotateCcw,
-  Layout,
-  Palette,
   Sparkles,
-  Sliders,
-  Columns,
-  Maximize2,
-  Minimize2,
-  BookOpen,
-  Activity,
-  Layers,
-  CheckCircle2,
-  Type,
-  Clock,
-  Keyboard,
-  Target,
+  Palette,
   ShieldCheck,
-  Flame,
   Zap,
   ExternalLink,
   Copy,
@@ -53,7 +36,6 @@ import {
   UploadCloud,
   Crown,
   SlidersHorizontal,
-  ArrowRight,
   ArrowUp,
   ArrowDown,
   Cloud,
@@ -66,6 +48,13 @@ import {
   Plus,
   Trash2,
   Search,
+  Sun,
+  Moon,
+  Camera,
+  Link2,
+  Keyboard,
+  Target,
+  Type,
 } from 'lucide-react';
 
 export type SettingsTabId =
@@ -316,7 +305,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const {
     user,
     googleUser,
-    supabaseReady,
     syncStatus,
     lastSyncedAt,
     driveAccount,
@@ -324,7 +312,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     disconnectGoogleDrive,
     openAuthModal,
     signOut,
-    refreshAuthClient,
   } = useAuth();
 
   const [activeTab, setActiveTab] = useState<SettingsTabId>(initialTab);
@@ -333,10 +320,28 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const [driveOpSuccess, setDriveOpSuccess] = useState<string | null>(null);
   const [syncingManual, setSyncingManual] = useState(false);
 
-  const initialSupabaseCfg = getSupabaseConfig();
-  const [supaUrlInput, setSupaUrlInput] = useState(initialSupabaseCfg.url);
-  const [supaKeyInput, setSupaKeyInput] = useState(initialSupabaseCfg.anonKey);
-  const [googleClientIdInput, setGoogleClientIdInput] = useState(() => getGoogleClientId());
+  // Per-theme Light / Dark screenshot preview toggle state
+  const [themePreviewModes, setThemePreviewModes] = useState<Record<string, 'light' | 'dark'>>({});
+
+  // Connected Cloud & Drive websites
+  interface ConnectedDriveItem {
+    id: string;
+    name: string;
+    url: string;
+    accountHint?: string;
+    connectedAt: string;
+  }
+  const [connectedDrives, setConnectedDrives] = useState<ConnectedDriveItem[]>(() => {
+    try {
+      const saved = localStorage.getItem('ach1ev_connected_drives_v1');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [customDriveName, setCustomDriveName] = useState('');
+  const [customDriveUrl, setCustomDriveUrl] = useState('');
+  const [customDriveAccount, setCustomDriveAccount] = useState('');
 
   const [profileForm, setProfileForm] = useState<UserProfile>(userProfile);
   const [breakForm, setBreakForm] = useState<BreakTimerConfig>(breakTimerConfig);
@@ -351,6 +356,88 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   useEffect(() => {
     setProfileForm(userProfile);
   }, [userProfile]);
+
+  const persistConnectedDrives = (next: ConnectedDriveItem[]) => {
+    setConnectedDrives(next);
+    try {
+      localStorage.setItem('ach1ev_connected_drives_v1', JSON.stringify(next));
+    } catch {}
+  };
+
+  const handleTogglePresetDrive = (preset: { id: string; name: string; defaultUrl: string }) => {
+    const exists = connectedDrives.some((d) => d.id === preset.id);
+    if (exists) {
+      persistConnectedDrives(connectedDrives.filter((d) => d.id !== preset.id));
+      setDriveOpSuccess(`Disconnected ${preset.name}.`);
+    } else {
+      const item: ConnectedDriveItem = {
+        id: preset.id,
+        name: preset.name,
+        url: preset.defaultUrl,
+        connectedAt: new Date().toLocaleDateString(),
+      };
+      persistConnectedDrives([item, ...connectedDrives]);
+      setDriveOpSuccess(`Connected ${preset.name} (${preset.defaultUrl}).`);
+    }
+  };
+
+  const handleAddCustomDrive = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!customDriveUrl.trim()) return;
+    let normalizedUrl = customDriveUrl.trim();
+    if (!/^https?:\/\//i.test(normalizedUrl)) {
+      normalizedUrl = `https://${normalizedUrl}`;
+    }
+    const domainLabel = (() => {
+      try {
+        return new URL(normalizedUrl).hostname.replace(/^www\./, '');
+      } catch {
+        return 'External Drive';
+      }
+    })();
+    const item: ConnectedDriveItem = {
+      id: `drive-${Date.now()}`,
+      name: customDriveName.trim() || domainLabel,
+      url: normalizedUrl,
+      accountHint: customDriveAccount.trim() || undefined,
+      connectedAt: new Date().toLocaleDateString(),
+    };
+    persistConnectedDrives([item, ...connectedDrives]);
+    setCustomDriveName('');
+    setCustomDriveUrl('');
+    setCustomDriveAccount('');
+    setDriveOpError(null);
+    setDriveOpSuccess(`Connected "${item.name}" to your Ach1ev Drive vault.`);
+  };
+
+  const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const size = 256;
+        const canvas = document.createElement('canvas');
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+        const minSide = Math.min(img.width, img.height);
+        const sx = (img.width - minSide) / 2;
+        const sy = (img.height - minSide) / 2;
+        ctx.drawImage(img, sx, sy, minSide, minSide, 0, 0, size, size);
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.86);
+        const nextProfile = { ...profileForm, avatarUrl: dataUrl };
+        setProfileForm(nextProfile);
+        onUpdateProfile(nextProfile);
+        setSavedFeedback(true);
+        setTimeout(() => setSavedFeedback(false), 1800);
+      };
+      img.src = String(reader.result || '');
+    };
+    reader.readAsDataURL(file);
+  };
 
   const handleConnectDriveClick = async () => {
     setDriveOpError(null);
@@ -381,15 +468,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     } finally {
       setSyncingManual(false);
     }
-  };
-
-  const handleSaveCloudEnvInputs = (e: React.FormEvent) => {
-    e.preventDefault();
-    saveRuntimeSupabaseConfig(supaUrlInput, supaKeyInput);
-    saveRuntimeGoogleClientId(googleClientIdInput);
-    refreshAuthClient();
-    setDriveOpError(null);
-    setDriveOpSuccess('Supabase & Google OAuth Client configuration saved to this browser.');
   };
   const [selectedLang, setSelectedLang] = useState<AppLanguage>(() => getCurrentLanguage());
   const [customLanguages, setCustomLanguages] = useState(() => getCustomLanguages());
@@ -424,24 +502,29 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     }
   }, []);
 
+  const BASE_SIDEBAR_DEFAULTS: SidebarSettings = {
+    showMySpace: true,
+    showRead: true,
+    showCreateNote: true,
+    showCalendar: true,
+    showLibrary: true,
+    showMnemonics: false,
+    showCommunity: true,
+    showLeisure: false,
+    showExploreBody: false,
+    showTalkToDev: true,
+  };
+
   const [sidebarSettings, setSidebarSettings] = useState<SidebarSettings>(() => {
     try {
       const saved = localStorage.getItem('medden_sidebar_settings');
-      if (saved) return JSON.parse(saved);
+      if (saved) return { ...BASE_SIDEBAR_DEFAULTS, ...JSON.parse(saved) };
     } catch {}
-    return {
-      showMySpace: true,
-      showRead: true,
-      showCreateNote: true,
-      showCalendar: true,
-      showLibrary: true,
-      showCommunity: true,
-      showTalkToDev: true,
-    };
+    return BASE_SIDEBAR_DEFAULTS;
   });
 
   const toggleSidebarSetting = (key: keyof SidebarSettings) => {
-    const updated = { ...sidebarSettings, [key]: !sidebarSettings[key] };
+    const updated = { ...sidebarSettings, [key]: sidebarSettings[key] === false };
     setSidebarSettings(updated);
     localStorage.setItem('medden_sidebar_settings', JSON.stringify(updated));
     window.dispatchEvent(new CustomEvent('medden_sidebar_settings_changed'));
@@ -453,16 +536,29 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     { id: 'make-note', key: 'showCreateNote', label: 'Create note' },
     { id: 'roster', key: 'showCalendar', label: 'Calendar' },
     { id: 'library', key: 'showLibrary', label: 'Shelf' },
-    { id: 'community', key: 'showCommunity', label: 'Community' },
+    { id: 'mnemonics', key: 'showMnemonics', label: 'Mnemonics' },
+    { id: 'community', key: 'showCommunity', label: 'Ach1evers Hub' },
+    { id: 'leisure', key: 'showLeisure', label: 'Leisure' },
+    { id: 'explore-body', key: 'showExploreBody', label: 'Explore Body' },
     { id: 'talk-to-dev', key: 'showTalkToDev', label: 'Talk to Developer' },
   ];
 
   const [sidebarOrder, setSidebarOrder] = useState<string[]>(() => {
+    const fallback = ALL_SIDEBAR_BUTTON_ITEMS.map((item) => item.id);
     try {
       const saved = localStorage.getItem('medden_sidebar_order');
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          const merged = [...parsed];
+          fallback.forEach((id) => {
+            if (!merged.includes(id)) merged.push(id);
+          });
+          return merged;
+        }
+      }
     } catch {}
-    return ALL_SIDEBAR_BUTTON_ITEMS.map((item) => item.id);
+    return fallback;
   });
 
   const handleShiftSidebarItem = (id: string, direction: -1 | 1) => {
@@ -890,66 +986,107 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           </div>
 
           {/* Right Detail Content Viewport */}
-          <div className="p-5 sm:p-6 overflow-y-auto space-y-6 flex-1 custom-scrollbar">
+          <div className="p-3 sm:p-6 overflow-y-auto space-y-5 flex-1 custom-scrollbar">
           {/* ========================================================================= */}
-          {/* TAB 1: 3 MASTER DESIGN EDITIONS                                           */}
+          {/* TAB 1: THEMES (COMPACT MOBILE + LIGHT/DARK SCREENSHOT TOGGLE BESIDE APPLY)*/}
           {/* ========================================================================= */}
           {activeTab === 'designs' && (
-            <div className="space-y-6">
-              <div className="space-y-4">
-                <div className="pb-2 border-b border-stone-200 dark:border-[#382518]">
-                  <h4 className="text-lg font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
+            <div className="space-y-4 sm:space-y-6">
+              <div className="space-y-3 sm:space-y-4">
+                <div className="pb-2 border-b border-stone-200 dark:border-[#382518] flex items-center justify-between gap-2">
+                  <h4 className="text-base sm:text-lg font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
                     <Palette className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                     <span>Themes</span>
                   </h4>
+                  <span className="text-[10px] font-mono text-stone-500 dark:text-stone-400">
+                    All 10 Editions · Light &amp; Dark Previews
+                  </span>
                 </div>
-                {/* The 3 Theme Cards with Section Screenshots */}
-                <div className="grid grid-cols-1 gap-4">
+                <div className="grid grid-cols-1 gap-2.5 sm:gap-4">
                   {MASTER_EDITIONS.map((edition) => {
                     const isSelected = activeDesign === edition.id;
+                    const pMode = themePreviewModes[edition.id] || 'light';
 
                     return (
                       <div
                         key={edition.id}
                         onClick={() => handleSelectEdition(edition.id)}
-                        className={`p-4 rounded-2xl border transition-all cursor-pointer relative ${
+                        className={`p-2.5 sm:p-4 rounded-xl sm:rounded-2xl border transition-all cursor-pointer relative ${
                           isSelected
                             ? 'themed-glass-card bg-amber-50/70 dark:bg-[#231912] border-[#A47C43] ring-2 ring-[#A47C43]/25 shadow-md'
                             : 'themed-glass-card bg-white dark:bg-[#18110c] border-stone-200/90 dark:border-[#382518] hover:border-stone-300 dark:hover:border-[#4b3322]'
                         }`}
                       >
-                        <div className="flex items-center justify-between gap-3 mb-2">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <span className="text-sm font-bold text-stone-900 dark:text-stone-100">
+                        <div className="flex flex-wrap items-center justify-between gap-2 mb-1.5 sm:mb-2">
+                          <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap min-w-0">
+                            <span className="text-xs sm:text-sm font-bold text-stone-900 dark:text-stone-100">
                               {edition.title}
                             </span>
-                            <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-stone-200/80 dark:bg-[#251a12] text-stone-700 dark:text-stone-300 font-semibold">
+                            <span className="text-[9px] sm:text-[10px] font-mono px-1.5 sm:px-2 py-0.5 rounded-full bg-stone-200/80 dark:bg-[#251a12] text-stone-700 dark:text-stone-300 font-semibold">
                               {edition.badge}
                             </span>
                           </div>
 
-                          <div className="flex items-center gap-2.5 shrink-0">
+                          <div
+                            className="flex items-center gap-1.5 sm:gap-2 shrink-0 ml-auto"
+                            onClick={(e) => e.stopPropagation()}
+                          >
                             {/* Color Swatch Dots */}
-                            <div className="flex items-center -space-x-1">
+                            <div className="hidden sm:flex items-center -space-x-1">
                               {edition.paletteColors.map((c, i) => (
                                 <div
                                   key={i}
-                                  className="w-4 h-4 rounded-full border border-white dark:border-[#110c09] shadow-2xs"
+                                  className="w-3.5 h-3.5 rounded-full border border-white dark:border-[#110c09] shadow-2xs"
                                   style={{ backgroundColor: c }}
                                   title={c}
                                 />
                               ))}
                             </div>
 
+                            {/* Light / Dark Screenshot Preview Toggle beside Apply */}
+                            <div className="flex items-center p-0.5 rounded-lg bg-stone-200/90 dark:bg-[#251a12] border border-stone-300/70 dark:border-[#382518]">
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setThemePreviewModes((prev) => ({ ...prev, [edition.id]: 'light' }))
+                                }
+                                title="View screenshots in Light mode"
+                                className={`px-1.5 py-0.5 rounded-md text-[9.5px] font-bold flex items-center gap-1 cursor-pointer transition-colors ${
+                                  pMode === 'light'
+                                    ? 'bg-white text-stone-900 shadow-2xs'
+                                    : 'text-stone-600 dark:text-stone-400'
+                                }`}
+                              >
+                                <Sun className="w-2.5 h-2.5 text-amber-500" />
+                                <span>Light</span>
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setThemePreviewModes((prev) => ({ ...prev, [edition.id]: 'dark' }))
+                                }
+                                title="View screenshots in Dark mode"
+                                className={`px-1.5 py-0.5 rounded-md text-[9.5px] font-bold flex items-center gap-1 cursor-pointer transition-colors ${
+                                  pMode === 'dark'
+                                    ? 'bg-amber-500 text-[#110c09] shadow-2xs'
+                                    : 'text-stone-600 dark:text-stone-400'
+                                }`}
+                              >
+                                <Moon className="w-2.5 h-2.5" />
+                                <span>Dark</span>
+                              </button>
+                            </div>
+
                             {isSelected ? (
-                              <div className="themed-accent-btn flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-700 text-white text-xs font-bold shadow-2xs">
-                                <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+                              <div className="themed-accent-btn flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-lg bg-amber-700 text-white text-[11px] sm:text-xs font-bold shadow-2xs">
+                                <Check className="w-3 h-3 stroke-[2.5]" />
                                 <span>Active</span>
                               </div>
                             ) : (
                               <button
                                 type="button"
-                                className="px-3 py-1 rounded-lg bg-stone-200/80 dark:bg-[#251a12] text-stone-700 dark:text-stone-300 text-xs font-semibold hover:bg-stone-300 dark:hover:bg-[#322318] transition-colors cursor-pointer"
+                                onClick={() => handleSelectEdition(edition.id)}
+                                className="px-2.5 sm:px-3 py-1 rounded-lg bg-stone-200/80 dark:bg-[#251a12] text-stone-700 dark:text-stone-300 text-[11px] sm:text-xs font-semibold hover:bg-stone-300 dark:hover:bg-[#322318] transition-colors cursor-pointer"
                               >
                                 Apply
                               </button>
@@ -957,10 +1094,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                           </div>
                         </div>
 
-                        {/* Section Layout Screenshots Carousel */}
+                        {/* Section & Sidebar Screenshots Carousel */}
                         <ThemeAppStorePreviews
                           editionId={edition.id}
                           isSelected={isSelected}
+                          previewMode={pMode}
+                          onChangePreviewMode={(next) =>
+                            setThemePreviewModes((prev) => ({ ...prev, [edition.id]: next }))
+                          }
                           onApply={() => handleSelectEdition(edition.id)}
                         />
                       </div>
@@ -972,7 +1113,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           )}
 
           {/* ========================================================================= */}
-          {/* TAB: CLOUD SYNC (SUPABASE) & PERSONAL GOOGLE DRIVE OFFLOADING             */}
+          {/* TAB: CLOUD & DRIVE (CONNECT ANY DRIVE WEBSITE, NO ENV SETTINGS BLOCK)    */}
           {/* ========================================================================= */}
           {activeTab === 'cloud-sync' && (
             <div className="space-y-5">
@@ -1007,7 +1148,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     <div>
                       <h5 className="text-xs font-bold text-stone-900 dark:text-stone-100">
                         {user
-                          ? user.email || 'Authenticated Cloud Scholar'
+                          ? user.email || user.phone || 'Authenticated Cloud Scholar'
                           : googleUser
                           ? googleUser.name
                             ? `${googleUser.name} (${googleUser.email})`
@@ -1016,12 +1157,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       </h5>
                       <p className="text-[11px] text-stone-500 dark:text-stone-400">
                         {user
-                          ? `Provider: ${String(user.app_metadata?.provider || 'email').toUpperCase()}${
+                          ? `Provider: ${String(user.app_metadata?.provider || 'account').toUpperCase()}${
                               lastSyncedAt ? ` · Last synced ${new Date(lastSyncedAt).toLocaleTimeString()}` : ''
                             }`
                           : googleUser
-                          ? 'Provider: GOOGLE OAUTH2 · Signed in & Drive-ready (Sign in with Email too for live Supabase DB sync)'
-                          : 'Sign in with Google or Email to sync notes & Google Drive PDF Vault.'}
+                          ? 'Provider: GOOGLE OAUTH2 · Signed in & Drive-ready'
+                          : 'Sign in with Email, Phone OTP, or Google to sync across devices.'}
                       </p>
                     </div>
                   </div>
@@ -1038,16 +1179,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                           >
                             <RefreshCw className={`w-3.5 h-3.5 ${syncingManual ? 'animate-spin' : ''}`} />
                             <span>{syncingManual ? 'Syncing...' : 'Sync Now'}</span>
-                          </button>
-                        )}
-                        {!user && supabaseReady && (
-                          <button
-                            type="button"
-                            onClick={openAuthModal}
-                            className="themed-accent-btn px-3 py-1.5 rounded-xl bg-amber-700 hover:bg-amber-800 text-white text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
-                          >
-                            <LogIn className="w-3.5 h-3.5" />
-                            <span>Link Email Sync</span>
                           </button>
                         )}
                         <button
@@ -1073,7 +1204,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 </div>
               </div>
 
-              {/* Card 2: Personal Google Drive OAuth Storage Offloading */}
+              {/* Card 2: Personal Google Drive OAuth PDF Vault */}
               <div className="p-4 rounded-2xl bg-white dark:bg-[#1a120d] border border-stone-200 dark:border-[#382518] space-y-3">
                 <div className="flex items-center justify-between gap-3 flex-wrap">
                   <div className="flex items-center gap-3">
@@ -1096,7 +1227,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       <p className="text-[11px] text-stone-500 dark:text-stone-400">
                         {driveAccount.connected
                           ? `Linked to ${driveAccount.email || 'your Google account'} · Folder: "${driveAccount.folderName || DRIVE_APP_FOLDER_NAME}"`
-                          : 'Offloads heavy textbooks & PDFs straight to your Drive (only metadata & links are stored in Supabase).'}
+                          : 'Offload textbooks & large PDFs directly to your personal Google Drive.'}
                       </p>
                     </div>
                   </div>
@@ -1108,7 +1239,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                           <a
                             href={`https://drive.google.com/drive/folders/${driveAccount.folderId}`}
                             target="_blank"
-                            rel="noreferrer"
+                            rel="noopener noreferrer"
                             className="px-3 py-1.5 rounded-xl bg-stone-100 dark:bg-[#251a12] hover:bg-stone-200 dark:hover:bg-[#322318] text-stone-700 dark:text-stone-200 text-xs font-semibold flex items-center gap-1.5"
                           >
                             <ExternalLink className="w-3.5 h-3.5" />
@@ -1138,72 +1269,159 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 </div>
               </div>
 
-              {/* Card 3: Environment & Client Key Overrides */}
-              <form
-                onSubmit={handleSaveCloudEnvInputs}
-                className="p-4 rounded-2xl bg-stone-50 dark:bg-[#140e0a] border border-stone-200 dark:border-[#382518] space-y-3"
-              >
-                <div className="flex items-center justify-between">
-                  <h5 className="text-xs font-bold text-stone-800 dark:text-stone-200">
-                    Cloud &amp; OAuth Environment Settings
-                  </h5>
-                  <span className="text-[10px] font-mono text-stone-500">
-                    {supabaseReady ? 'Supabase Active' : 'Needs Supabase URL/Key'}
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-400 mb-1">
-                      Supabase Project URL (VITE_SUPABASE_URL)
-                    </label>
-                    <input
-                      type="url"
-                      placeholder="https://xxxxx.supabase.co"
-                      value={supaUrlInput}
-                      onChange={(e) => setSupaUrlInput(e.target.value)}
-                      className="w-full px-3 py-1.5 rounded-xl border border-stone-200 dark:border-[#382518] bg-white dark:bg-[#18110c] text-xs outline-none focus:border-amber-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-400 mb-1">
-                      Supabase Anon Key (VITE_SUPABASE_ANON_KEY)
-                    </label>
-                    <input
-                      type="password"
-                      placeholder="eyJhbGciOi..."
-                      value={supaKeyInput}
-                      onChange={(e) => setSupaKeyInput(e.target.value)}
-                      className="w-full px-3 py-1.5 rounded-xl border border-stone-200 dark:border-[#382518] bg-white dark:bg-[#18110c] text-xs outline-none focus:border-amber-500"
-                    />
-                  </div>
-                </div>
-
+              {/* Card 3: Connect Your Drive (Any Cloud Storage Website) */}
+              <div className="p-4 rounded-2xl bg-white dark:bg-[#1a120d] border border-stone-200 dark:border-[#382518] space-y-4">
                 <div>
-                  <label className="block text-[11px] font-semibold text-stone-600 dark:text-stone-400 mb-1">
-                    Google OAuth 2.0 Client ID (VITE_GOOGLE_CLIENT_ID — for Drive upload flow)
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="1234567890-abcdef.apps.googleusercontent.com"
-                    value={googleClientIdInput}
-                    onChange={(e) => setGoogleClientIdInput(e.target.value)}
-                    className="w-full px-3 py-1.5 rounded-xl border border-stone-200 dark:border-[#382518] bg-white dark:bg-[#18110c] text-xs outline-none focus:border-amber-500 font-mono"
-                  />
+                  <h5 className="text-xs font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
+                    <Link2 className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                    <span>Connect Your Drive</span>
+                  </h5>
+                  <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5">
+                    Link OneDrive, Dropbox, iCloud Drive, Box, pCloud, or any cloud storage website to access your study files.
+                  </p>
                 </div>
 
-                <div className="flex items-center justify-between gap-2 pt-1 flex-wrap">
-                  <span className="text-[10px] text-stone-500 dark:text-stone-400 font-mono">
-                    Run supabase/schema.sql inside Supabase SQL Editor to create tables &amp; RLS policies.
-                  </span>
-                  <button
-                    type="submit"
-                    className="px-3.5 py-1.5 rounded-xl bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900 text-xs font-semibold hover:opacity-90 cursor-pointer"
-                  >
-                    Save Browser Keys
-                  </button>
+                {/* Quick Cloud Providers */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {[
+                    { id: 'gdrive-web', name: 'Google Drive Web', defaultUrl: 'https://drive.google.com' },
+                    { id: 'onedrive', name: 'Microsoft OneDrive', defaultUrl: 'https://onedrive.live.com' },
+                    { id: 'dropbox', name: 'Dropbox', defaultUrl: 'https://www.dropbox.com/home' },
+                    { id: 'icloud', name: 'iCloud Drive', defaultUrl: 'https://www.icloud.com/iclouddrive' },
+                    { id: 'box', name: 'Box Cloud', defaultUrl: 'https://app.box.com' },
+                    { id: 'pcloud', name: 'pCloud', defaultUrl: 'https://my.pcloud.com' },
+                  ].map((provider) => {
+                    const isLinked = connectedDrives.some((d) => d.id === provider.id);
+                    return (
+                      <div
+                        key={provider.id}
+                        className={`p-2.5 rounded-xl border flex flex-col justify-between gap-2 ${
+                          isLinked
+                            ? 'border-amber-500/60 bg-amber-50/40 dark:bg-[#231912]'
+                            : 'border-stone-200 dark:border-[#352317] bg-stone-50/60 dark:bg-[#140e0a]'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between gap-1">
+                          <span className="text-xs font-bold text-stone-800 dark:text-stone-100 truncate">
+                            {provider.name}
+                          </span>
+                          {isLinked && <Check className="w-3.5 h-3.5 text-amber-600 shrink-0" />}
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => handleTogglePresetDrive(provider)}
+                            className={`flex-1 py-1 px-2 rounded-lg text-[10.5px] font-bold cursor-pointer transition-colors ${
+                              isLinked
+                                ? 'bg-stone-200 dark:bg-[#2a1d14] text-stone-700 dark:text-stone-300'
+                                : 'themed-accent-btn bg-amber-700 hover:bg-amber-800 text-white'
+                            }`}
+                          >
+                            {isLinked ? 'Disconnect' : 'Connect'}
+                          </button>
+                          {isLinked && (
+                            <a
+                              href={provider.defaultUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              title={`Open ${provider.name}`}
+                              className="p-1.5 rounded-lg bg-stone-100 dark:bg-[#251a12] hover:bg-stone-200 text-stone-700 dark:text-stone-200"
+                            >
+                              <ExternalLink className="w-3 h-3" />
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
-              </form>
+
+                {/* Connect Any Custom Drive Website URL */}
+                <form
+                  onSubmit={handleAddCustomDrive}
+                  className="p-3 rounded-xl bg-stone-50 dark:bg-[#140e0a] border border-stone-200/80 dark:border-[#352317] space-y-2.5"
+                >
+                  <div className="text-[11px] font-bold text-stone-700 dark:text-stone-300">
+                    Connect Any Other Drive / Cloud Website
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <input
+                      type="text"
+                      placeholder="Drive name (e.g. Nextcloud / Mega)"
+                      value={customDriveName}
+                      onChange={(e) => setCustomDriveName(e.target.value)}
+                      className="px-3 py-1.5 rounded-lg border border-stone-200 dark:border-[#382518] bg-white dark:bg-[#1a120d] text-xs outline-none focus:border-amber-500"
+                    />
+                    <input
+                      type="text"
+                      required
+                      placeholder="Drive website URL (e.g. https://mega.nz)"
+                      value={customDriveUrl}
+                      onChange={(e) => setCustomDriveUrl(e.target.value)}
+                      className="px-3 py-1.5 rounded-lg border border-stone-200 dark:border-[#382518] bg-white dark:bg-[#1a120d] text-xs outline-none focus:border-amber-500"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Account email / handle (optional)"
+                      value={customDriveAccount}
+                      onChange={(e) => setCustomDriveAccount(e.target.value)}
+                      className="px-3 py-1.5 rounded-lg border border-stone-200 dark:border-[#382518] bg-white dark:bg-[#1a120d] text-xs outline-none focus:border-amber-500"
+                    />
+                  </div>
+                  <div className="flex justify-end">
+                    <button
+                      type="submit"
+                      className="themed-accent-btn px-3.5 py-1.5 rounded-xl bg-amber-700 hover:bg-amber-800 text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>Connect Drive Website</span>
+                    </button>
+                  </div>
+                </form>
+
+                {/* List of Linked Drives */}
+                {connectedDrives.length > 0 && (
+                  <div className="space-y-1.5">
+                    <div className="text-[10.5px] font-mono font-bold uppercase text-stone-500 dark:text-stone-400">
+                      Connected Drives ({connectedDrives.length})
+                    </div>
+                    {connectedDrives.map((drv) => (
+                      <div
+                        key={drv.id}
+                        className="p-2.5 rounded-xl bg-stone-50 dark:bg-[#140e0a] border border-stone-200 dark:border-[#352317] flex items-center justify-between gap-2 text-xs"
+                      >
+                        <div className="min-w-0">
+                          <div className="font-bold text-stone-900 dark:text-stone-100 truncate">
+                            {drv.name} {drv.accountHint ? `(${drv.accountHint})` : ''}
+                          </div>
+                          <div className="text-[10.5px] text-stone-500 dark:text-stone-400 truncate font-mono">
+                            {drv.url}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <a
+                            href={drv.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="px-2.5 py-1 rounded-lg bg-stone-200/80 dark:bg-[#251a12] hover:bg-stone-300 text-stone-800 dark:text-stone-200 text-[11px] font-semibold flex items-center gap-1"
+                          >
+                            <ExternalLink className="w-3 h-3" />
+                            <span>Open</span>
+                          </a>
+                          <button
+                            type="button"
+                            onClick={() => persistConnectedDrives(connectedDrives.filter((d) => d.id !== drv.id))}
+                            className="p-1.5 rounded-lg text-stone-400 hover:text-[#7f1d1d] dark:hover:text-[#d97074] cursor-pointer"
+                            title="Remove Drive"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
@@ -1859,23 +2077,69 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       </ul>
                     </div>
 
-                    <button
-                      type="button"
-                      onClick={() => {
-                        localStorage.setItem('medden_user_tier', tier.id);
-                        setSavedFeedback(true);
-                        setTimeout(() => setSavedFeedback(false), 1500);
-                      }}
-                      className={`mt-4 w-full py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                        tier.highlight
-                          ? 'themed-accent-btn bg-amber-600 hover:bg-amber-700 text-white'
-                          : 'bg-stone-200 dark:bg-[#251a12] hover:bg-stone-300 dark:hover:bg-[#322318] text-stone-800 dark:text-stone-200'
-                      }`}
-                    >
-                      {tier.priceMonthly === 0 ? 'Current Free' : 'Select Plan'}
-                    </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          localStorage.setItem('medden_user_tier', tier.id);
+                          setSavedFeedback(true);
+                          setTimeout(() => setSavedFeedback(false), 1500);
+                        }}
+                        className={`mt-4 w-full py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                          tier.highlight
+                            ? 'themed-accent-btn bg-amber-600 hover:bg-amber-700 text-white'
+                            : 'bg-stone-200 dark:bg-[#251a12] hover:bg-stone-300 dark:hover:bg-[#322318] text-stone-800 dark:text-stone-200'
+                        }`}
+                      >
+                        {tier.priceMonthly === 0 ? 'Current Free' : 'Select Plan'}
+                      </button>
+                    </div>
+                  ))}
+              </div>
+
+              {/* Other Note-Making Apps Pricing & Criteria Benchmark */}
+              <div className="rounded-2xl border border-stone-200 dark:border-[#382518] bg-white dark:bg-[#1a120d] overflow-hidden">
+                <div className="px-4 py-3 border-b border-stone-200 dark:border-[#352317] bg-stone-50/90 dark:bg-[#18110c] flex flex-wrap items-center justify-between gap-2">
+                  <div>
+                    <h5 className="text-xs font-bold text-stone-900 dark:text-stone-100">
+                      Note-Making Apps Benchmark Pricing &amp; Feature Criteria
+                    </h5>
+                    <p className="text-[11px] text-stone-500 dark:text-stone-400">
+                      Calibrated Ach1ev pricing criteria compared against popular note apps
+                    </p>
                   </div>
-                ))}
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse text-[11px]">
+                    <thead>
+                      <tr className="border-b border-stone-200 dark:border-[#352317] text-stone-500 dark:text-stone-400 font-mono uppercase text-[10px]">
+                        <th className="py-2 px-3">App</th>
+                        <th className="py-2 px-3">Other App Price</th>
+                        <th className="py-2 px-3">Matched Feature Criteria</th>
+                        <th className="py-2 px-3">Ach1ev Price &amp; Plan</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-stone-100 dark:divide-[#2e1e14]">
+                      {COMPETITOR_BENCHMARKS.map((row) => (
+                        <tr key={row.app}>
+                          <td className="py-2 px-3 font-bold text-stone-900 dark:text-stone-100 whitespace-nowrap">
+                            {row.app}
+                          </td>
+                          <td className="py-2 px-3 font-mono text-stone-600 dark:text-stone-300 whitespace-nowrap">
+                            ~₹{row.typicalPriceMonthlyInr}/mo
+                          </td>
+                          <td className="py-2 px-3 text-stone-700 dark:text-stone-300">
+                            {row.keyMatchedFeatures}
+                          </td>
+                          <td className="py-2 px-3 whitespace-nowrap">
+                            <span className="font-bold text-amber-700 dark:text-amber-300">
+                              {row.matchedAch1evTier} · ₹{row.ach1evPriceMonthlyInr}/mo
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           )}
@@ -2050,7 +2314,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           )}
 
           {/* ========================================================================= */}
-          {/* TAB 4: PROFILE                                                            */}
+          {/* TAB 4: STUDENT PROFILE (AVATAR UPLOAD + @USERNAME SLAB)                   */}
           {/* ========================================================================= */}
           {activeTab === 'profile' && (
             <form onSubmit={handleSaveProfile} className="space-y-4">
@@ -2060,52 +2324,147 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   <span>Student Profile</span>
                 </h4>
               </div>
-              <div>
-                <label className="block text-xs font-semibold text-stone-700 dark:text-stone-300 mb-1">
-                  Full Name & Credentials:
-                </label>
-                <input
-                  type="text"
-                  value={profileForm.name}
-                  onChange={(e) => setProfileForm({ ...profileForm, name: e.target.value })}
-                  className="w-full bg-stone-50 dark:bg-[#18110c] px-3 py-2 rounded-xl border border-stone-200 dark:border-[#382518] text-xs text-stone-800 dark:text-stone-200 outline-none focus:border-amber-500"
-                />
+
+              {/* Profile Picture Upload Card */}
+              <div className="p-4 rounded-2xl bg-stone-50 dark:bg-[#18110c] border border-stone-200 dark:border-[#382518] flex flex-wrap items-center justify-between gap-4">
+                <div className="flex items-center gap-3.5">
+                  {profileForm.avatarUrl ? (
+                    <img
+                      src={profileForm.avatarUrl}
+                      alt={profileForm.name}
+                      className="w-16 h-16 rounded-2xl object-cover ring-2 ring-amber-500/40 shadow-sm"
+                    />
+                  ) : (
+                    <div className="w-16 h-16 rounded-2xl bg-amber-600/15 text-amber-800 dark:text-amber-300 font-bold text-xl flex items-center justify-center border border-amber-500/30">
+                      {(profileForm.name || 'S').slice(0, 2).toUpperCase()}
+                    </div>
+                  )}
+                  <div>
+                    <div className="text-xs font-bold text-stone-900 dark:text-stone-100">
+                      Profile Photo
+                    </div>
+                    <p className="text-[11px] text-stone-500 dark:text-stone-400">
+                      Displayed across Ach1evers Hub, chat &amp; your sidebar badge
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <label className="themed-accent-btn px-3 py-1.5 rounded-xl bg-amber-700 hover:bg-amber-800 text-white text-xs font-semibold flex items-center gap-1.5 cursor-pointer shadow-xs">
+                    <Camera className="w-3.5 h-3.5" />
+                    <span>{profileForm.avatarUrl ? 'Change Photo' : 'Upload Photo'}</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleAvatarUpload}
+                      className="hidden"
+                    />
+                  </label>
+                  {profileForm.avatarUrl && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const cleared = { ...profileForm, avatarUrl: undefined };
+                        setProfileForm(cleared);
+                        onUpdateProfile(cleared);
+                      }}
+                      className="px-3 py-1.5 rounded-xl bg-stone-200 dark:bg-[#251a12] hover:bg-stone-300 text-stone-700 dark:text-stone-300 text-xs font-semibold cursor-pointer"
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-stone-700 dark:text-stone-300 mb-1">
-                  Medical College / Institution:
-                </label>
-                <input
-                  type="text"
-                  value={profileForm.institution}
-                  onChange={(e) => setProfileForm({ ...profileForm, institution: e.target.value })}
-                  className="w-full bg-stone-50 dark:bg-[#18110c] px-3 py-2 rounded-xl border border-stone-200 dark:border-[#382518] text-xs text-stone-800 dark:text-stone-200 outline-none focus:border-amber-500"
-                />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div>
+                  <label className="block text-xs font-semibold text-stone-700 dark:text-stone-300 mb-1">
+                    Full Name &amp; Credentials:
+                  </label>
+                  <input
+                    type="text"
+                    value={profileForm.name}
+                    onChange={(e) => setProfileForm({ ...profileForm, name: e.target.value })}
+                    className="w-full bg-stone-50 dark:bg-[#18110c] px-3 py-2 rounded-xl border border-stone-200 dark:border-[#382518] text-xs text-stone-800 dark:text-stone-200 outline-none focus:border-amber-500"
+                  />
+                </div>
+
+                {/* Username Slab for Peer Search */}
+                <div>
+                  <label className="block text-xs font-semibold text-stone-700 dark:text-stone-300 mb-1">
+                    Username (searchable by friends in Ach1evers Hub):
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-mono font-bold text-amber-700 dark:text-amber-400">
+                      @
+                    </span>
+                    <input
+                      type="text"
+                      value={profileForm.username || ''}
+                      onChange={(e) =>
+                        setProfileForm({
+                          ...profileForm,
+                          username: e.target.value.toLowerCase().replace(/[^a-z0-9_.]/g, ''),
+                        })
+                      }
+                      placeholder="your_username"
+                      className="w-full bg-stone-50 dark:bg-[#18110c] pl-7 pr-3 py-2 rounded-xl border border-stone-200 dark:border-[#382518] text-xs font-mono text-stone-800 dark:text-stone-200 outline-none focus:border-amber-500"
+                    />
+                  </div>
+                </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-stone-700 dark:text-stone-300 mb-1">
-                  Year / Clinical Stage:
-                </label>
-                <input
-                  type="text"
-                  value={profileForm.currentYear}
-                  onChange={(e) => setProfileForm({ ...profileForm, currentYear: e.target.value })}
-                  className="w-full bg-stone-50 dark:bg-[#18110c] px-3 py-2 rounded-xl border border-stone-200 dark:border-[#382518] text-xs text-stone-800 dark:text-stone-200 outline-none focus:border-amber-500"
-                />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div>
+                  <label className="block text-xs font-semibold text-stone-700 dark:text-stone-300 mb-1">
+                    Medical College / Institution:
+                  </label>
+                  <input
+                    type="text"
+                    value={profileForm.institution}
+                    onChange={(e) => setProfileForm({ ...profileForm, institution: e.target.value })}
+                    className="w-full bg-stone-50 dark:bg-[#18110c] px-3 py-2 rounded-xl border border-stone-200 dark:border-[#382518] text-xs text-stone-800 dark:text-stone-200 outline-none focus:border-amber-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-stone-700 dark:text-stone-300 mb-1">
+                    Contact Number:
+                  </label>
+                  <input
+                    type="tel"
+                    value={profileForm.phone || ''}
+                    onChange={(e) => setProfileForm({ ...profileForm, phone: e.target.value })}
+                    placeholder="+91 9876543210"
+                    className="w-full bg-stone-50 dark:bg-[#18110c] px-3 py-2 rounded-xl border border-stone-200 dark:border-[#382518] text-xs text-stone-800 dark:text-stone-200 outline-none focus:border-amber-500"
+                  />
+                </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-stone-700 dark:text-stone-300 mb-1">
-                  Specialty Target:
-                </label>
-                <input
-                  type="text"
-                  value={profileForm.specialityGoal}
-                  onChange={(e) => setProfileForm({ ...profileForm, specialityGoal: e.target.value })}
-                  className="w-full bg-stone-50 dark:bg-[#18110c] px-3 py-2 rounded-xl border border-stone-200 dark:border-[#382518] text-xs text-stone-800 dark:text-stone-200 outline-none focus:border-amber-500"
-                />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div>
+                  <label className="block text-xs font-semibold text-stone-700 dark:text-stone-300 mb-1">
+                    Year / Clinical Stage:
+                  </label>
+                  <input
+                    type="text"
+                    value={profileForm.currentYear}
+                    onChange={(e) => setProfileForm({ ...profileForm, currentYear: e.target.value })}
+                    className="w-full bg-stone-50 dark:bg-[#18110c] px-3 py-2 rounded-xl border border-stone-200 dark:border-[#382518] text-xs text-stone-800 dark:text-stone-200 outline-none focus:border-amber-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-stone-700 dark:text-stone-300 mb-1">
+                    Specialty Target:
+                  </label>
+                  <input
+                    type="text"
+                    value={profileForm.specialityGoal}
+                    onChange={(e) => setProfileForm({ ...profileForm, specialityGoal: e.target.value })}
+                    className="w-full bg-stone-50 dark:bg-[#18110c] px-3 py-2 rounded-xl border border-stone-200 dark:border-[#382518] text-xs text-stone-800 dark:text-stone-200 outline-none focus:border-amber-500"
+                  />
+                </div>
               </div>
 
               <div className="flex justify-end pt-3">

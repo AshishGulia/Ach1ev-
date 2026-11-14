@@ -49,6 +49,8 @@ interface AuthContextValue {
     institution?: string;
   }) => Promise<{ error: string | null; needsConfirmation?: boolean }>;
   signInWithSocial: (provider: SocialProviderId, includeDriveScope?: boolean) => Promise<{ error: string | null }>;
+  signInWithPhoneOtp: (phone: string) => Promise<{ error: string | null }>;
+  verifyPhoneOtp: (phone: string, token: string) => Promise<{ error: string | null }>;
   resetPassword: (email: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
   enterGuestMode: () => void;
@@ -396,6 +398,48 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return { error: null };
   };
 
+  const signInWithPhoneOtp = async (phone: string) => {
+    const cleanPhone = phone.trim().replace(/[^\d+]/g, '');
+    if (!/^\+\d{8,15}$/.test(cleanPhone)) {
+      return { error: 'Enter a valid mobile number with country code (e.g. +919876543210).' };
+    }
+    const supabase = getSupabaseClient();
+    if (!supabase) {
+      return { error: 'Supabase SMS auth is not configured yet. Configure Supabase keys or configure Twilio/SMS provider in Supabase Auth.' };
+    }
+    const { error } = await supabase.auth.signInWithOtp({ phone: cleanPhone });
+    if (error) {
+      return { error: error.message };
+    }
+    return { error: null };
+  };
+
+  const verifyPhoneOtp = async (phone: string, token: string) => {
+    const cleanPhone = phone.trim().replace(/[^\d+]/g, '');
+    const cleanToken = token.trim();
+    if (!cleanToken || cleanToken.length < 4) {
+      return { error: 'Please enter the 6-digit SMS verification code.' };
+    }
+    const supabase = getSupabaseClient();
+    if (!supabase) {
+      return { error: 'Supabase SMS auth is not configured yet.' };
+    }
+    const { data, error } = await supabase.auth.verifyOtp({
+      phone: cleanPhone,
+      token: cleanToken,
+      type: 'sms',
+    });
+    if (error) {
+      return { error: error.message };
+    }
+    if (data?.session) {
+      setIsGuestMode(false);
+      localStorage.removeItem(LS_GUEST_MODE);
+      setIsAuthModalOpen(false);
+    }
+    return { error: null };
+  };
+
   const resetPassword = async (email: string) => {
     const supabase = getSupabaseClient();
     if (!supabase) {
@@ -483,6 +527,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         signInWithEmail,
         signUpWithEmail,
         signInWithSocial,
+        signInWithPhoneOtp,
+        verifyPhoneOtp,
         resetPassword,
         signOut,
         enterGuestMode,

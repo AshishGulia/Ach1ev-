@@ -13,6 +13,10 @@ import {
   Users,
   CalendarDays,
   MessageSquareCode,
+  Brain,
+  Coffee,
+  Activity,
+  SlidersHorizontal,
 } from 'lucide-react';
 
 // Authentic Bookshelf / Almirah SVG Icon
@@ -98,9 +102,25 @@ export const DEFAULT_SIDEBAR_SETTINGS: SidebarSettings = {
   showCreateNote: true,
   showCalendar: true,
   showLibrary: true,
+  showMnemonics: false,
   showCommunity: true,
+  showLeisure: false,
+  showExploreBody: false,
   showTalkToDev: true,
 };
+
+export const DEFAULT_SIDEBAR_ORDER: string[] = [
+  'home',
+  'read',
+  'make-note',
+  'roster',
+  'library',
+  'mnemonics',
+  'community',
+  'leisure',
+  'explore-body',
+  'talk-to-dev',
+];
 
 interface SidebarProps {
   isOpen: boolean;
@@ -127,6 +147,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   isSettingsActive,
   onNavigate,
   currentSubject,
+  userProfile,
   activeDesign,
   onOpenSettings,
   isDarkMode,
@@ -227,11 +248,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
     return () => window.removeEventListener('medden_language_changed', handleLangChange);
   }, []);
 
-  // Sidebar Visibility Settings
+  // Sidebar Visibility Settings (defaults keep mnemonics, leisure, explore-body toggled OFF until enabled)
   const [sidebarSettings, setSidebarSettings] = useState<SidebarSettings>(() => {
     try {
       const saved = localStorage.getItem('medden_sidebar_settings');
-      if (saved) return JSON.parse(saved);
+      if (saved) return { ...DEFAULT_SIDEBAR_SETTINGS, ...JSON.parse(saved) };
     } catch {}
     return DEFAULT_SIDEBAR_SETTINGS;
   });
@@ -239,33 +260,52 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const [sidebarOrder, setSidebarOrder] = useState<string[]>(() => {
     try {
       const saved = localStorage.getItem('medden_sidebar_order');
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          const merged = [...parsed];
+          DEFAULT_SIDEBAR_ORDER.forEach((id) => {
+            if (!merged.includes(id)) merged.push(id);
+          });
+          return merged;
+        }
+      }
     } catch {}
-    return [
-      'home',
-      'read',
-      'make-note',
-      'roster',
-      'library',
-      'community',
-      'talk-to-dev',
-    ];
+    return DEFAULT_SIDEBAR_ORDER;
   });
+
+  const [showQuickCustomize, setShowQuickCustomize] = useState(false);
 
   useEffect(() => {
     const handleSettingsChange = () => {
       try {
         const saved = localStorage.getItem('medden_sidebar_settings');
-        if (saved) setSidebarSettings(JSON.parse(saved));
+        if (saved) setSidebarSettings({ ...DEFAULT_SIDEBAR_SETTINGS, ...JSON.parse(saved) });
         const savedOrder = localStorage.getItem('medden_sidebar_order');
-        if (savedOrder) setSidebarOrder(JSON.parse(savedOrder));
+        if (savedOrder) {
+          const parsed = JSON.parse(savedOrder);
+          if (Array.isArray(parsed)) {
+            const merged = [...parsed];
+            DEFAULT_SIDEBAR_ORDER.forEach((id) => {
+              if (!merged.includes(id)) merged.push(id);
+            });
+            setSidebarOrder(merged);
+          }
+        }
       } catch {}
     };
     window.addEventListener('medden_sidebar_settings_changed', handleSettingsChange);
     return () => window.removeEventListener('medden_sidebar_settings_changed', handleSettingsChange);
   }, []);
 
-  // Workspaces Nav with i18n & Bookshelf icon + Talk to Developer
+  const toggleQuickSidebarButton = (key: keyof SidebarSettings) => {
+    const updated = { ...sidebarSettings, [key]: sidebarSettings[key] === false };
+    setSidebarSettings(updated);
+    localStorage.setItem('medden_sidebar_settings', JSON.stringify(updated));
+    window.dispatchEvent(new CustomEvent('medden_sidebar_settings_changed'));
+  };
+
+  // Workspaces Nav (full layout including Mnemonics, Leisure & Explore Body)
   const allNavItems = [
     {
       id: 'home' as const,
@@ -290,7 +330,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
       settingKey: 'showCalendar' as keyof SidebarSettings,
       label: getTranslation('nav.calendar', currentLang),
       icon: CalendarDays,
-      isCalendar: true,
     },
     {
       id: 'library' as const,
@@ -299,10 +338,28 @@ export const Sidebar: React.FC<SidebarProps> = ({
       icon: BookshelfIcon,
     },
     {
+      id: 'mnemonics' as const,
+      settingKey: 'showMnemonics' as keyof SidebarSettings,
+      label: getTranslation('nav.mnemonics', currentLang),
+      icon: Brain,
+    },
+    {
       id: 'community' as const,
       settingKey: 'showCommunity' as keyof SidebarSettings,
       label: getTranslation('nav.community', currentLang),
       icon: Users,
+    },
+    {
+      id: 'leisure' as const,
+      settingKey: 'showLeisure' as keyof SidebarSettings,
+      label: getTranslation('nav.leisure', currentLang),
+      icon: Coffee,
+    },
+    {
+      id: 'explore-body' as const,
+      settingKey: 'showExploreBody' as keyof SidebarSettings,
+      label: getTranslation('nav.exploreBody', currentLang),
+      icon: Activity,
     },
     {
       id: 'talk-to-dev' as const,
@@ -320,7 +377,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   });
 
   const navItems = sortedNavItems.filter(
-    (item) => (item.id as string) !== 'mnemonics' && (item.id as string) !== 'leisure' && sidebarSettings[item.settingKey] !== false
+    (item) => sidebarSettings[item.settingKey] !== false
   );
 
   const handleItemClick = (id: AppViewType) => {
@@ -332,7 +389,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   const renderSidebarTextureBackdrop = () => (
     <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden z-0">
-      {/* Themes 2-10 Light & Dark Non-Repetitive Organic Abstract Theme Backdrop */}
       {railWallpaper && (
         <div
           className="absolute inset-0"
@@ -365,7 +421,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         aria-label="Workspace sidebar"
         className={`fixed md:relative top-0 left-0 bottom-0 z-50 md:z-40 shrink-0 h-[100dvh] flex flex-col justify-between select-none shadow-2xl md:shadow-none transition-all duration-200 ease-in-out overflow-hidden ${
           isOpen
-            ? 'w-[192px] md:w-[144px] translate-x-0'
+            ? 'w-[200px] md:w-[148px] translate-x-0'
             : '-translate-x-full md:translate-x-0 w-0 md:w-8 overflow-hidden md:overflow-visible'
         }`}
         style={sidebarSurfaceStyle}
@@ -377,18 +433,50 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <div className="relative z-10 flex flex-col justify-between h-full w-full animate-in fade-in duration-150 overflow-hidden">
             {/* Top Scrollable Section */}
             <div className="p-1.5 space-y-1.5 w-full overflow-y-auto flex-1 custom-scrollbar">
-              {/* Section 1: Pure Floating Brand (Zero button/card chrome) + Minimize Arrow */}
-              <div
-                className="px-0.5 pt-1 pb-1.5 space-y-1.5"
-                style={{
-                  background: 'transparent',
-                  border: 'none',
-                  boxShadow: 'none',
-                }}
-              >
+              {/* Section 1: Brand + Minimize Arrow */}
+              <div className="px-0.5 pt-1 pb-1 space-y-1.5">
                 <div className="overflow-visible">
                   <AchievBrand variant="compact" isDarkMode={isNightMode} />
                 </div>
+
+                {/* Compact Scholar Mini-Strip when avatar or username is customized */}
+                {(userProfile.avatarUrl || userProfile.username) && (
+                  <div
+                    className="flex items-center gap-1.5 px-1.5 py-1 rounded-lg border"
+                    style={{
+                      background: sb.navSectionBg,
+                      borderColor: sb.sectionBorder,
+                    }}
+                  >
+                    {userProfile.avatarUrl ? (
+                      <img
+                        src={userProfile.avatarUrl}
+                        alt={userProfile.name}
+                        className="w-5 h-5 rounded-full object-cover shrink-0 border border-amber-500/40"
+                      />
+                    ) : (
+                      <div
+                        className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold shrink-0"
+                        style={{
+                          background: sb.activeBtnBg,
+                          color: sb.activeBtnText,
+                        }}
+                      >
+                        {(userProfile.name || 'S').charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <div className="text-[9.5px] font-semibold truncate leading-tight" style={{ color: sb.railText }}>
+                        {userProfile.name}
+                      </div>
+                      {userProfile.username && (
+                        <div className="text-[8.5px] font-mono truncate opacity-75" style={{ color: sb.mutedLabelColor }}>
+                          @{userProfile.username}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
 
                 <button
                   onClick={onClose}
@@ -418,7 +506,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       key={item.id}
                       onClick={() => handleItemClick(item.id)}
                       style={getBtnStyle(isActive)}
-                      className={`w-full min-h-[38px] md:min-h-[30px] h-auto flex items-center px-2 md:px-1.5 py-2 md:py-1.5 text-[12px] md:text-[11px] font-medium transition-all hover:brightness-110 cursor-pointer text-left ${leatherBtnCls}`}
+                      className={`w-full min-h-[36px] md:min-h-[30px] h-auto flex items-center px-2 md:px-1.5 py-1.5 text-[12px] md:text-[11px] font-medium transition-all hover:brightness-110 cursor-pointer text-left ${leatherBtnCls}`}
                     >
                       <div className="flex items-center gap-1.5 min-w-0 w-full">
                         <div className="w-4 h-4 flex items-center justify-center shrink-0">
@@ -432,18 +520,60 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     </button>
                   );
                 })}
+
+                {/* Quick Button Toggle Drawer Trigger */}
+                <button
+                  type="button"
+                  onClick={() => setShowQuickCustomize((v) => !v)}
+                  title="Show or hide optional sidebar buttons (Mnemonics, Leisure, Explore Body...)"
+                  style={{
+                    background: 'transparent',
+                    color: sb.mutedLabelColor,
+                    borderTop: `1px dashed ${sb.sectionBorder}`,
+                  }}
+                  className="w-full mt-1 pt-1.5 pb-1 px-1.5 flex items-center justify-between text-[9.5px] font-mono hover:brightness-125 cursor-pointer"
+                >
+                  <span className="flex items-center gap-1 truncate">
+                    <SlidersHorizontal className="w-3 h-3 shrink-0" />
+                    <span>Buttons ({navItems.length}/{allNavItems.length})</span>
+                  </span>
+                  <span>{showQuickCustomize ? '−' : '+'}</span>
+                </button>
+
+                {showQuickCustomize && (
+                  <div
+                    className="p-1.5 rounded-lg space-y-1 text-[10px]"
+                    style={{
+                      background: sb.footerSectionBg,
+                      border: `1px solid ${sb.sectionBorder}`,
+                    }}
+                  >
+                    {allNavItems.map((item) => {
+                      const isOn = sidebarSettings[item.settingKey] !== false;
+                      return (
+                        <label
+                          key={item.id}
+                          className="flex items-center justify-between gap-1.5 cursor-pointer py-0.5 px-1 rounded hover:bg-black/5 dark:hover:bg-white/5"
+                        >
+                          <span className="truncate" style={{ color: sb.railText }}>
+                            {item.label}
+                          </span>
+                          <input
+                            type="checkbox"
+                            checked={isOn}
+                            onChange={() => toggleQuickSidebarButton(item.settingKey)}
+                            className="w-3.5 h-3.5 accent-amber-600 cursor-pointer shrink-0"
+                          />
+                        </label>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* Section 3: Daily Thought of the Day (Plain floating editorial quote, zero card/button styling) */}
-            <div
-              className="px-2.5 py-2 mx-0.5 mb-1.5 mt-auto select-none group"
-              style={{
-                background: 'transparent',
-                border: 'none',
-                boxShadow: 'none',
-              }}
-            >
+            {/* Section 3: Daily Thought of the Day */}
+            <div className="px-2.5 py-2 mx-0.5 mb-1 mt-auto select-none group">
               {(() => {
                 const now = new Date();
                 const dayOfYear = Math.floor(
@@ -462,19 +592,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       className="sidebar-thought-quote font-sans not-italic font-medium"
                       style={{
                         fontFamily: "var(--app-font-family, 'Alata', system-ui, -apple-system, sans-serif)",
-                        fontSize: '13.5px',
+                        fontSize: '12.5px',
                         fontStyle: 'normal',
-                        lineHeight: 1.5,
+                        lineHeight: 1.45,
                         color: sb.thoughtColor,
                       }}
                     >
                       "{todayThought.text}"
                     </p>
                     <span
-                      className="sidebar-thought-author font-sans tracking-wider uppercase block mt-1.5 font-bold"
+                      className="sidebar-thought-author font-sans tracking-wider uppercase block mt-1 font-bold"
                       style={{
                         fontFamily: "var(--app-font-family, 'Alata', system-ui, -apple-system, sans-serif)",
-                        fontSize: '10.5px',
+                        fontSize: '10px',
                         color: sb.authorColor,
                       }}
                     >
