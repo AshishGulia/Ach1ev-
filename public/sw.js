@@ -1,10 +1,10 @@
-const CACHE_NAME = 'ach1ev-app-shell-v4';
+const CACHE_NAME = 'ach1ev-app-shell-v5';
 const STATIC_ASSETS = [
   '/manifest.webmanifest',
-  '/assets/brand/achiev-logo.png?v=hd4',
-  '/assets/brand/achiev-wordmark.png?v=hd4',
-  '/assets/brand/achiev-emblem.png?v=hd4',
-  '/assets/brand/achiev-icon-192.png',
+  '/assets/brand/achiev-logo.png?v=hd7',
+  '/assets/brand/achiev-wordmark.png?v=hd7',
+  '/assets/brand/achiev-emblem.png?v=hd7',
+  '/assets/brand/achiev-icon-192.png?v=hd7',
   '/assets/brand/achiev-icon-512.png',
 ];
 

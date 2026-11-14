@@ -44,7 +44,7 @@ import { TalkToDeveloperModal } from './components/developer/TalkToDeveloperModa
 import { SubscriptionModal } from './components/subscription/SubscriptionModal';
 import { ShareToAIStudioModal } from './components/common/ShareToAIStudioModal';
 import { AuthPortal } from './components/auth/AuthPortal';
-import { ACHIEV_LEATHER_HERO_URL } from './components/common/AchievBrand';
+import { ACHIEV_LOCKUP_URL } from './components/common/AchievBrand';
 import { getThemeMeta } from './data/themeMeta';
 import { useAuth } from './contexts/AuthContext';
 import {
@@ -965,15 +965,13 @@ export default function App() {
         }}
       >
         <img
-          src={ACHIEV_LEATHER_HERO_URL}
+          src={ACHIEV_LOCKUP_URL}
           alt="Ach1ev — Settle Ideas"
           draggable={false}
-          className="w-[min(86vw,520px)] h-auto object-contain select-none pointer-events-none animate-pulse"
+          className="w-[min(72vw,432px)] h-auto object-contain select-none pointer-events-none animate-pulse"
           style={{
-            WebkitMaskImage:
-              'radial-gradient(ellipse 48% 46% at 50% 50%, #000 44%, rgba(0,0,0,0.88) 62%, rgba(0,0,0,0.38) 80%, transparent 98%)',
-            maskImage:
-              'radial-gradient(ellipse 48% 46% at 50% 50%, #000 44%, rgba(0,0,0,0.88) 62%, rgba(0,0,0,0.38) 80%, transparent 98%)',
+            filter:
+              'drop-shadow(0 10px 24px rgba(0, 0, 0, 0.85)) drop-shadow(0 3px 10px rgba(42, 18, 6, 0.5))',
           }}
         />
         <p className="text-xs font-mono opacity-75">Initializing Ach1ev Cloud Workspace...</p>

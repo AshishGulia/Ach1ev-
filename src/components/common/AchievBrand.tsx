@@ -16,9 +16,10 @@ const resolveAssetUrl = (relativePath: string): string => {
   return `${normalizedBase}${relativePath.replace(/^\/+/, '')}`;
 };
 
-export const ACHIEV_LOGO_URL = resolveAssetUrl('assets/brand/achiev-emblem.png?v=hd6');
-export const ACHIEV_EMBLEM_URL = resolveAssetUrl('assets/brand/achiev-emblem.png?v=hd6');
-export const ACHIEV_WORDMARK_URL = resolveAssetUrl('assets/brand/achiev-wordmark.png?v=hd6');
+export const ACHIEV_LOGO_URL = resolveAssetUrl('assets/brand/achiev-emblem.png?v=hd7');
+export const ACHIEV_EMBLEM_URL = resolveAssetUrl('assets/brand/achiev-emblem.png?v=hd7');
+export const ACHIEV_WORDMARK_URL = resolveAssetUrl('assets/brand/achiev-wordmark.png?v=hd7');
+export const ACHIEV_LOCKUP_URL = resolveAssetUrl('assets/brand/achiev-logo.png?v=hd7');
 export const ACHIEV_LEATHER_HERO_URL = resolveAssetUrl('assets/brand/achiev-leather-hero.jpg?v=1');
 export const ACHIEV_LEATHER_LOGIN_URL = resolveAssetUrl('assets/brand/achiev-leather-login.jpg?v=1');
 
